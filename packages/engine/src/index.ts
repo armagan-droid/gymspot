@@ -1,5 +1,13 @@
 // Pure engine: expression parser, metrics, rep counter, fault evaluator, program state machine (specs/03, 04, 05).
-export { type ExerciseEngineOptions, type ExerciseSetup, ExerciseEngine } from "./exercise/exercise-engine";
+export { type ExerciseEngineOptions, type ExerciseSetup, ExerciseEngine, faultEnabledInView } from "./exercise/exercise-engine";
+export {
+  type SetupAssessment,
+  type SetupHint,
+  type SetupSample,
+  SETUP_CHECKS,
+  assessSetup,
+} from "./setup/assess-setup";
+export { PERSON_SELECTION, type PersonSelection, type PersonTrack, personScore, selectPerson } from "./setup/select-person";
 export { FREQUENT_FAULT_STREAK, type SetSummary, summarizeSet } from "./exercise/summary";
 export { collectMetrics } from "./expr/collect";
 export { ExpressionError } from "./expr/error";

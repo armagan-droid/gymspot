@@ -4,7 +4,7 @@
 | Konu | Karar | Gerekçe |
 |---|---|---|
 | İstemci | React + TypeScript + Vite, **PWA** | Telefon ve tablette tek kod; mağaza onayı yok; kamera erişimi `getUserMedia` |
-| Poz tahmini | **MediaPipe Pose (Tasks Vision)**, tarayıcıda WASM/WebGL | Cihaz üzerinde, video sunucuya gitmez |
+| Poz tahmini | **MediaPipe Pose (Tasks Vision)**, tarayıcıda WASM/WebGL, `numPoses = 2` (kişi seçimi, 07) | Cihaz üzerinde, video sunucuya gitmez |
 | Çekirdek mantık | `packages/engine` saf TypeScript | Kamerasız test, istemci ve ileride sunucuda aynı kod |
 | API | Node.js + Fastify + TypeScript | Hızlı, şema doğrulamalı |
 | Veritabanı | PostgreSQL (satır bazlı tenant izolasyonu) | Olgun, RLS desteği |
@@ -85,7 +85,7 @@ Hangi metriğin hangi koordinatı kullandığı 04'teki metrik tablosundadır.
 3. Model seçip (lite/full/heavy) "Start camera"ya basın. Squat yapın; önden ve yandan ayrı ayrı deneyin.
 4. "Test audio" ile ses açılışını deneyin, ardından "Copy report JSON" ile sonucu kopyalayın.
 
-Araç yalnız geliştirme derlemesinde vardır (`/spike`), üretim paketine girmez. Kareler cihazda işlenir, hiçbir şey yüklenmez veya saklanmaz.
+Araç yalnız geliştirme derlemesinde vardır (`/spike`; A3 kurulum sihirbazı için `/spike/setup?exercise=pushup`), üretim paketine girmez. Kareler cihazda işlenir, hiçbir şey yüklenmez veya saklanmaz.
 
 **Ölçülenler:** işlenen FPS, çıkarım süresi p50/p95, tarayıcı `captureTime` veriyorsa kamera→sonuç gecikmesi, 3B (world) ile 2B diz açısı farkı (görünüm bağımlılığı), Wake Lock, ses açılışı ve bütçe uygunluğu (≥ 15 FPS, p95 ≤ 250 ms).
 

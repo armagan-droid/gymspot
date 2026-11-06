@@ -32,6 +32,7 @@
   "faults": [
     {
       "id": "incomplete_lockout",
+      "name": { "tr": "Eksik uzatma", "en": "Incomplete lockout" },
       "severity": "minor",
       "check": "at_turn: elbow_angle_near < 160",
       "cue": { "tr": "Kollarını tamamen yukarı uzat", "en": "Press all the way up" },
@@ -41,6 +42,7 @@
     },
     {
       "id": "back_arch",
+      "name": { "tr": "Bel yaylanması", "en": "Back arch" },
       "severity": "major",
       "check": "during_rep: torso_lean > 12",
       "views": ["side"],
@@ -51,6 +53,7 @@
     },
     {
       "id": "uneven_arms",
+      "name": { "tr": "Kolların asimetrisi", "en": "Uneven arms" },
       "severity": "minor",
       "check": "during_rep: arm_symmetry > 25",
       "views": ["front"],

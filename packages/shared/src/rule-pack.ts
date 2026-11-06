@@ -61,6 +61,8 @@ export function checkPosition(check: string): CheckPosition {
 const FaultSchema = z
   .strictObject({
     id: IdentifierSchema,
+    /** Display name of the form check (A3 "active checks"). */
+    name: LocalizedTextSchema,
     severity: z.enum(["minor", "major"]),
     check: z.string().regex(checkPattern, `must start with one of ${CHECK_POSITIONS.join(", ")} followed by ':'`),
     views: z.array(CameraViewSchema).min(1).optional(),

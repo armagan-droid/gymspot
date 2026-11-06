@@ -45,6 +45,20 @@ Tek PWA, rota bazlı üç alan: **İstasyon/Seans**, **Üye**, **Yönetim**. Duy
 | C9 | Faturalama | Sahip | Plan, istasyon sayısı, faturalar |
 | C10 | Kalibrasyon kaydı | Yönetici/Sahip | Katılımcı rızası (ayrı metin), hareket seçimi, etiketleme (doğru/hatalı + hata türü), kayıt göstergesi. Yalnız landmark kaydeder (07) |
 
+## A3 kurulum kontrolleri
+Son 1 sn'lik karelerin en az %80'i aşağıdakilerin hepsini sağlıyorsa kurulum **hazırdır**:
+- **Tüm vücut görünüyor:** kural paketindeki `minVisibleLandmarks` noktalarının hepsi `minVisibility` üstünde ve görüntünün içinde (kenarlardan %2 pay). İpucu: `setup.hint.show_full_body`.
+- **Çok uzak değil:** görünen noktaları içine alan kutunun uzun kenarı (yatay veya dikey) görüntünün en az %45'i. Uzun kenar kullanılır, çünkü şınav gibi yatay hareketlerde vücut dikeyde kısa kalır. İpucu: `setup.hint.move_closer`.
+- **Çok yakın değil:** `minVisibleLandmarks` noktalarından biri kenar payının dışındaysa `setup.hint.step_back`.
+- **Görünüm uygun:** baskın görünüm (04) `camera.views` içinde. Değilse ipucu `setup.hint.turn_side` (desteklenen görünüm yalnız `side` ise) veya `setup.hint.face_camera` (yalnız `front` ise). Belirsiz görünümde `setup.hint.adjust_angle`.
+- **Tek kişi:** kişi seçimi belirsiz değil (07). İpucu: `setup.hint.multiple_people`.
+
+Hazır olunca A3 algılanan görünümü, yakın tarafı ve bu görünümde aktif olan form kontrollerinin adlarını (`faults[].name`) gösterir.
+
+## Kamera izni
+- Rıza yoksa veya geri çekildiyse kamera **istenmez** (AC-7.4). Ekran rıza gerektiğini söyler.
+- İzin reddedilirse veya kamera yoksa (güvensiz bağlam, cihaz yok) A9 açıklayıcı hata gösterir ve elle kayıt seçeneği sunar (AC-8.3).
+
 ## Duyarlı davranış
 | Alan | Telefon dikey | Telefon yatay | Tablet yatay |
 |---|---|---|---|

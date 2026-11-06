@@ -228,6 +228,12 @@ describe("faults", () => {
     expectInvalid(p, "faults.1.id", "duplicate");
   });
 
+  test("faults need a localized name (A3 active checks)", () => {
+    const p = squat();
+    delete p.faults[0].name;
+    expectInvalid(p, "faults.0.name");
+  });
+
   test("cue needs both tr and en", () => {
     const p = squat();
     delete p.faults[0].cue.en;

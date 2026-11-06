@@ -30,6 +30,7 @@
   "faults": [
     {
       "id": "partial_range",
+      "name": { "tr": "Yarım iniş", "en": "Partial range" },
       "severity": "minor",
       "check": "at_turn: elbow_angle > 95",
       "cue": { "tr": "Göğsünü biraz daha yere yaklaştır", "en": "Lower your chest a bit more" },
@@ -39,6 +40,7 @@
     },
     {
       "id": "hip_sag",
+      "name": { "tr": "Kalça sarkması", "en": "Hip sag" },
       "severity": "major",
       "check": "during_rep: hip_offset < -0.06",
       "cue": { "tr": "Kalçanı sıkıp vücudunu düz tut", "en": "Tighten your core, keep a straight line" },
@@ -48,6 +50,7 @@
     },
     {
       "id": "hip_pike",
+      "name": { "tr": "Kalça yukarıda", "en": "Hips piked" },
       "severity": "minor",
       "check": "during_rep: hip_offset > 0.08",
       "cue": { "tr": "Kalçanı biraz indir", "en": "Lower your hips slightly" },

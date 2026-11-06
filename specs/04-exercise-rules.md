@@ -31,6 +31,7 @@ Her hareket `exercises/<id>.json` dosyasıdır. Şema `packages/shared`'te Zod i
   "faults": [
     {
       "id": "insufficient_depth",
+      "name": { "tr": "Yetersiz derinlik", "en": "Insufficient depth" },  // A3'te aktif kontrol adı
       "severity": "minor",
       "check": "at_turn: knee_angle_near > 100",
       "views": ["front", "side"],     // opsiyonel; yoksa camera.views

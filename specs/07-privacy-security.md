@@ -7,7 +7,11 @@ Kamera kullanan bir sağlık/fitness ürünü olarak bu, satış kararında beli
 - Sunucuya giden: üye kimliği, hareket, tekrar sayısı/outcome, hata türü, süre, zaman.
 - Landmark koordinatları sunucuya **gönderilmez**. Tek istisna aşağıdaki **Kalibrasyon modu**dur.
 - Yüz tanıma yok. Üye kimliği QR/NFC ile belirlenir, yüzle değil.
-- Kamerada birden fazla kişi varsa yalnızca takip edilen kişinin landmark'ları işlenir (en büyük/en merkezi kişi; belirsizse duraklat). Diğer kişilerin landmark'ları aynı karede atılır ve hiçbir yerde tutulmaz.
+- Kamerada birden fazla kişi varsa yalnızca takip edilen kişinin landmark'ları işlenir. Diğer kişilerin landmark'ları aynı karede atılır ve hiçbir yerde tutulmaz. Seçim kuralları:
+  - Poz modeli en fazla 2 kişi arar (`numPoses = 2`).
+  - Puan = kişinin görüntüdeki kutu alanı × merkezilik (1 − kutu merkezinin görüntü merkezine uzaklığı).
+  - Takipte bir kişi varsa, kalça merkezi önceki kareye 0.15'ten (görüntü birimi) yakın olan aday seçilir ve takip sürer.
+  - Takip yoksa en yüksek puanlı kişi seçilir. İkinci adayın puanı en iyinin %80'inden fazlaysa seçim **belirsizdir**: o kare motora verilmez, süre uzarsa `TRACKING_LOST` oluşur ve set duraklar (03).
 
 ## Rıza ve şeffaflık
 - Üye ilk girişte aydınlatma metni ve açık rıza verir (sürümlü: `consent_version`). Metin sürümü değişince yeniden rıza istenir.

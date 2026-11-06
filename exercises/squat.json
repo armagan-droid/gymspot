@@ -31,6 +31,7 @@
   "faults": [
     {
       "id": "insufficient_depth",
+      "name": { "tr": "Yetersiz derinlik", "en": "Insufficient depth" },
       "severity": "minor",
       "check": "at_turn: knee_angle_near > 100",
       "cue": { "tr": "Biraz daha aşağı in", "en": "Go a little lower" },
@@ -40,6 +41,7 @@
     },
     {
       "id": "knee_valgus",
+      "name": { "tr": "Diz içe kaçma", "en": "Knee valgus" },
       "severity": "major",
       "check": "during_rep: knee_valgus_l > 0.15 or knee_valgus_r > 0.15",
       "views": ["front"],
@@ -50,6 +52,7 @@
     },
     {
       "id": "excessive_forward_lean",
+      "name": { "tr": "Gövdenin aşırı öne eğilmesi", "en": "Excessive forward lean" },
       "severity": "minor",
       "check": "at_turn: torso_lean > 55",
       "views": ["side"],

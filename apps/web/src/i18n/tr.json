@@ -45,17 +45,56 @@
     "C8": "Salon ayarları",
     "C10": "Kalibrasyon kaydı"
   },
-  "countdown": { "start": "Hazır ol" },
-  "set": { "go": "Başla" },
-  "rest": { "over": "Dinlenme bitti" },
+  "countdown": {
+    "start": "Hazır ol"
+  },
+  "set": {
+    "go": "Başla"
+  },
+  "rest": {
+    "over": "Dinlenme bitti"
+  },
   "prompt": {
     "set_done": "Set bitti mi?",
     "resume": "Devam etmek için dokun"
   },
-  "safety": { "stop": "Dur, formunu kontrol et" },
-  "session": { "done": "Seans tamamlandı" },
+  "safety": {
+    "stop": "Dur, formunu kontrol et"
+  },
+  "session": {
+    "done": "Seans tamamlandı"
+  },
   "summary": {
     "set": "{{counted}} tekrar · {{valid}} temiz"
   },
-  "handoff": { "return_to_phone": "Telefonundan devam et" }
+  "handoff": {
+    "return_to_phone": "Telefonundan devam et"
+  },
+  "setup": {
+    "ready": "Hazır",
+    "notReady": "Hazırlanıyor…",
+    "viewLabel": "Görünüm",
+    "activeChecks": "Bu görünümde aktif form kontrolleri",
+    "start": "Başla",
+    "view": {
+      "front": "Önden",
+      "side": "Yandan",
+      "ambiguous": "Belirsiz"
+    },
+    "hint": {
+      "multiple_people": "Kamerada tek kişi olmalı",
+      "show_full_body": "Tüm vücudun görünsün",
+      "step_back": "Biraz geri çekil",
+      "move_closer": "Biraz yaklaş",
+      "turn_side": "Yan dön, kamera seni yandan görsün",
+      "face_camera": "Kameraya dön",
+      "adjust_angle": "Kameraya tam önden ya da tam yandan dur"
+    }
+  },
+  "camera": {
+    "consentRequired": "Kamerayı kullanmak için önce açık rıza vermelisin.",
+    "denied": "Kamera izni verilmedi. Tarayıcı ayarlarından izin verebilir ya da setini elle kaydedebilirsin.",
+    "unavailable": "Kamera kullanılamıyor. Setini elle kaydedebilirsin.",
+    "manualEntry": "Elle kaydet"
+  }
 }

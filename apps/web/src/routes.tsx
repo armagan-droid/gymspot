@@ -32,6 +32,9 @@ export const SCREEN_ROUTES: { path: string; screen: ScreenId }[] = [
 
 // T2.2 pose spike: development builds only. Lazy so production drops the import entirely.
 const SpikePage = import.meta.env.DEV ? lazy(() => import("./spike/SpikePage").then((m) => ({ default: m.SpikePage }))) : null;
+const SetupSpikePage = import.meta.env.DEV
+  ? lazy(() => import("./spike/SetupSpikePage").then((m) => ({ default: m.SetupSpikePage })))
+  : null;
 
 const SETTINGS_SCREENS: ReadonlySet<ScreenId> = new Set(["B6", "C8"]);
 
@@ -71,6 +74,16 @@ export function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
+      {SetupSpikePage && (
+        <Route
+          path="/spike/setup"
+          element={
+            <Suspense>
+              <SetupSpikePage />
+            </Suspense>
+          }
+        />
+      )}
       {SpikePage && (
         <Route
           path="/spike"

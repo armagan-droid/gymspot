@@ -45,17 +45,56 @@
     "C8": "Gym settings",
     "C10": "Calibration recording"
   },
-  "countdown": { "start": "Get ready" },
-  "set": { "go": "Go" },
-  "rest": { "over": "Rest is over" },
+  "countdown": {
+    "start": "Get ready"
+  },
+  "set": {
+    "go": "Go"
+  },
+  "rest": {
+    "over": "Rest is over"
+  },
   "prompt": {
     "set_done": "Is the set done?",
     "resume": "Tap to continue"
   },
-  "safety": { "stop": "Stop, check your form" },
-  "session": { "done": "Session complete" },
+  "safety": {
+    "stop": "Stop, check your form"
+  },
+  "session": {
+    "done": "Session complete"
+  },
   "summary": {
     "set": "{{counted}} reps · {{valid}} clean"
   },
-  "handoff": { "return_to_phone": "Continue on your phone" }
+  "handoff": {
+    "return_to_phone": "Continue on your phone"
+  },
+  "setup": {
+    "ready": "Ready",
+    "notReady": "Getting ready…",
+    "viewLabel": "View",
+    "activeChecks": "Form checks active in this view",
+    "start": "Start",
+    "view": {
+      "front": "Front",
+      "side": "Side",
+      "ambiguous": "Unclear"
+    },
+    "hint": {
+      "multiple_people": "Only one person should be in view",
+      "show_full_body": "Make sure your whole body is visible",
+      "step_back": "Step back a little",
+      "move_closer": "Come a little closer",
+      "turn_side": "Turn sideways so the camera sees your side",
+      "face_camera": "Face the camera",
+      "adjust_angle": "Stand facing the camera or fully sideways"
+    }
+  },
+  "camera": {
+    "consentRequired": "You need to give explicit consent before the camera can be used.",
+    "denied": "Camera permission was denied. You can allow it in your browser settings or log your set manually.",
+    "unavailable": "The camera is not available. You can log your set manually.",
+    "manualEntry": "Log manually"
+  }
 }

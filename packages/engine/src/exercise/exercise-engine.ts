@@ -25,6 +25,11 @@ export interface ExerciseEngineOptions {
 
 const INDEX = new Map(LANDMARK_NAMES.map((n, i) => [n, i]));
 
+/** Whether a fault with these views is evaluated in the set's view (specs/04): ambiguous → only faults valid in every view. */
+export function faultEnabledInView(views: readonly ("front" | "side")[], view: View): boolean {
+  return view === "ambiguous" ? views.length > 1 : views.includes(view);
+}
+
 interface FaultRuntime {
   fault: CompiledFault;
   landmarks: number[];
@@ -88,9 +93,7 @@ export class ExerciseEngine {
       return [...set].map((l) => INDEX.get(l)!);
     };
     this.faults = loaded.faults.map((fault) => {
-      const views = fault.views ?? pack.camera.views;
-      // ambiguous: only faults valid in every view (specs/04)
-      const enabled = setup.view === "ambiguous" ? views.length > 1 : views.includes(setup.view);
+      const enabled = faultEnabledInView(fault.views ?? pack.camera.views, setup.view);
       return { fault, landmarks: landmarksOf(fault.expr), enabled };
     });
     this.readyPose = { ...loaded.readyPose, landmarks: landmarksOf(loaded.readyPose.expr) };

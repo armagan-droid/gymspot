@@ -48,7 +48,7 @@ audit_log(id, tenant_id, actor, action, target, at)
 ```
 
 ## Kurallar
-- **İdempotency:** `sessions`, `session_blocks`, `sets` ve `rep_events` satırlarının `id`'si istemcinin ürettiği UUID'dir (= `event_id`). Yazım `INSERT … ON CONFLICT (id) DO NOTHING`. Set sayaçları güncellenirken son yazan değil, `rep_events`'ten yeniden hesaplanan değer esas alınır.
+- **İdempotency:** `sessions`, `session_blocks`, `sets` ve `rep_events` satırlarının `id`'si istemcinin ürettiği UUID'dir (= `event_id`). Yazım `INSERT … ON CONFLICT (id) DO NOTHING`. Tek istisna `sessions`: aynı `id` ile gelen kayıt durumu **ileri** taşıyorsa günceller (`active` → `paused` → `done`/`aborted`/`abandoned`; terminal durum değişmez). Diğer kayıtlar yazıldıktan sonra değişmez; motor onları yalnız kesinleşince üretir (03). Set sayaçları güncellenirken son yazan değil, `rep_events`'ten yeniden hesaplanan değer esas alınır.
 - Her seans bloğu kural paketinin **sürümünü** (`exercise_version`) kaydeder. Eşikler değişse de geçmiş yorumlanabilir.
 - **Landmark veya video verisi seans tablolarında saklanmaz.** Tek istisna, açık rızalı kalibrasyon kayıtlarıdır (07). Bunlar ana veritabanında değil, ayrı erişim yetkili şifreli nesne deposunda tutulur, burada yalnızca referans vardır.
 - Elle kayıt (rıza yok veya kamera izni yok) setleri `source = manual` ile yazılır; `rep_events` üretmez.

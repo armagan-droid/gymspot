@@ -35,25 +35,42 @@ SessionCursor { sessionId, blockIndex, setIndex }
 
 ## Durumlar
 ```
-IDLE → CHECKIN → READY → SET_ACTIVE → SET_CONFIRM? → REST → (READY | BLOCK_DONE)
-BLOCK_DONE → (NEXT_BLOCK_READY | SESSION_DONE)
-NEXT_BLOCK_READY → (aynı cihaz/istasyon: READY) | (farklı istasyon: TRANSFER → CHECKIN)
-SESSION_DONE → IDLE
+Sahip (telefon):  IDLE → (READY | TRANSFER)
+Yürütücü (tablet): CHECKIN → READY            (yalnız devredilen blok)
+READY → COUNTDOWN → SET_ACTIVE ⇄ SET_CONFIRM → (REST → READY) | BLOCK_DONE
+BLOCK_DONE → NEXT_BLOCK_READY → READY | TRANSFER | SESSION_DONE
+Yürütücüde BLOCK_DONE → IDLE ("Telefonundan devam et")
 ```
-`PAUSED` ve `ABORTED` her durumdan girilebilir. `PAUSED`, girildiği durumu `resumeTo` olarak saklar. `RESUME` ile oraya dönülür. `resumeTo = SET_ACTIVE` ise dönüşte 3 sn geri sayım yapılır ve set sayacı korunur.
+- `PAUSED` ve `ABORTED`, terminal olmayan her durumdan girilebilir (yürütücünün `IDLE`'ı hariç). `PAUSED`, girildiği durumu `resumeTo` olarak saklar ve `RESUME` ile oraya dönülür. `resumeTo` `SET_ACTIVE` veya `SET_CONFIRM` ise dönüş `COUNTDOWN` üzerinden olur ve set sayacı korunur. `resumeTo = REST` ise kalan dinlenme süresi korunur.
+- `BLOCK_DONE` ve `NEXT_BLOCK_READY` geçici durumlardır: aynı girdi içinde geçilir.
+- Terminal durumlar: `SESSION_DONE`, `ABORTED`, `ABANDONED`. Diyagramdaki "→ IDLE", cihazın yeni seans için yeni bir motor örneği başlatmasıdır.
+- `TICK` dışındaki girdiler son `TICK` zamanında (`now`) işlenir.
+- Komutlar: `SPEAK`/`SHOW` metin değil i18n anahtarı taşır (ör. `cue.squat.knee_valgus`, `prompt.set_done`).
 
 ## Geçiş kuralları
-1. **CHECKIN → READY:** üye doğrulandı, program yüklendi, bugünün antrenmanı ve imleç belirlendi.
-2. **READY → SET_ACTIVE:** `USER_ACTION START` veya `READY_POSE_HELD` (kural paketindeki `readyPose`). Ardından 3 sn geri sayım.
-3. **SET_ACTIVE:** `REP_COMPLETED` olayında sayaç 04'teki outcome tablosuna göre artar. Tüm outcome'lar (`incomplete` dahil) `PERSIST_EVENT` ile kaydedilir.
-4. **SET_ACTIVE → REST:** sayaç hedefe ulaşınca veya `END_SET` ile set biter. Son setse `BLOCK_DONE`.
-5. **Hareketsizlik:** SET_ACTIVE'de son `REP_STARTED`/`REP_COMPLETED`'den (yoksa set başlangıcından) 10 sn geçerse `SET_CONFIRM` ("Set bitti mi?"). `CONTINUE_SET` → SET_ACTIVE, `END_SET` → set biter. 20. saniyede (toplam) set otomatik kapanır, yapılan tekrar kaydedilir ve set `below_target` olarak işaretlenir.
-6. **REST:** `restSec` geri sayımı. `READY` ile erken çıkılabilir. Süre dolunca sesli bildirim, sonra READY.
-7. **BLOCK_DONE:** tüm setler bitti. Sonraki blok yoksa SESSION_DONE.
-8. **Farklı istasyon (TRANSFER):** ekran "Sıradaki: {stationHint}" gösterir. Telefon `SHOW_HANDOFF_QR` üretir. Yeni istasyonda QR okutulunca tablet `HANDOFF_ACCEPTED` alır ve devam eder. 30 dk içinde devam edilmezse seans `PAUSED`, 2 saat sonra otomatik kapanır (`status=abandoned`).
-9. **Atla:** `SKIP_BLOCK` bloğu `skipped` kaydeder ve sonrakine geçer. **Geri al:** `UNDO_SKIP`, yalnız atlamadan sonraki blokta henüz set başlamamışken (READY veya TRANSFER) geçerlidir ve atlanan bloğa döner. Başka durumlarda geçersizdir.
-10. **Takip kaybı:** SET_ACTIVE veya READY'de `TRACKING_LOST` sonrası 5 sn içinde `TRACKING_RESTORED` gelmezse `PAUSED`. Geri gelince ekran "Devam" önerir (`RESUME`).
-11. **Güvenlik duraklatması:** SET_ACTIVE'de `SAFETY_PAUSE` gelirse "Dur, formunu kontrol et" söylenir ve `PAUSED` olur (`resumeTo = SET_ACTIVE`). Diğer durumlarda yok sayılır.
+1. **Başlangıç:** Sahipte `IDLE` + `START` seansı başlatır (seans kaydı `active`) ve ilk bloğa geçer (`NEXT_BLOCK_READY` kuralı). Yürütücü `CHECKIN`'de başlar ve `HANDOFF_ACCEPTED { cursor }` ile imleçteki bloğun `READY` durumuna geçer.
+2. **READY → COUNTDOWN:** `START` veya `READY_POSE_HELD` (kural paketindeki `readyPose`). 3 sn sonra `SET_ACTIVE`. `COUNTDOWN`'da tekrar olayları ve uyarılar yok sayılır.
+3. **SET_ACTIVE:** `REP_COMPLETED` olayında sayaç 04'teki outcome tablosuna göre artar: strict modda yalnız `valid`, lenient modda `valid` + `faulty`. Tüm outcome'lar (`incomplete` dahil) `PERSIST_EVENT` ile kaydedilir. `FAULT_DETECTED` yalnız `SET_ACTIVE`'de seslendirilir (`SPEAK`/`SHOW cue.<exerciseId>.<faultId>`).
+4. **Set sonu:** sayaç hedefe ulaşınca veya `END_SET` ile set biter. Set kaydı yazılır ve set özeti gösterilir (05). Son setse `BLOCK_DONE`, değilse `REST`. Süreli blokta (`durationSec`) set süre dolunca biter.
+5. **Hareketsizlik:** `SET_ACTIVE`'de son `REP_STARTED`/`REP_COMPLETED`'den (yoksa set başlangıcından) 10 sn geçerse `SET_CONFIRM` ("Set bitti mi?"). `CONTINUE_SET` → `SET_ACTIVE` ve sayaç sıfırlanır. `END_SET` → set biter. `SET_CONFIRM`'de tekrar olayı gelirse işlenir ve `SET_ACTIVE`'e dönülür. 20. saniyede (toplam) set otomatik kapanır, yapılan tekrar kaydedilir ve set `below_target` olarak işaretlenir.
+6. **REST:** `restSec` geri sayımı. `READY` ile erken çıkılabilir. Süre dolunca sesli bildirim, sonra `READY`.
+7. **NEXT_BLOCK_READY:** sonraki blok yoksa `SESSION_DONE` (seans kaydı `done`). Sonraki bloğun `stationHint`'i tanımlı ve mevcut bloğunkinden farklıysa `TRANSFER`, değilse `READY`.
+8. **TRANSFER (yalnız sahip):** `SHOW_HANDOFF_QR { cursor }` ve `NAVIGATE_TO_STATION { stationHint }` üretilir. Üye üç şekilde devam eder:
+   - Tablet QR'ı okur ve bloğu yürütür. Üye dönünce telefonda `HANDOFF_RETURNED`: blok `delegated` işaretlenir ve imleç sonraki bloğa geçer (kural 7).
+   - `START`: blok telefonda yürütülür (`READY`).
+   - `SKIP_BLOCK`.
+   TRANSFER'e girişten 30 dk sonra `PAUSED`, 2 saat sonra `ABANDONED` (seans kaydı `abandoned`) olur. `resumeTo = TRANSFER` iken gelen `HANDOFF_RETURNED` örtük olarak devam ettirir.
+9. **Atla:** `SKIP_BLOCK` yalnız `READY`, `REST` ve `TRANSFER`'de geçerlidir. Blok, hiç set yapılmadıysa `skipped`, yapıldıysa `partial` olur, ardından kural 7 uygulanır. **Geri al:** `UNDO_SKIP` yalnız atlamanın hemen ardından, sonraki blokta henüz set başlamamışken (`READY` veya `TRANSFER`) geçerlidir ve atlanan bloğa kaldığı setten döner. Başka durumlarda geçersizdir. Bu yüzden atlanan bloğun kaydı, geri alma imkânı kapanınca yazılır: sonraki setin geri sayımı başladığında, başka bir atlamada veya seans bittiğinde.
+10. **Takip kaybı:** `TRACKING_LOST`'tan sonra 5 sn içinde `TRACKING_RESTORED` gelmezse ve durum `SET_ACTIVE` veya `READY` ise `PAUSED` olur. Takip geri gelince ekran "Devam" önerir (`RESUME`). Otomatik devam yoktur.
+11. **Güvenlik duraklatması:** `SET_ACTIVE`'de `SAFETY_PAUSE` gelirse "Dur, formunu kontrol et" söylenir ve `PAUSED` olur (`resumeTo = SET_ACTIVE`). Diğer durumlarda yok sayılır.
+12. **ABORT:** `ABORTED`. Devam eden sette en az bir deneme varsa set kaydı (`below_target`) yazılır, blok `partial` olur. Seans kaydı `aborted` olur.
+13. **Yürütücüde blok sonu:** blok kaydı (`done`) yazılır, `SHOW handoff.return_to_phone` gösterilir, durum `IDLE` olur.
+14. Geçersiz girdi durumu değiştirmez ve komut üretmez.
+
+## Kayıtlar (PERSIST_EVENT)
+- **Seans:** sahip yazar. Başlangıçta `active`, bitişte `done`, `aborted` veya `abandoned`.
+- **Blok, set, tekrar:** bloğu yürüten cihaz yazar. Devredilen bloğun kayıtlarını yalnız tablet yazar; telefon bu blok için kayıt üretmez.
+- Kimlikler (UUID) motor tarafından üretilir. Üretici dışarıdan enjekte edilir, böylece testler deterministiktir.
 
 ## Devir (handoff) protokolü
 1. Telefon handoff QR'ı üretir: kısa ömürlü imzalı token (07) + `SessionCursor`. QR yalnızca kimlik ve imleç taşır, program içeriği tablette önbellekten veya API'den alınır.
@@ -68,4 +85,5 @@ SESSION_DONE → IDLE
 - AC-3.4: Hareketsizlik kuralı (10/20 sn) ve takip kaybı (5 sn) sahte saatle test edilir.
 - AC-3.5: Durum, `serialize/deserialize` ile kaydedilip geri yüklenebilir (sayfa yenilenmesi seansı kaybettirmez).
 - AC-3.6: `PAUSED` → `RESUME` her kaynak durum için doğru `resumeTo`'ya döner; set sayacı korunur.
-- AC-3.7: Devir: telefon motoru ve tablet motoru ayrı örneklerle simüle edilir. Blok tablette tamamlanır, telefon imleci doğru bloğa ilerler (ağ yokken de).
+- AC-3.7: Devir: telefon motoru ve tablet motoru ayrı örneklerle simüle edilir. Blok tablette tamamlanır, telefon imleci doğru bloğa ilerler (ağ yokken de). Devredilen bloğun kayıtlarını yalnız tablet üretir.
+- AC-3.8: Atla/geri al: geri alınan atlama hiç kayıt üretmez; geri alma imkânı kapanınca `skipped`/`partial` kaydı tek kez yazılır.

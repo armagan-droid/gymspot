@@ -26,6 +26,20 @@ export {
 export { OneEuroFilter, type OneEuroParams, createMetricSmoother } from "./metrics/smoothing";
 export { DEFAULT_VIEW_THRESHOLDS, type ViewThresholds, detectView, dominantView } from "./metrics/view";
 export {
+  PROGRAM_TIMING,
+  type PersistRecord,
+  type ProgramCommand,
+  type ProgramConfig,
+  type ProgramDeps,
+  type ProgramState,
+  type ProgramStatus,
+  countsTowardTarget,
+  createProgram,
+  deserializeProgram,
+  serializeProgram,
+  step,
+} from "./program/program";
+export {
   type AttemptClassificationInput,
   type AttemptCompleted,
   RepCounter,

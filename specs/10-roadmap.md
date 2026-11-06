@@ -12,7 +12,7 @@ Her adım tek spec'e dayanır ve testlerle biter. Sıra bağımlılığa göre. 
 - [x] T1.3 Metrik hesaplayıcı (kapalı liste, image/world koordinatları, `near_/far_` çözümü) + yumuşatma (One Euro) + görünüm tespiti — 04
 - [x] T1.4 Tekrar durum makinesi: bölgeler, histerezis, dönüş noktası, outcome — AC-4.4, AC-4.5, AC-4.7
 - [x] T1.5 Hata değerlendirici (`at_turn`/`at_start`/`during_rep`+`holdMs`, görünüm ve visibility filtresi) + cooldown/öncelik/güvenlik duraklatması — 04 (AC-4.6), 05 (AC-5.1, 5.2, 5.4, 5.6)
-- [ ] T1.6 Program durum makinesi + devir protokolü — 03, AC-3.1…3.7
+- [x] T1.6 Program durum makinesi + devir protokolü — 03, AC-3.1…3.7
 
 ## Faz 2 — Poz ve istemci
 - [ ] T2.1 `apps/web` iskeleti (PWA, i18n, rotalar)

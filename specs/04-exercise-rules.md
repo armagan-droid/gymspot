@@ -58,7 +58,7 @@ Doğrulayıcı bölgelerin tutarlılığını zorlar: `start.enter ≠ target.en
 
 Döngü:
 1. Metrik start bölgesindeyken `IDLE_AT_START`.
-2. Start bölgesinden çıkış → `REP_STARTED` olayı; bu andan itibaren **dönüş noktası** (metriğin en uç değeri) izlenir.
+2. Start bölgesinden çıkış → deneme adayı başlar. Bu kare **başlangıç anıdır** (süre ve `at_start` için), ayrıca **dönüş noktası** (metriğin en uç değeri) izlenmeye başlar. Metrik `start.exit`'ten `attemptMinExcursion` kadar uzaklaşınca deneme kesinleşir ve `REP_STARTED` olayı üretilir. Böylece eşik civarındaki salınım olay üretmez ve hareketsizlik sayacını (03, kural 5) sıfırlamaz.
 3. Target bölgesine girildiyse `reachedTarget = true`.
 4. Start bölgesine geri giriş → deneme biter:
    - Dönüş noktası `start.exit`'ten `attemptMinExcursion` kadar uzaklaşmadıysa → gürültü, olay yok.

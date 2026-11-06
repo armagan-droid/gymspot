@@ -23,6 +23,15 @@ export {
 export { OneEuroFilter, type OneEuroParams, createMetricSmoother } from "./metrics/smoothing";
 export { DEFAULT_VIEW_THRESHOLDS, type ViewThresholds, detectView, dominantView } from "./metrics/view";
 export {
+  type AttemptClassificationInput,
+  type AttemptCompleted,
+  RepCounter,
+  type RepCounterEvent,
+  type RepCounterState,
+  type Snapshot,
+  classifyAttempt,
+} from "./reps/rep-counter";
+export {
   type CompiledFault,
   type LoadResult,
   type LoadedRulePack,

@@ -4,10 +4,10 @@ Her adım tek spec'e dayanır ve testlerle biter. Sıra bağımlılığa göre. 
 
 ## Faz 0 — Temel
 - [x] T0.1 pnpm monorepo, TypeScript, ESLint, Vitest, CI iskeleti (`CLAUDE.md` komutlarını doldur)
-- [ ] T0.2 `packages/shared`: Zod şemaları (rule pack, workout, olaylar, `Frame`) + `exercises/*.json` CI doğrulaması — 04 (AC-4.1), 03, 06
+- [x] T0.2 `packages/shared`: Zod şemaları (rule pack, workout, olaylar, `Frame`) + `exercises/*.json` CI doğrulaması — 04 (AC-4.1), 03, 06
 
 ## Faz 1 — Çekirdek motor (kamerasız) — **en yüksek öncelik**
-- [ ] T1.1 İfade ayrıştırıcı (04 grameri, güvenli, `eval` yok) — AC-4.2
+- [ ] T1.1 İfade ayrıştırıcı (04 grameri, güvenli, `eval` yok) — AC-4.2. Ayrıca kural paketi doğrulamasına bağlanır: `check`/`readyPose` ifadelerindeki tanımsız metrikler reddedilir (AC-4.1'in ifade kısmı; T0.2 yalnız ifade biçimini — konum öneki, `for <n>ms` — denetler)
 - [ ] T1.2 Fixture altyapısı: landmark dizisi formatı, oynatıcı, **sentetik sinyal üretici** (gürültülü açı eğrileri, aynalama) — 04
 - [ ] T1.3 Metrik hesaplayıcı (kapalı liste, image/world koordinatları, `near_/far_` çözümü) + yumuşatma (One Euro) + görünüm tespiti — 04
 - [ ] T1.4 Tekrar durum makinesi: bölgeler, histerezis, dönüş noktası, outcome — AC-4.4, AC-4.5, AC-4.7

@@ -9,7 +9,7 @@ Saf TypeScript, `packages/engine/program`. Kamera ve UI'dan bağımsız. Zaman y
 
 ## Girdi / Çıktı
 - Girdi: `Workout` (sıralı bloklar) ve olaylar:
-  - Tekrar motorundan (04): `REP_STARTED`, `REP_COMPLETED { outcome: valid|faulty|incomplete, faults[] }`, `FAULT_DETECTED`, `TRACKING_LOST`, `TRACKING_RESTORED`, `READY_POSE_HELD`
+  - Tekrar motorundan (04): `REP_STARTED`, `REP_COMPLETED { outcome: valid|faulty|incomplete, faults[], durationMs }`, `FAULT_DETECTED { faultId }`, `TRACKING_LOST`, `TRACKING_RESTORED`, `READY_POSE_HELD`
   - Kullanıcıdan: `USER_ACTION { kind }` — `START`, `READY` (hazırım), `PAUSE`, `RESUME`, `END_SET`, `CONTINUE_SET`, `SKIP_BLOCK`, `UNDO_SKIP`, `ABORT`
   - Devir: `HANDOFF_ACCEPTED { cursor }` (istasyon tableti), `HANDOFF_RETURNED` (telefon)
   - Zaman: `TICK { now }`

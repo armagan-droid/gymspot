@@ -54,6 +54,8 @@ Bölge kuralı (azalan yön için; artan yönde işaretler ters):
 - Start bölgesine giriş: metrik ≥ `start.enter`; çıkış: metrik < `start.exit`.
 - Target bölgesine giriş: metrik ≤ `target.enter`; çıkış: metrik > `target.exit`.
 
+Doğrulayıcı bölgelerin tutarlılığını zorlar: `start.enter ≠ target.enter`; azalan yönde `start.exit < start.enter`, `target.exit > target.enter` ve `target.exit < start.exit` (bölgeler örtüşmez); artan yönde işaretler ters. Ayrıca `minDurationMs < maxDurationMs`. Metrik adları ifade dilinin ayrılmış sözcükleri (`and`, `or`, `not`, `for`, `ms`, fonksiyon ve konum adları) olamaz.
+
 Döngü:
 1. Metrik start bölgesindeyken `IDLE_AT_START`.
 2. Start bölgesinden çıkış → `REP_STARTED` olayı; bu andan itibaren **dönüş noktası** (metriğin en uç değeri) izlenir.

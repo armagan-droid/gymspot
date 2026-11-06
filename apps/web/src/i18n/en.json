@@ -290,7 +290,9 @@
         "Images are processed only on the station device; they are never recorded or sent anywhere.",
         "Members using the system have given explicit consent. If you prefer not to appear on camera, stay outside the station area.",
         "Please ask the gym management if you have questions."
-      ]
+      ],
+      "erase": "Carry out deletion",
+      "eraseConfirm": "All data of {{name}} will be permanently deleted. Continue?"
     },
     "roles": {
       "owner": "Owner",

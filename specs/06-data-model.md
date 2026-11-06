@@ -64,7 +64,8 @@ audit_log(id, tenant_id, actor, action, target, at)
   - Set sayaçları (`valid_reps`, `faulty_reps`, `incomplete_reps`), sette tekrar kaydı varsa `rep_events`'ten yeniden hesaplanır.
 - **Landmark veya video verisi seans tablolarında saklanmaz.** Tek istisna, açık rızalı kalibrasyon kayıtlarıdır (07). Bunlar ana veritabanında değil, ayrı erişim yetkili şifreli nesne deposunda tutulur, burada yalnızca referans vardır.
 - Elle kayıt (rıza yok veya kamera izni yok) setleri `source = manual` ile yazılır; `rep_events` üretmez.
-- Üye silme talebi: üye ve bağlı seans verisi anonimleştirilir/silinir (07).
+- **Üye silme** (07, AC-7.2): yönetici talebi tamamlayınca (`POST /data-requests/:id/complete`) üyenin seansları ve alt kayıtları, token'ları, programları ve antrenör atamaları silinir. Üye satırı kalır ama anonimleştirilir: ad "Silinmiş üye" olur; e-posta, telefon, dış referans ve rıza alanları boşaltılır, durum `anonymized` olur. `audit_log` üyeye yalnız takma adlı kimliğiyle (UUID) atıf yapar.
+- **Saklama:** `tenant_settings.retention_months`'tan eski seanslar alt kayıtlarıyla birlikte temizleme işiyle silinir.
 - Saat dilimi şube bazlıdır; tüm zaman damgaları UTC saklanır.
 - **Uygulama rolü:** API her isteği bir transaction içinde `app.tenant_id` ayarlayıp `gymspot_app` rolüne geçerek çalıştırır. Bu rol RLS'yi atlayamaz; tablolarda `FORCE ROW LEVEL SECURITY` açıktır. Üretimde API'nin bağlantı kullanıcısı bu role üye olmalı, süper kullanıcı olmamalıdır. Migrasyonlar ayrı bir sahip kullanıcıyla çalışır.
 - `fault_summaries`, `rep_events`'ten türetilen bir görünümdür (`security_invoker`), bu yüzden RLS'ye tabidir ve hiç senkron dışı kalamaz.

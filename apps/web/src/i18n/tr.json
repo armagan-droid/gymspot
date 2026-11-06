@@ -290,7 +290,9 @@
         "Görüntüler yalnızca istasyondaki cihazda işlenir; kaydedilmez ve hiçbir yere gönderilmez.",
         "Sistemi kullanan üyeler açık rıza vermiştir. Kamerada görünmek istemiyorsanız istasyon alanının dışında kalabilirsiniz.",
         "Sorularınız için salon yönetimine başvurabilirsiniz."
-      ]
+      ],
+      "erase": "Silme işlemini uygula",
+      "eraseConfirm": "{{name}} adlı üyenin tüm verileri kalıcı olarak silinecek. Devam edilsin mi?"
     },
     "roles": {
       "owner": "Sahip",

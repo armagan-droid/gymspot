@@ -69,7 +69,7 @@ Eşik kalibrasyonu ve test fixture'ları (AC-4.3) gerçek landmark verisi gerekt
 - Üye kendi rızasıyla sağlık beyanı (PAR-Q benzeri) yapabilir; MVP'de zorunlu değil, saklama sınırlı.
 
 ## Kabul kriterleri
-- AC-7.1: Ağ trafiği testi: seans sırasında istemciden çıkan hiçbir istek video/landmark içermez (otomatik e2e testi).
+- AC-7.1: Ağ trafiği testi: seans sırasında istemciden çıkan hiçbir istek video/landmark içermez (otomatik e2e testi). Ek koruma olarak istemci kuyruğu kayıtları göndermeden önce katı paylaşılan şemalarla doğrular; fazladan alan taşıyan kayıt kuyruğa giremez.
 - AC-7.2: Üye silme akışı sonrası kişisel veri kalmaz (test).
 - AC-7.3: QR token ikinci kullanımda, süre dolunca ve imza geçersizken reddedilir (çevrimiçi ve çevrimdışı doğrulama ayrı test).
 - AC-7.4: Rıza yoksa veya geri çekildiyse kamera başlatılmaz (UI testi).

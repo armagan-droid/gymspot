@@ -6,6 +6,7 @@ import { hashPassword } from "../auth/password";
 import type { AccessTokens } from "../auth/tokens";
 import type { AppConfig } from "../config";
 import { type Database, withTenant } from "../db/db";
+import { eraseMember } from "../privacy/erase";
 import { type Trx, auth, canSeeMember, isUniqueViolation, iso, notFound, parse } from "./common";
 
 // Admin panel endpoints (C2, C6, C8) — specs/06 roles, specs/08.
@@ -139,6 +140,24 @@ export function adminRoutes(db: Kysely<Database>, config: AppConfig, tokens: Acc
         sql<{ id: string; email: string }>`select id, email from users where role = 'trainer' and status = 'active' order by email`.execute(trx),
       );
       return rows.rows;
+    });
+
+    /** AC-7.2: carry out a member's deletion request. */
+    app.post("/data-requests/:requestId/complete", { preHandler: managers }, async (req, reply) => {
+      const { requestId } = req.params as { requestId: string };
+      if (!z.uuid().safeParse(requestId).success) return notFound(reply);
+      const ctx = auth(req);
+      const ok = await withTenant(db, ctx.tid, async (trx) => {
+        const request = (
+          await sql<{ member_id: string }>`select member_id from data_requests where id = ${requestId} and kind = 'delete' and completed_at is null for update`.execute(trx)
+        ).rows[0];
+        if (!request) return false;
+        await eraseMember(trx, request.member_id);
+        await sql`update data_requests set completed_at = ${iso(config.now())} where id = ${requestId}`.execute(trx);
+        await sql`insert into audit_log (tenant_id, actor, action, target) values (${ctx.tid}, ${`user:${ctx.sub}`}, 'member_erased', ${`member:${request.member_id}`})`.execute(trx);
+        return true;
+      });
+      return ok ? reply.code(204).send() : notFound(reply);
     });
 
     app.get("/data-requests", { preHandler: managers }, async (req) => {

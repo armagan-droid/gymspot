@@ -34,7 +34,7 @@ Her adım tek spec'e dayanır ve testlerle biter. Sıra bağımlılığa göre. 
 - [x] T4.3 Yönetim paneli C1–C6, C8
 
 ## Faz 5 — Pilot hazırlığı
-- [ ] T5.1 Gizlilik e2e testi (AC-7.1), tenant izolasyon testleri (AC-6.1), silme akışı (AC-7.2)
+- [x] T5.1 Gizlilik e2e testi (AC-7.1), tenant izolasyon testleri (AC-6.1), silme akışı (AC-7.2)
 - [ ] T5.2 Gözlemlenebilirlik, heartbeat, hata izleme (PII/landmark kırpma)
 - [ ] T5.3 Pilot kalibrasyon araçları: etiketli kayıtlardan eşik ayarı, sayım doğruluğu ve yanlış alarm raporu (09 tanımları)
 - [ ] T5.4 Dağıtım ve salon kurulum kılavuzu (tablet kiosk modu, stand/açı, bilgilendirme metni)

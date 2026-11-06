@@ -492,7 +492,7 @@ export function AdminSettings() {
   const { staff } = useServices();
   const [settings, setSettings] = useState<TenantSettings | null>(null);
   const [users, reloadUsers] = useLoad(() => staff.users(), [staff]);
-  const [requests] = useLoad(() => staff.dataRequests(), [staff]);
+  const [requests, reloadRequests] = useLoad(() => staff.dataRequests(), [staff]);
   const [form, setForm] = useState({ email: "", role: "trainer" as StaffRole, password: "" });
   const [saved, setSaved] = useState(false);
   useEffect(() => {
@@ -571,6 +571,17 @@ export function AdminSettings() {
           <li key={r.id}>
             {r.memberName} · {t(`admin.settings.requestKind.${r.kind}`)} · {new Date(r.requestedAt).toLocaleDateString()}
             {r.completedAt ? ` · ${t("admin.settings.completed")}` : ` · ${t("admin.settings.open")}`}
+            {!r.completedAt && r.kind === "delete" && (
+              <button
+                onClick={async () => {
+                  if (!globalThis.confirm(t("admin.settings.eraseConfirm", { name: r.memberName }))) return;
+                  await staff.completeDataRequest(r.id);
+                  reloadRequests();
+                }}
+              >
+                {t("admin.settings.erase")}
+              </button>
+            )}
           </li>
         ))}
       </ul>

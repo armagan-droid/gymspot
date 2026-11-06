@@ -76,6 +76,8 @@ export interface StaffApi {
   saveSettings(s: TenantSettings): Promise<TenantSettings>;
   users(): Promise<{ id: string; email: string; role: StaffRole; status: string }[]>;
   createUser(body: { email: string; role: StaffRole; password: string }): Promise<void>;
+  /** AC-7.2: carry out a deletion request. */
+  completeDataRequest(id: string): Promise<void>;
   dataRequests(): Promise<{ id: string; kind: string; memberName: string; requestedAt: string; completedAt: string | null }[]>;
   calibrationConsent(body: { participantRef: string; consentVersion: string; consentedAt: string }): Promise<{ id: string }>;
   uploadCalibration(consentId: string, sequence: LandmarkSequence): Promise<{ id: string }>;
@@ -162,6 +164,7 @@ export function createStaffApi({ baseUrl, store, fetchFn = fetch }: { baseUrl: s
     users: () => call("GET", "/users"),
     createUser: async (body) => void (await call("POST", "/users", body)),
     dataRequests: () => call("GET", "/data-requests"),
+    completeDataRequest: async (id) => void (await call("POST", `/data-requests/${q(id)}/complete`, {})),
     calibrationConsent: (body) => call("POST", "/calibration/consents", body),
     uploadCalibration: (consentId, sequence) => call("POST", "/calibration/recordings", { consentId, sequence }),
   };

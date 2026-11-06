@@ -95,7 +95,10 @@ export function meRoutes(db: Kysely<Database>, config: AppConfig, tokens: Access
   return async function (app: FastifyInstance) {
     app.get("/me", { preHandler: member }, async (req, reply) => {
       const ctx = auth(req);
-      const row = await withTenant(db, ctx.tid, async (trx) => (await sql<MemberRow>`select ${MEMBER_COLUMNS} from members where id = ${ctx.sub}`.execute(trx)).rows[0]);
+      // an erased member's still-valid access token finds nothing (AC-7.2)
+      const row = await withTenant(db, ctx.tid, async (trx) =>
+        (await sql<MemberRow>`select ${MEMBER_COLUMNS} from members where id = ${ctx.sub} and status <> 'anonymized'`.execute(trx)).rows[0],
+      );
       return row ? memberDto(row) : notFound(reply);
     });
 
@@ -158,7 +161,7 @@ export function meRoutes(db: Kysely<Database>, config: AppConfig, tokens: Access
     app.get("/me/export", { preHandler: member }, async (req, reply) => {
       const ctx = auth(req);
       const data = await withTenant(db, ctx.tid, async (trx) => {
-        const profile = (await sql<MemberRow>`select ${MEMBER_COLUMNS} from members where id = ${ctx.sub}`.execute(trx)).rows[0];
+        const profile = (await sql<MemberRow>`select ${MEMBER_COLUMNS} from members where id = ${ctx.sub} and status <> 'anonymized'`.execute(trx)).rows[0];
         if (!profile) return null;
         const programs = (
           await sql<{ id: string; template_id: string | null; start_date: string; end_date: string | null }>`

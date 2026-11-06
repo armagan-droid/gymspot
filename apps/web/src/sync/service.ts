@@ -1,4 +1,5 @@
 import type { PersistRecord } from "@gymspot/engine";
+import { PersistRecordSchema } from "@gymspot/shared";
 import type { RecordQueue } from "./queue";
 
 // Keeps the record queue draining: flush right after a push, then retry
@@ -23,7 +24,10 @@ export class SyncService {
     private readonly timers: Timers = browserTimers,
   ) {}
 
+  /** Validates against the strict shared schema first: nothing beyond the record fields can be queued (AC-7.1). */
   push(record: PersistRecord): Promise<void> {
+    const check = PersistRecordSchema.safeParse(record);
+    if (!check.success) return Promise.reject(new Error(`refusing to queue an invalid ${record.kind} record`));
     return this.queue.enqueue(record).then(() => this.kick());
   }
 

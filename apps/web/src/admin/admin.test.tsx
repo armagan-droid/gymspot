@@ -181,6 +181,7 @@ describe("C8 settings (owner)", () => {
       saveSettings: vi.fn(async (s) => s),
       users: vi.fn(async () => [{ id: "u1", email: "sahip@a.test", role: "owner" as const, status: "active" }]),
       createUser: vi.fn(async () => undefined),
+      completeDataRequest: vi.fn(async () => undefined),
       dataRequests: vi.fn(async () => [{ id: "r1", kind: "delete", memberName: "Ayşe", requestedAt: "2026-11-06T10:00:00.000Z", completedAt: null }]),
       ...more,
     });
@@ -200,6 +201,10 @@ describe("C8 settings (owner)", () => {
     await vi.waitFor(() => expect(s.createUser).toHaveBeenCalledWith({ email: "pt9@a.test", role: "trainer", password: "en-az-on-iki-karakter" }));
 
     expect(await screen.findByText(/Ayşe · silme/)).toBeTruthy();
+    vi.stubGlobal("confirm", () => true);
+    fireEvent.click(screen.getByRole("button", { name: "Silme işlemini uygula" }));
+    await vi.waitFor(() => expect(s.completeDataRequest).toHaveBeenCalledWith("r1"));
+    vi.unstubAllGlobals();
     expect(screen.getByText(/Bu alanda kamera ile hareket analizi yapılmaktadır/)).toBeTruthy();
     expect(screen.getByText("Bu sistem tıbbi tavsiye değildir. Ağrı hissedersen dur.")).toBeTruthy();
   });

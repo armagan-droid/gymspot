@@ -63,3 +63,12 @@ export const RepEventRecordSchema = z.strictObject({
   faults: z.array(IdentifierSchema),
 });
 export type RepEventRecord = z.infer<typeof RepEventRecordSchema>;
+
+/** A record as queued by clients and sent to POST /ingest (strict: no extra payload, specs/07). */
+export const PersistRecordSchema = z.discriminatedUnion("kind", [
+  z.strictObject({ kind: z.literal("session"), data: SessionRecordSchema }),
+  z.strictObject({ kind: z.literal("session_block"), data: SessionBlockRecordSchema }),
+  z.strictObject({ kind: z.literal("set"), data: SetRecordSchema }),
+  z.strictObject({ kind: z.literal("rep"), data: RepEventRecordSchema }),
+]);
+export type PersistRecordInput = z.infer<typeof PersistRecordSchema>;

@@ -98,7 +98,15 @@ compare    = value ( ">" | "<" | ">=" | "<=" ) value ;
 value      = NUMBER | METRIC | func "(" value { "," value } ")" ;
 func       = "abs" | "avg" | "min" | "max" ;
 METRIC     = metrics içinde tanımlı bir ad ;
+NUMBER     = [ "-" ] digit { digit } [ "." digit { digit } ] ;
+INT        = digit { digit } ;
 ```
+
+- Karşılaştırmalar zincirlenemez (`a < b < c` hata). Öncelik: `or` < `and` < `not` < karşılaştırma.
+- `abs` tam 1, `avg`/`min`/`max` en az 1 argüman alır.
+- Gramer dışı her karakter (`=`, `;`, `.`, tırnak vb.), bilinmeyen fonksiyon ve tanımsız metrik ayrıştırma hatasıdır.
+- **Bilinmeyen değer:** Değerlendirmede bir metriğin değeri yoksa veya `NaN` ise o karşılaştırma *bilinmiyor* olur (üç değerli mantık: `false and ? = false`, `true or ? = true`, `not ? = ?`). Sonuç bilinmiyorsa koşul **sağlanmamış** sayılır. Böylece belirsiz veri hiçbir zaman uyarı üretmez (05).
+- Kural paketi yüklenirken (`packages/engine` `loadRulePack`) tüm `check` ve `readyPose` ifadeleri ayrıştırılır, tanımsız metrik varsa paket reddedilir (AC-4.1).
 
 Konum anlamları:
 - `at_turn`: deneme bittiğinde, **dönüş noktası karesindeki** metrik değerleriyle bir kez değerlendirilir.

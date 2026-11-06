@@ -17,6 +17,9 @@ Saf TypeScript, `packages/engine/program`. Kamera ve UI'dan bağımsız. Zaman y
   - Zaman: `TICK { now }`
 - Çıktı: durum + yan etki komutları (`SPEAK`, `SHOW`, `NAVIGATE_TO_STATION`, `PERSIST_EVENT`, `SHOW_HANDOFF_QR`).
 
+## Bugünün antrenmanı
+Üyenin aktif programının gün sırası `day_index`'tir. Bugünün günü, bu programdaki son `done` seansın gününden sonraki gündür; son günden sonra başa dönülür. Hiç tamamlanmış seans yoksa ilk gün seçilir. Seçimi API önerir (`nextDayIndex`); üye başka bir gün seçebilir.
+
 ## Veri
 ```ts
 Workout { id, name, blocks: Block[] }

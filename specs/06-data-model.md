@@ -69,6 +69,14 @@ audit_log(id, tenant_id, actor, action, target, at)
 | Kalibrasyon kaydı başlatma | | | ✓ | ✓ |
 | Kullanıcı yönetimi, faturalama | | | | ✓ |
 
+**API erişim kuralları (MVP):**
+- Başka tenant'ın kaydı, var olsa bile **404** döner (AC-6.1).
+- Antrenörün atanmamış bir üyeye (ve onun programlarına/seanslarına) erişimi de **404** döner; 403 kaydın varlığını sızdırırdı.
+- Program şablonlarını personelin tamamı (antrenör dahil) yönetebilir. Şablon bloklarındaki `exercise_id` görünür bir kural paketine (global veya tenant'ın kendi paketi) ait olmalıdır.
+- Üye yalnız kendi profilini, rızasını, programını ve seanslarını görür (`/me`).
+- Üye programı şablona referans verir, blokların kopyası tutulmaz (MVP). Bu yüzden bir üyeye atanmış şablon silinemez (`409 template_in_use`), şablondaki düzenlemeler atanmış üyelere yansır.
+- Aktif program: başlangıç tarihi bugün veya önce olan, bitişi olmayan ya da bugün veya sonra olan programlardan en son başlayanı.
+
 Platform yöneticisi tenant verisine yalnızca destek amaçlı, `audit_log`'a yazılan açık bir "destek erişimi" ile ulaşır (MVP'de salt okunur).
 
 ## Kabul kriterleri

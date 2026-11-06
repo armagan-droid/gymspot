@@ -5,11 +5,11 @@ import { z } from "zod";
 import type { AppConfig } from "../config";
 import { type Database, asAppRole, withTenant } from "../db/db";
 import { requireAuth } from "./guard";
+import { createMagicLink } from "./magic-link";
 import { burnPasswordCheck, verifyPassword } from "./password";
 import {
   type AccessTokens,
   type AuthContext,
-  MAGIC_LINK_TTL_MS,
   PAIRING_CODE_TTL_MS,
   REFRESH_TTL_MS,
   type StaffRole,
@@ -145,11 +145,7 @@ export function authRoutes({ db, config, tokens, keys }: Deps) {
       const email = body.email.trim().toLowerCase();
       const created = await withTenant(db, body.tenantId, async (trx) => {
         const member = (await sql<{ id: string }>`select id from members where lower(email) = ${email} and status = 'active'`.execute(trx)).rows[0];
-        if (!member) return null;
-        const token = tenantToken(body.tenantId);
-        await sql`insert into member_login_tokens (tenant_id, member_id, token_hash, expires_at)
-                  values (${body.tenantId}, ${member.id}, ${sha256(token)}, ${ts(now() + MAGIC_LINK_TTL_MS)})`.execute(trx);
-        return token;
+        return member ? createMagicLink(trx, body.tenantId, member.id, now()) : null;
       });
       if (created) await config.sendMagicLink(email, `${config.appBaseUrl}/member/login?token=${encodeURIComponent(created)}`, body.tenantId);
       // same answer either way: no account enumeration (specs/07)

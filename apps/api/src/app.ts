@@ -4,6 +4,10 @@ import { type Kysely, sql } from "kysely";
 import { authRoutes } from "./auth/routes";
 import { AccessTokens, TenantKeys } from "./auth/tokens";
 import { type AppConfig, configFromEnv } from "./config";
+import { meRoutes } from "./routes/me";
+import { memberRoutes } from "./routes/members";
+import { stationRoutes } from "./routes/stations";
+import { templateRoutes } from "./routes/templates";
 import type { Database } from "./db/db";
 
 // REST API skeleton (specs/02): structured logs with request ids; business
@@ -22,6 +26,10 @@ export function buildApp({ db, config = configFromEnv(), logger = false }: AppDe
 
   void app.register(rateLimit, { global: false });
   void app.register(authRoutes({ db, config, tokens, keys }));
+  void app.register(memberRoutes(db, config, tokens));
+  void app.register(templateRoutes(db, tokens));
+  void app.register(meRoutes(db, config, tokens));
+  void app.register(stationRoutes(db, tokens));
 
   app.get("/health", async (_req, reply) => {
     try {

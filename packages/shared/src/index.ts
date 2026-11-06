@@ -3,6 +3,7 @@ export * from "./common";
 export * from "./events";
 export * from "./frame";
 export * from "./landmarks";
+export * from "./qr";
 export * from "./records";
 export * from "./rule-pack";
 export * from "./sequence";

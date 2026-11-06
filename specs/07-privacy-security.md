@@ -38,11 +38,20 @@ Eşik kalibrasyonu ve test fixture'ları (AC-4.3) gerçek landmark verisi gerekt
 - **Cihaz (istasyon tableti):** eşleştirme kodu ile alınan uzun ömürlü cihaz token'ı, hash'li saklanır, yönetici iptal edebilir.
 - Oturumlar kısa ömürlü JWT + yenileme token'ı (`auth_refresh_tokens`); iptal edilebilir.
 
+## Token ayrıntıları
+- **Erişim token'ı:** JWT (HS256), 15 dk. İçerik: `sub`, `tid` (tenant), `kind` (`user` | `member` | `device`) ve personel için `role`.
+- **Yenileme token'ı:** `<tenantId>.<rastgele 32 bayt>`. Tenant öneki, aramanın RLS altında doğru tenant'ta yapılmasını sağlar. Yalnız SHA-256 özeti saklanır. Her kullanımda yenisiyle değiştirilir (eskisi iptal), ömrü 30 gündür.
+- **Magic link token'ı:** aynı biçim; tek kullanımlık, 15 dk. İstek her zaman `202` döner, böylece e-postanın kayıtlı olup olmadığı dışarıdan anlaşılmaz.
+- **Personel giriş kilidi:** aynı tenant ve e-posta için 15 dk içinde 5 başarısız denemeden sonra 15 dk kilit (`429`). Başarılı ve başarısız girişler `audit_log`'a yazılır.
+- **Cihaz eşleştirme:** yönetici istasyon için 8 karakterlik, 10 dk geçerli, tek kullanımlık bir kod üretir. Kod tenant bilgisi taşımadığından, yalnız tenant kimliğini döndüren dar bir `SECURITY DEFINER` fonksiyonla çözülür. Tablet karşılığında uzun ömürlü bir cihaz token'ı alır (biçim yukarıdaki gibi). Bu token ile 15 dk'lık cihaz erişim token'ı istenir. Yönetici cihazı silerek token'ı iptal eder.
+
 ## Check-in / devir QR token'ı
-- Üye telefonu tarafından üretilir, sunucunun verdiği anahtarla **imzalıdır** (Ed25519). İçerik: `tenant_id`, `member_id`, `session_id`, imleç, `jti`, son kullanma.
-- Ömür 2 dakika, tek kullanımlık (`jti`).
-- Tablet çevrimiçiyse sunucuda doğrular ve `jti`'yi kullanılmış işaretler. **Çevrimdışıysa** imzayı önbellekteki tenant açık anahtarıyla doğrular ve `jti`'yi yerel olarak kaydeder. Tekil kullanım bağlanınca sunucuda kesinleştirilir, ihlal `audit_log`'a yazılır.
-- Telefonun token imzalayabilmesi için sunucu, oturum açmış üyeye kısa ömürlü (24 saat) bir imza yetkisi verir. Telefon çevrimdışıyken bu süre içinde QR üretebilir.
+- **Tenant imza anahtarı (Ed25519):** sunucu sırrından HKDF ile tenant başına türetilir, saklanmaz. Tabletler açık anahtarı cihaz oturumuyla alıp önbelleğe koyar.
+- **Yetki sertifikası:** oturum açmış üyenin telefonu kendi Ed25519 anahtar çiftini üretir. Sunucu, telefonun açık anahtarını içeren sertifikayı tenant anahtarıyla imzalar. Sertifika içeriği: `tid`, `mid`, telefon açık anahtarı, kamera rızası durumu; 24 saat geçerli. Telefon çevrimdışıyken bu süre içinde QR üretebilir.
+- **QR yükü:** telefon anahtarıyla imzalanır. İçerik: `tid`, `mid`, `sid` (seans), imleç (`bi`, `si`), `jti`, son kullanma. Ömür 2 dakikadır; son kullanma şimdiden 2 dk + 30 sn'den ileride olamaz. QR metni dört parçadır: `yük.yükİmzası.sertifika.sertifikaİmzası` (base64url).
+- **Doğrulama** (`packages/shared`, tablet ve sunucu aynı kodu kullanır): sertifika imzası tenant anahtarıyla, yük imzası sertifikadaki telefon anahtarıyla doğrulanır. `tid`/`mid` eşleşmeli, iki süre de dolmamış olmalı.
+- **Tek kullanım (`jti`):** tablet çevrimiçiyse sunucuda kullanır (`qr_tokens`); ikinci kullanım reddedilir. **Çevrimdışıysa** `jti`'yi yerel olarak kaydeder. Tekil kullanım bağlanınca sunucuda kesinleştirilir, ihlal `audit_log`'a yazılır.
+- Kamera rızası sertifikada taşınır. Rızası olmayan üyenin QR'ıyla istasyon kamerası açılmaz (AC-7.4).
 
 ## Güvenlik
 - HTTPS zorunlu (kamera erişimi zaten güvenli bağlam ister).

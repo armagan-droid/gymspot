@@ -1,5 +1,9 @@
+import rateLimit from "@fastify/rate-limit";
 import Fastify, { type FastifyInstance } from "fastify";
 import { type Kysely, sql } from "kysely";
+import { authRoutes } from "./auth/routes";
+import { AccessTokens, TenantKeys } from "./auth/tokens";
+import { type AppConfig, configFromEnv } from "./config";
 import type { Database } from "./db/db";
 
 // REST API skeleton (specs/02): structured logs with request ids; business
@@ -7,11 +11,17 @@ import type { Database } from "./db/db";
 
 export interface AppDeps {
   db: Kysely<Database>;
+  config?: AppConfig;
   logger?: boolean;
 }
 
-export function buildApp({ db, logger = false }: AppDeps): FastifyInstance {
+export function buildApp({ db, config = configFromEnv(), logger = false }: AppDeps): FastifyInstance {
   const app = Fastify({ logger, requestIdHeader: "x-request-id", genReqId: () => crypto.randomUUID() });
+  const tokens = new AccessTokens(config.jwtSecret, config.now);
+  const keys = new TenantKeys(config.qrMasterSecret);
+
+  void app.register(rateLimit, { global: false });
+  void app.register(authRoutes({ db, config, tokens, keys }));
 
   app.get("/health", async (_req, reply) => {
     try {

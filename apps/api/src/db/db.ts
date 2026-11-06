@@ -2,6 +2,7 @@ import { Kysely, PostgresDialect, type Transaction, sql } from "kysely";
 import { type Migration, Migrator, NO_MIGRATIONS } from "kysely/migration";
 import pg from "pg";
 import * as m0001 from "./migrations/0001_init";
+import * as m0002 from "./migrations/0002_auth";
 import { APP_ROLE } from "./migrations/0001_init";
 
 // Typed tables are added as API features land (T3.2+); until then queries use raw SQL.
@@ -12,7 +13,7 @@ export function createDb(connectionString: string): Kysely<Database> {
   return new Kysely<Database>({ dialect: new PostgresDialect({ pool: new pg.Pool({ connectionString, max: 10 }) }) });
 }
 
-const MIGRATIONS: Record<string, Migration> = { "0001_init": m0001 };
+const MIGRATIONS: Record<string, Migration> = { "0001_init": m0001, "0002_auth": m0002 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- migrations work on any schema
 type AnyDb = Kysely<any>;
@@ -37,6 +38,14 @@ export const migrateDownAll = (db: AnyDb) => run(migrator(db).migrateTo(NO_MIGRA
 export async function withTenant<T>(db: Kysely<Database>, tenantId: string, fn: (trx: Transaction<Database>) => Promise<T>): Promise<T> {
   return db.transaction().execute(async (trx) => {
     await sql`select set_config('app.tenant_id', ${tenantId}, true)`.execute(trx);
+    await sql`set local role ${sql.raw(APP_ROLE)}`.execute(trx);
+    return fn(trx);
+  });
+}
+
+/** Runs as gymspot_app without a tenant: RLS hides every tenant row (for narrow SECURITY DEFINER lookups). */
+export async function asAppRole<T>(db: Kysely<Database>, fn: (trx: Transaction<Database>) => Promise<T>): Promise<T> {
+  return db.transaction().execute(async (trx) => {
     await sql`set local role ${sql.raw(APP_ROLE)}`.execute(trx);
     return fn(trx);
   });

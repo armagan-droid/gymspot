@@ -21,6 +21,8 @@ devices(id, tenant_id, station_id?, kind[tablet|phone], token_hash, last_seen_at
 member_login_tokens(id, tenant_id, member_id, token_hash, expires_at, used_at)       -- magic link
 auth_refresh_tokens(id, tenant_id, subject_kind[user|member|device], subject_id, token_hash, expires_at, revoked_at)
 qr_tokens(id, tenant_id, member_id, session_id?, jti, expires_at, used_at)           -- check-in/devir
+login_attempts(tenant_id, email, failed_count, window_started_at, locked_until)       -- personel giriş kilidi
+device_pairing_codes(id, tenant_id, station_id, code_hash, expires_at, used_at, created_by)
 
 -- program
 exercises(id, version, definition_json, status, tenant_id NULL=global)  -- PK (id, version)

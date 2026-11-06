@@ -3,6 +3,7 @@ import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { inject } from "vitest";
 import { type Database, createDb, withTenant } from "../src/db/db";
 import { TENANT_TABLES } from "../src/db/migrations/0001_init";
+import { AUTH_TENANT_TABLES } from "../src/db/migrations/0002_auth";
 
 // AC-6.1 at the database level: RLS alone (no WHERE tenant filters in these
 // queries) keeps tenants apart.
@@ -105,7 +106,7 @@ describe("AC-6.1: tenant isolation by RLS", () => {
       join information_schema.columns col on col.table_name = c.relname and col.column_name = 'tenant_id'
       where c.relkind = 'r' and c.relnamespace = 'public'::regnamespace
       order by c.relname`.execute(db);
-    expect(r.rows.length).toBe(TENANT_TABLES.length + 1); // + exercises
+    expect(r.rows.length).toBe(TENANT_TABLES.length + AUTH_TENANT_TABLES.length + 1); // + exercises
     for (const row of r.rows) expect(row, row.table).toMatchObject({ rls: true, forced: true });
     for (const row of r.rows) expect(row.policies, row.table).toBeGreaterThan(0);
   });

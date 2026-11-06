@@ -10,7 +10,7 @@ export default defineConfig(({ mode }) => ({
   server: {
     ...(mode === "https" && { host: true }),
     // `pnpm --filter @gymspot/api dev` on :3000; the app calls /api (VITE_API_URL in production)
-    proxy: { "/api": { target: "http://localhost:3000", rewrite: (p) => p.replace(/^\/api/, "") } },
+    proxy: { "/api": { target: "http://127.0.0.1:3000", rewrite: (p) => p.replace(/^\/api/, "") } },
   },
   plugins: [
     ...(mode === "https" ? [basicSsl()] : []),

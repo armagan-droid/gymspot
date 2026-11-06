@@ -39,7 +39,7 @@ Node ≥ 22, pnpm sürümü `package.json` → `packageManager` alanında sabit.
 - Veritabanı (API testleri için gerekli): `docker compose up -d db` → `postgres://postgres:postgres@localhost:54329`
 - Migrasyon: `pnpm --filter @gymspot/api migrate` (geri almak için `migrate down`)
 - Test: `pnpm test` (izleme: `pnpm test:watch`)
-- Geliştirme: `pnpm dev`
+- Geliştirme: `pnpm dev` → http://localhost:5173 (API :3000, Vite `/api` proxy'si). İlk seferde: `ops -- migrate`, `ops -- seed-exercises`, `ops -- bootstrap-tenant` (aşağıda). Telefon/tablet için LAN HTTPS: `pnpm --filter @gymspot/web dev -- --mode https`
 - Tip kontrolü: `pnpm typecheck`
 - Lint: `pnpm lint`
 - Derleme: `pnpm build` (web PWA → `apps/web/dist`)

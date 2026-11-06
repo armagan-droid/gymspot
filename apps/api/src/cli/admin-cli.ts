@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { resolve } from "node:path";
 import { FileBlobStore } from "../calibration/store";
 import { createDb, migrateToLatest } from "../db/db";
@@ -14,8 +15,11 @@ const arg = (name: string) => {
   return i === -1 ? undefined : process.argv[i + 1];
 };
 
+// `pnpm --filter @gymspot/api ops` runs in apps/api; the image runs at the root
+const defaultExercisesDir = () => ["exercises", "../../exercises"].find((d) => existsSync(d)) ?? "exercises";
+
 async function main() {
-  const command = process.argv[2];
+  const command = process.argv.slice(2).find((a) => a !== "--"); // pnpm 12 forwards a literal `--`
   const db = createDb(process.env.DATABASE_URL ?? "postgres://postgres:postgres@localhost:54329/gymspot");
   try {
     switch (command) {
@@ -24,7 +28,7 @@ async function main() {
         console.log("migrations: ok");
         break;
       case "seed-exercises":
-        console.log(`seeded: ${(await seedExercises(db, resolve(arg("dir") ?? process.env.EXERCISES_DIR ?? "exercises"))).join(", ")}`);
+        console.log(`seeded: ${(await seedExercises(db, resolve(arg("dir") ?? process.env.EXERCISES_DIR ?? defaultExercisesDir()))).join(", ")}`);
         break;
       case "bootstrap-tenant": {
         const name = arg("name");

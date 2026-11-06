@@ -16,7 +16,7 @@ Her adım tek spec'e dayanır ve testlerle biter. Sıra bağımlılığa göre. 
 
 ## Faz 2 — Poz ve istemci
 - [x] T2.1 `apps/web` iskeleti (PWA, i18n, rotalar)
-- [ ] T2.2 **Spike (Faz 1 ile paralel):** MediaPipe Pose tarayıcıda; telefon/tablette FPS, gecikme, model varyantı, `worldLandmarks` açı tutarlılığı (ön/yan), iOS PWA kamera, Wake Lock, ses açılışı. Sonucu `specs/02-architecture.md`'ye yaz, gerekirse 04'ü güncelle
+- [ ] T2.2 **Spike (Faz 1 ile paralel):** _(ölçüm aracı hazır: `/spike`, bkz. 02 "T2.2 Spike"; cihaz ölçümleri bekleniyor)_ MediaPipe Pose tarayıcıda; telefon/tablette FPS, gecikme, model varyantı, `worldLandmarks` açı tutarlılığı (ön/yan), iOS PWA kamera, Wake Lock, ses açılışı. Sonucu `specs/02-architecture.md`'ye yaz, gerekirse 04'ü güncelle
 - [ ] T2.3 Kamera izni, kurulum sihirbazı (A3, görünüm tespiti), kişi seçimi/takibi — AC-8.5
 - [ ] T2.4 Aktif set ekranı (A5) engine'e bağlı, ses kaynağı sırası (dosya → Web Speech → ekran) — 05, AC-5.5
 - [ ] T2.5 Kalibrasyon kayıt ekranı (C10, yalnız landmark) → ilk gerçek fixture'lar (AC-4.3) — 07

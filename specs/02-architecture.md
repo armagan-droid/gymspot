@@ -76,5 +76,29 @@ Hangi metriğin hangi koordinatı kullandığı 04'teki metrik tablosundadır.
 - **Tablet kiosk:** istasyon tableti için işletim sistemi kiosk/sabitleme modu kurulum kılavuzunda (T5.4) anlatılır.
 - **Model varyantı:** MediaPipe Pose lite/full/heavy arasından FPS–doğruluk dengesine göre seçim yapılır. `worldLandmarks` doğruluğu yan/ön görünümde ölçülür (04 metrik koordinatları).
 
+## T2.2 Spike — poz tahmini ölçümü
+**Durum:** ölçüm aracı hazır, cihaz ölçümleri bekleniyor.
+
+**Çalıştırma:**
+1. Bilgisayarda `pnpm --filter @gymspot/web dev:https` komutunu çalıştırın. Yerel ağda kendinden imzalı HTTPS açılır.
+2. Telefon veya tablette konsolda yazan `https://<bilgisayar-ip>:5173/spike` adresini açın. Sertifika uyarısını kabul edin.
+3. Model seçip (lite/full/heavy) "Start camera"ya basın. Squat yapın; önden ve yandan ayrı ayrı deneyin.
+4. "Test audio" ile ses açılışını deneyin, ardından "Copy report JSON" ile sonucu kopyalayın.
+
+Araç yalnız geliştirme derlemesinde vardır (`/spike`), üretim paketine girmez. Kareler cihazda işlenir, hiçbir şey yüklenmez veya saklanmaz.
+
+**Ölçülenler:** işlenen FPS, çıkarım süresi p50/p95, tarayıcı `captureTime` veriyorsa kamera→sonuç gecikmesi, 3B (world) ile 2B diz açısı farkı (görünüm bağımlılığı), Wake Lock, ses açılışı ve bütçe uygunluğu (≥ 15 FPS, p95 ≤ 250 ms).
+
+**Sonuçlar** (cihaz başına bir satır):
+
+| Cihaz | Tarayıcı / PWA | Model | Delegate | FPS | Çıkarım p50/p95 (ms) | Gecikme p95 (ms) | 3B–2B diz farkı p50 | Wake Lock | Ses | Bütçe |
+|---|---|---|---|---|---|---|---|---|---|---|
+| — | — | — | — | — | — | — | — | — | — | — |
+
+**Spike sonrası karar verilecekler:**
+- Model varyantı ve minimum cihaz/iOS sürümü.
+- `worldLandmarks` açıları önden ve yandan tutarlı mı (04 metrik koordinatları)?
+- **WASM ve model dosyaları:** spike bunları CDN'den yükler (jsDelivr, Google Storage). Üretimde çevrimdışı çalışma (yukarıdaki "Çevrimdışı dayanıklılık") ve üçüncü taraflara istek gitmemesi için kendi sunucumuzdan verilmeli ve PWA önbelleğine alınmalı.
+
 ## Gözlemlenebilirlik
 Yapılandırılmış log, istek kimliği, istasyon cihazı için heartbeat (60 sn). Hata izleme için Sentry benzeri bir servis (video/landmark içermeyen).

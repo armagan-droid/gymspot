@@ -1,10 +1,15 @@
 /// <reference types="vitest/config" />
+import basicSsl from "@vitejs/plugin-basic-ssl";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
 
-export default defineConfig({
+// `vite --mode https`: LAN dev server over HTTPS (self-signed) so phones and
+// tablets can open the camera (getUserMedia needs a secure context).
+export default defineConfig(({ mode }) => ({
+  server: mode === "https" ? { host: true } : undefined,
   plugins: [
+    ...(mode === "https" ? [basicSsl()] : []),
     react(),
     VitePWA({
       registerType: "autoUpdate",
@@ -25,4 +30,4 @@ export default defineConfig({
     environment: "jsdom",
     include: ["src/**/*.test.{ts,tsx}"],
   },
-});
+}));

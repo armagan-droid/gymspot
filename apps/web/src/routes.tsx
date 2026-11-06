@@ -1,3 +1,4 @@
+import { Suspense, lazy } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, Route, Routes } from "react-router";
 import { AdminLayout, MemberLayout, StationLayout } from "./components/Layouts";
@@ -28,6 +29,9 @@ export const SCREEN_ROUTES: { path: string; screen: ScreenId }[] = [
   { path: "/admin/settings", screen: "C8" },
   { path: "/admin/calibration", screen: "C10" },
 ];
+
+// T2.2 pose spike: development builds only. Lazy so production drops the import entirely.
+const SpikePage = import.meta.env.DEV ? lazy(() => import("./spike/SpikePage").then((m) => ({ default: m.SpikePage }))) : null;
 
 const SETTINGS_SCREENS: ReadonlySet<ScreenId> = new Set(["B6", "C8"]);
 
@@ -67,6 +71,16 @@ export function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
+      {SpikePage && (
+        <Route
+          path="/spike"
+          element={
+            <Suspense>
+              <SpikePage />
+            </Suspense>
+          }
+        />
+      )}
       {(["station", "member", "admin"] as const).map((area) => (
         <Route key={area} element={layoutFor[area]}>
           {SCREEN_ROUTES.filter((r) => r.path.startsWith(`/${area}`)).map((r) => (

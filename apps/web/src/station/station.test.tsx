@@ -49,7 +49,7 @@ async function moves(t: ReturnType<typeof testServices>, kneeAt: (ms: number) =>
 describe("A1 pairing", () => {
   test("an unpaired tablet asks for the pairing code and moves on to scanning", async () => {
     const pairDevice = vi.fn(async () => DEVICE);
-    const t = testServices({ api: { pairDevice, qrPublicKey: vi.fn(async () => "k"), redeemQr: vi.fn() } });
+    const t = testServices({ api: { pairDevice, stationConfig: vi.fn(async () => ({ publicKey: "k", safetyPause: true })), redeemQr: vi.fn() } });
     pairDevice.mockImplementation(async () => (t.services.store.set("device", DEVICE), DEVICE));
     renderStation(t);
     expect(await screen.findByRole("heading", { name: "Cihaz eşleştirme" })).toBeTruthy(); // lazy route
@@ -70,7 +70,7 @@ describe("A1 pairing", () => {
 
 describe("A2 check-in", () => {
   test("station screens always show the medical disclaimer and the no-video notice (rule 5, specs/07)", () => {
-    renderStation(testServices({ credentials: { device: DEVICE }, api: { qrPublicKey: vi.fn(async () => "k"), redeemQr: vi.fn() } }));
+    renderStation(testServices({ credentials: { device: DEVICE }, api: { stationConfig: vi.fn(async () => ({ publicKey: "k", safetyPause: true })), redeemQr: vi.fn() } }));
     expect(screen.getByText("Bu sistem tıbbi tavsiye değildir. Ağrı hissedersen dur.")).toBeTruthy();
     expect(screen.getByText(/Görüntü saklanmaz/)).toBeTruthy();
   });
@@ -79,7 +79,7 @@ describe("A2 check-in", () => {
     const m = await memberQr();
     const t = testServices({
       credentials: { device: DEVICE },
-      api: { qrPublicKey: vi.fn(async () => m.tenantKey), redeemQr: vi.fn(async () => ({ memberId: MEMBER, cameraConsent: true, cursor: { sessionId: SESSION, blockIndex: 1, setIndex: 0 }, block })) },
+      api: { stationConfig: vi.fn(async () => ({ publicKey: m.tenantKey, safetyPause: true })), redeemQr: vi.fn(async () => ({ memberId: MEMBER, cameraConsent: true, cursor: { sessionId: SESSION, blockIndex: 1, setIndex: 0 }, block })) },
     });
     renderStation(t);
     await scan(t, m.qr);
@@ -88,7 +88,7 @@ describe("A2 check-in", () => {
 
   test("a reused QR is refused with a clear message", async () => {
     const m = await memberQr();
-    const t = testServices({ credentials: { device: DEVICE }, api: { qrPublicKey: vi.fn(async () => m.tenantKey), redeemQr: vi.fn(async () => Promise.reject(new ApiError(409, { reason: "already_used" }))) } });
+    const t = testServices({ credentials: { device: DEVICE }, api: { stationConfig: vi.fn(async () => ({ publicKey: m.tenantKey, safetyPause: true })), redeemQr: vi.fn(async () => Promise.reject(new ApiError(409, { reason: "already_used" }))) } });
     renderStation(t);
     await scan(t, m.qr);
     expect(await screen.findByText(/zaten kullanıldı/)).toBeTruthy();
@@ -96,7 +96,7 @@ describe("A2 check-in", () => {
 
   test("offline: verified on the tablet with the cached key and queued for redemption", async () => {
     const m = await memberQr();
-    const t = testServices({ credentials: { device: DEVICE }, online: false, api: { qrPublicKey: vi.fn(), redeemQr: vi.fn(async () => Promise.reject(new NetworkError("x"))) } });
+    const t = testServices({ credentials: { device: DEVICE }, online: false, api: { stationConfig: vi.fn(async () => Promise.reject(new NetworkError("offline"))), redeemQr: vi.fn(async () => Promise.reject(new NetworkError("x"))) } });
     t.storage.setItem("gymspot.station.qrKey", JSON.stringify(m.tenantKey));
     renderStation(t);
     expect(await screen.findByText(/Çevrimdışı mod/)).toBeTruthy();
@@ -107,7 +107,7 @@ describe("A2 check-in", () => {
 
   test("AC-7.4: without camera consent the camera is not opened", async () => {
     const m = await memberQr(false);
-    const t = testServices({ credentials: { device: DEVICE }, online: false, api: { qrPublicKey: vi.fn(), redeemQr: vi.fn() } });
+    const t = testServices({ credentials: { device: DEVICE }, online: false, api: { stationConfig: vi.fn(async () => Promise.reject(new NetworkError("offline"))), redeemQr: vi.fn() } });
     t.storage.setItem("gymspot.station.qrKey", JSON.stringify(m.tenantKey));
     renderStation(t);
     await scan(t, m.qr);
@@ -121,7 +121,7 @@ describe("executor run (specs/03 devir)", () => {
     const m = await memberQr();
     const t = testServices({
       credentials: { device: DEVICE },
-      api: { qrPublicKey: vi.fn(async () => m.tenantKey), redeemQr: vi.fn(async () => ({ memberId: MEMBER, cameraConsent: true, cursor: { sessionId: SESSION, blockIndex: 1, setIndex: 0 }, block })) },
+      api: { stationConfig: vi.fn(async () => ({ publicKey: m.tenantKey, safetyPause: true })), redeemQr: vi.fn(async () => ({ memberId: MEMBER, cameraConsent: true, cursor: { sessionId: SESSION, blockIndex: 1, setIndex: 0 }, block })) },
     });
     render(
       <MemoryRouter initialEntries={["/station"]}>

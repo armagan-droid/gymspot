@@ -8,18 +8,6 @@ import { SettingsPanel } from "./components/Settings";
 // Route skeleton for the three areas in specs/08. Screens are placeholders
 // until their roadmap tasks (T2.3+, T4.x). C7 and C9 are outside the MVP (specs/09).
 
-export type ScreenId = `A${1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9}` | `B${1 | 2 | 3 | 4 | 5 | 6}` | `C${1 | 2 | 3 | 4 | 5 | 6 | 8 | 10}`;
-
-export const SCREEN_ROUTES: { path: string; screen: ScreenId }[] = [
-  { path: "/admin", screen: "C2" },
-  { path: "/admin/login", screen: "C1" },
-  { path: "/admin/stations", screen: "C3" },
-  { path: "/admin/members", screen: "C4" },
-  { path: "/admin/templates", screen: "C5" },
-  { path: "/admin/members/:memberId", screen: "C6" },
-  { path: "/admin/settings", screen: "C8" },
-  { path: "/admin/calibration", screen: "C10" },
-];
 
 // T2.2 pose spike: development builds only. Lazy so production drops the import entirely.
 const SpikePage = import.meta.env.DEV ? lazy(() => import("./spike/SpikePage").then((m) => ({ default: m.SpikePage }))) : null;
@@ -38,6 +26,18 @@ const StationApp = lazy(() => import("./station/StationApp").then((m) => ({ defa
 const PhoneSessionPage = lazy(() => import("./phone/PhoneSessionPage").then((m) => ({ default: m.PhoneSessionPage })));
 const suspended = (el: ReactNode) => <Suspense>{el}</Suspense>;
 
+const adminPages = () => import("./admin/pages");
+const AdminLogin = lazy(() => adminPages().then((m) => ({ default: m.AdminLogin })));
+const RequireStaff = lazy(() => adminPages().then((m) => ({ default: m.RequireStaff })));
+const AdminOverview = lazy(() => adminPages().then((m) => ({ default: m.AdminOverview })));
+const AdminStations = lazy(() => adminPages().then((m) => ({ default: m.AdminStations })));
+const AdminMembers = lazy(() => adminPages().then((m) => ({ default: m.AdminMembers })));
+const AdminMemberDetail = lazy(() => adminPages().then((m) => ({ default: m.AdminMemberDetail })));
+const AdminTemplates = lazy(() => adminPages().then((m) => ({ default: m.AdminTemplates })));
+const AdminTemplateEdit = lazy(() => adminPages().then((m) => ({ default: m.AdminTemplateEdit })));
+const AdminSettings = lazy(() => adminPages().then((m) => ({ default: m.AdminSettings })));
+const AdminCalibration = lazy(() => adminPages().then((m) => ({ default: m.AdminCalibration })));
+
 const MemberLogin = lazy(() => import("./member/login").then((m) => ({ default: m.MemberLogin })));
 const member = (name: "RequireMember" | "MemberHome" | "MemberProgramPage" | "MemberHistory" | "MemberSessionDetail" | "MemberProgress" | "MemberSettings") =>
   lazy(() => import("./member/pages").then((m) => ({ default: m[name] })));
@@ -48,18 +48,6 @@ const MemberHistory = member("MemberHistory");
 const MemberSessionDetail = member("MemberSessionDetail");
 const MemberProgress = member("MemberProgress");
 const MemberSettings = member("MemberSettings");
-
-const SETTINGS_SCREENS: ReadonlySet<ScreenId> = new Set(["B6", "C8"]);
-
-function Screen({ id }: { id: ScreenId }) {
-  const { t } = useTranslation();
-  return (
-    <section data-screen={id}>
-      <h1>{t(`screens.${id}`)}</h1>
-      {SETTINGS_SCREENS.has(id) && <SettingsPanel />}
-    </section>
-  );
-}
 
 function Home() {
   const { t } = useTranslation();
@@ -80,8 +68,6 @@ function NotFound() {
   const { t } = useTranslation();
   return <h1>{t("app.notFound")}</h1>;
 }
-
-const layoutFor = { station: <StationLayout />, member: <MemberLayout />, admin: <AdminLayout /> } as const;
 
 export function AppRoutes() {
   return (
@@ -147,13 +133,25 @@ export function AppRoutes() {
           }
         />
       )}
-      {(["station", "member", "admin"] as const).map((area) => (
-        <Route key={area} element={layoutFor[area]}>
-          {SCREEN_ROUTES.filter((r) => r.path.startsWith(`/${area}`)).map((r) => (
-            <Route key={r.path} path={r.path} element={<Screen id={r.screen} />} />
-          ))}
+      {/* C1–C10 admin panel (T4.3); C7/C9 are outside the MVP (specs/09) */}
+      <Route element={<AdminLayout />}>
+        <Route path="/admin/login" element={suspended(<AdminLogin />)} />
+        <Route element={suspended(<RequireStaff roles={["owner", "manager"]} />)}>
+          <Route path="/admin" element={suspended(<AdminOverview />)} />
+          <Route path="/admin/stations" element={suspended(<AdminStations />)} />
         </Route>
-      ))}
+        <Route element={suspended(<RequireStaff />)}>
+          <Route path="/admin/members" element={suspended(<AdminMembers />)} />
+          <Route path="/admin/members/:memberId" element={suspended(<AdminMemberDetail />)} />
+          <Route path="/admin/templates" element={suspended(<AdminTemplates />)} />
+          <Route path="/admin/templates/:templateId" element={suspended(<AdminTemplateEdit />)} />
+          {/* any staff: the page itself refuses trainers (specs/07) */}
+          <Route path="/admin/calibration" element={suspended(<AdminCalibration />)} />
+        </Route>
+        <Route element={suspended(<RequireStaff roles={["owner"]} />)}>
+          <Route path="/admin/settings" element={suspended(<AdminSettings />)} />
+        </Route>
+      </Route>
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

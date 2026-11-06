@@ -206,5 +206,100 @@
       "account": "Hesap",
       "signOut": "Çıkış yap"
     }
+  },
+  "admin": {
+    "login": {
+      "tenant": "Salon kimliği",
+      "password": "Şifre",
+      "submit": "Giriş yap",
+      "failed": "E-posta veya şifre hatalı.",
+      "locked": "Çok fazla hatalı deneme. 15 dakika sonra tekrar dene."
+    },
+    "overview": {
+      "active": "Aktif seans: {{count}}",
+      "today": "Bugün: {{count}}"
+    },
+    "stations": {
+      "devices": "{{count}} cihaz",
+      "lastSeen": "son görülme {{at}}",
+      "neverSeen": "hiç bağlanmadı",
+      "pairingCode": "Eşleştirme kodu üret",
+      "expires": "({{at}}'e kadar geçerli)",
+      "removeDevice": "Cihazı kaldır",
+      "name": "İstasyon adı",
+      "add": "İstasyon ekle"
+    },
+    "members": {
+      "search": "Ara",
+      "noConsent": "kamera rızası yok",
+      "add": "Üye ekle",
+      "name": "Ad soyad",
+      "invite": "Davet bağlantısı gönder"
+    },
+    "detail": {
+      "topFaults": "Son 30 günün en sık hataları",
+      "weekly": "Haftalık seans (son 8 hafta)",
+      "assignProgram": "Programı ata",
+      "template": "Program şablonu",
+      "startDate": "Başlangıç tarihi",
+      "programAssigned": "Program atandı.",
+      "trainer": "Antrenör",
+      "assignTrainer": "Antrenör ata",
+      "trainerAssigned": "Antrenör atandı."
+    },
+    "templates": {
+      "new": "Yeni şablon",
+      "blocks": "{{count}} blok",
+      "delete": "Sil",
+      "inUse": "Bu şablon bir üyeye atanmış olduğu için silinemez.",
+      "name": "Şablon adı",
+      "block": "Blok {{n}}",
+      "day": "Gün",
+      "sets": "Set",
+      "reps": "Tekrar",
+      "rest": "Dinlenme (sn)",
+      "mode": "Mod",
+      "strict": "Katı (hatalı tekrar sayılmaz)",
+      "lenient": "Esnek (hatalı tekrar sayılır)",
+      "station": "İstasyon",
+      "removeBlock": "Bloğu kaldır",
+      "addBlock": "Blok ekle",
+      "saveFailed": "Şablon kaydedilemedi."
+    },
+    "settings": {
+      "defaultMode": "Varsayılan mod",
+      "retention": "Saklama süresi (ay)",
+      "safetyPause": "Güvenlik duraklatması",
+      "save": "Ayarları kaydet",
+      "saved": "Kaydedildi.",
+      "staff": "Personel",
+      "staffEmail": "Personel e-postası",
+      "role": "Rol",
+      "tempPassword": "Geçici şifre",
+      "addStaff": "Personel ekle",
+      "dataRequests": "Üye veri talepleri",
+      "requestKind": {
+        "delete": "silme",
+        "export": "dışa aktarma"
+      },
+      "completed": "tamamlandı",
+      "open": "açık",
+      "notice": "Salon girişi bilgilendirme metni (şablon)",
+      "noticeText": [
+        "Bu alanda kamera ile hareket analizi yapılmaktadır.",
+        "Görüntüler yalnızca istasyondaki cihazda işlenir; kaydedilmez ve hiçbir yere gönderilmez.",
+        "Sistemi kullanan üyeler açık rıza vermiştir. Kamerada görünmek istemiyorsanız istasyon alanının dışında kalabilirsiniz.",
+        "Sorularınız için salon yönetimine başvurabilirsiniz."
+      ]
+    },
+    "roles": {
+      "owner": "Sahip",
+      "manager": "Yönetici",
+      "trainer": "Antrenör"
+    },
+    "calibration": {
+      "uploaded": "Kayıt şifrelenerek yüklendi.",
+      "failed": "Kayıt yüklenemedi."
+    }
   }
 }

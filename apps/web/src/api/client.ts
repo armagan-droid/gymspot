@@ -20,6 +20,8 @@ export interface MemberProgram {
   memberProgramId: string;
   days: Workout[];
   nextDayIndex: number;
+  /** Gym setting (C8, specs/05). */
+  safetyPause?: boolean;
 }
 
 export interface MemberProfile {
@@ -65,7 +67,7 @@ export interface RedeemResult {
 }
 
 /** device/member credentials, and the member's gym (tenant) remembered from the invite link. */
-export type CredentialKey = "device" | "member" | "tenant";
+export type CredentialKey = "device" | "member" | "tenant" | "staff" | "staffTenant";
 
 export interface CredentialStore {
   get<T>(key: CredentialKey): T | null;
@@ -87,7 +89,8 @@ export class NetworkError extends Error {}
 
 export interface GymApi {
   pairDevice(code: string): Promise<DeviceCredentials>;
-  qrPublicKey(): Promise<string>;
+  /** Tenant QR key for offline verification, plus the gym's safety pause setting. */
+  stationConfig(): Promise<{ publicKey: string; safetyPause: boolean }>;
   redeemQr(qr: string): Promise<RedeemResult>;
   ingestAsDevice(records: PersistRecord[]): Promise<IngestResult[]>;
   memberProgram(): Promise<MemberProgram>;
@@ -176,7 +179,7 @@ export function createGymApi({ baseUrl, store, fetchFn = fetch }: { baseUrl: str
       deviceAccess = null;
       return creds;
     },
-    qrPublicKey: async () => ((await asDevice("GET", "/auth/qr-public-key")) as { publicKey: string }).publicKey,
+    stationConfig: async () => (await asDevice("GET", "/auth/qr-public-key")) as { publicKey: string; safetyPause: boolean },
     redeemQr: async (qr) => (await asDevice("POST", "/auth/qr/redeem", { qr })) as RedeemResult,
     ingestAsDevice: async (records) => ((await asDevice("POST", "/ingest", { records })) as { results: IngestResult[] }).results,
     memberProgram: async () => (await asMember("GET", "/me/program")) as MemberProgram,

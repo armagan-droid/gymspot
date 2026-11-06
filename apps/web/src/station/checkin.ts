@@ -26,6 +26,14 @@ export class OfflineCheckins {
     this.storage.setItem(`gymspot.station.${k}`, JSON.stringify(v));
   }
 
+  /** Gym safety pause setting (specs/05), cached with the key. */
+  get safetyPause(): boolean {
+    return this.read<boolean>("safetyPause", true);
+  }
+  set safetyPause(v: boolean) {
+    this.write("safetyPause", v);
+  }
+
   get tenantKey(): string | null {
     return this.read<string | null>("qrKey", null);
   }

@@ -36,14 +36,14 @@ Rotalar: tablet için `/station` (eşleştirilmemişse A1, sonra A2 → A3 → a
 ## C) Yönetim paneli (tablet/masaüstü, telefonda sade)
 | # | Ekran | Rol | İçerik |
 |---|---|---|---|
-| C1 | Giriş | Personel | E-posta/şifre |
+| C1 | Giriş | Personel | Salon kimliği (ilk girişte; davet/kurulum bağlantısındaki `?tenant=` ile gelir ve hatırlanır), e-posta, şifre |
 | C2 | Genel bakış | Yönetici | Aktif seans, bugünkü seans sayısı, istasyon sağlığı |
 | C3 | İstasyonlar | Yönetici | Liste, cihaz durumu (heartbeat), eşleştirme, hareket ataması |
 | C4 | Üyeler | Yönetici/Antrenör | Arama, üye detayı, program atama |
 | C5 | Program şablonları | Antrenör | Şablon oluştur/düzenle (hareket, set, tekrar, dinlenme, mod) |
-| C6 | Üye detayı | Antrenör | Seans geçmişi, en sık hatalar, devamlılık |
+| C6 | Üye detayı | Antrenör | Seans geçmişi, son 30 günün en sık hataları, haftalık seans sayısı (son 8 hafta), antrenör ataması, program atama |
 | C7 | Analitik | Yönetici | İstasyon kullanımı (saat bazlı), aktif üye oranı, devamlılık |
-| C8 | Ayarlar | Sahip | Şube, kullanıcılar, strict/lenient varsayılanı, saklama süresi, bilgilendirme şablonu |
+| C8 | Ayarlar | Sahip | Kullanıcılar (personel ekleme), strict/lenient varsayılanı (yeni şablon bloklarında öntanımlı), saklama süresi (ay, varsayılan 24), güvenlik duraklatması açık/kapalı (05; telefona programla, tablete tenant anahtarıyla iletilir), bilgilendirme metni şablonu, üye veri talepleri |
 | C9 | Faturalama | Sahip | Plan, istasyon sayısı, faturalar |
 | C10 | Kalibrasyon kaydı | Yönetici/Sahip | Katılımcı rızası (ayrı metin), hareket seçimi, etiketleme (doğru/hatalı + hata türü), kayıt göstergesi. Yalnız landmark kaydeder (07) |
 

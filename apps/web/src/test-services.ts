@@ -2,12 +2,13 @@ import type { PersistRecord } from "@gymspot/engine";
 import type { Frame } from "@gymspot/shared";
 import { vi } from "vitest";
 import type { CredentialStore, GymApi } from "./api/client";
+import type { StaffApi } from "./api/staff";
 import type { PoseSource } from "./pose/source";
 import type { AppServices } from "./services";
 import type { QrScanner } from "./station/scanner";
 
 /** Fake services for component tests: scripted camera, scanner and API. */
-export function testServices(o: { api?: Partial<GymApi>; credentials?: Record<string, unknown>; online?: boolean } = {}) {
+export function testServices(o: { api?: Partial<GymApi>; staff?: Partial<StaffApi>; credentials?: Record<string, unknown>; online?: boolean } = {}) {
   const clock = { now: Date.UTC(2026, 10, 6, 10) };
   const creds: Record<string, unknown> = { ...o.credentials };
   const store: CredentialStore = { get: (k) => (creds[k] as never) ?? null, set: (k, v) => void (creds[k] = v), clear: (k) => void delete creds[k] };
@@ -20,6 +21,7 @@ export function testServices(o: { api?: Partial<GymApi>; credentials?: Record<st
 
   const services: AppServices = {
     api: { ...o.api } as GymApi,
+    staff: { role: () => null, ...o.staff } as StaffApi,
     store,
     storage,
     requestCamera: vi.fn(async () => ({ ok: true as const, stream: {} as MediaStream })),

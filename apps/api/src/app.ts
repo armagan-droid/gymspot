@@ -5,6 +5,7 @@ import { authRoutes } from "./auth/routes";
 import { AccessTokens, TenantKeys } from "./auth/tokens";
 import { type BlobStore, FileBlobStore } from "./calibration/store";
 import { type AppConfig, configFromEnv } from "./config";
+import { adminRoutes } from "./routes/admin";
 import { calibrationRoutes } from "./routes/calibration";
 import { ingestRoutes } from "./routes/ingest";
 import { meRoutes } from "./routes/me";
@@ -37,6 +38,7 @@ export function buildApp({ db, config = configFromEnv(), blobStore = new FileBlo
   void app.register(stationRoutes(db, tokens));
   void app.register(ingestRoutes(db, tokens));
   void app.register(calibrationRoutes(db, config, tokens, blobStore));
+  void app.register(adminRoutes(db, config, tokens));
 
   app.get("/health", async (_req, reply) => {
     try {

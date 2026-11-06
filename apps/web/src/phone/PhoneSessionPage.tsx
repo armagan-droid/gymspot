@@ -115,6 +115,7 @@ function OwnerSession({ loaded }: { loaded: Loaded }) {
             faults: Object.fromEntries(Object.entries(packs).map(([id, p]) => [id, p.faults])),
           },
           setup: { view: "front", nearSide: "left" },
+          engine: { safetyPause: program.safetyPause ?? true },
           now: services.now,
           newId: services.newId,
           onCommand: (c: ProgramCommand) => {

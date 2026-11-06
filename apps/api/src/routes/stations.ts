@@ -36,16 +36,25 @@ export function stationRoutes(db: Kysely<Database>, tokens: AccessTokens) {
 
     app.get("/stations", { preHandler: staff }, async (req) => {
       const ctx = auth(req);
-      const rows = await withTenant(db, ctx.tid, (trx) =>
-        sql<{ id: string; name: string; exercise_ids: string[]; device_status: string; last_heartbeat_at: Date | null }>`
-          select id, name, exercise_ids, device_status, last_heartbeat_at from stations order by name`.execute(trx),
-      );
-      return rows.rows.map((s) => ({
+      const { stations, devices } = await withTenant(db, ctx.tid, async (trx) => ({
+        stations: (
+          await sql<{ id: string; name: string; exercise_ids: string[]; device_status: string; last_heartbeat_at: Date | null }>`
+            select id, name, exercise_ids, device_status, last_heartbeat_at from stations order by name`.execute(trx)
+        ).rows,
+        devices: (
+          await sql<{ id: string; station_id: string | null; kind: string; last_seen_at: Date | null }>`
+            select id, station_id, kind, last_seen_at from devices order by last_seen_at desc nulls last`.execute(trx)
+        ).rows,
+      }));
+      return stations.map((s) => ({
         id: s.id,
         name: s.name,
         exerciseIds: s.exercise_ids,
         deviceStatus: s.device_status,
         lastHeartbeatAt: s.last_heartbeat_at?.toISOString() ?? null,
+        devices: devices
+          .filter((d) => d.station_id === s.id)
+          .map((d) => ({ id: d.id, kind: d.kind, lastSeenAt: d.last_seen_at?.toISOString() ?? null })),
       }));
     });
   };

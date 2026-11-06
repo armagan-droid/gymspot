@@ -31,7 +31,7 @@ Her adım tek spec'e dayanır ve testlerle biter. Sıra bağımlılığa göre. 
 ## Faz 4 — Ürün ekranları
 - [x] T4.1 İstasyon akışı A1–A9 uçtan uca (telefon modu + istasyon devri) _(açık: A9'daki "elle kaydet" seçeneği sunuluyor, elle set kaydı akışının kendisi henüz yok; görsel test AC-8.1 tarayıcıda)_
 - [x] T4.2 Üye alanı B1–B6 (magic link, rıza, rıza geri çekme) — AC-7.4
-- [ ] T4.3 Yönetim paneli C1–C6, C8
+- [x] T4.3 Yönetim paneli C1–C6, C8
 
 ## Faz 5 — Pilot hazırlığı
 - [ ] T5.1 Gizlilik e2e testi (AC-7.1), tenant izolasyon testleri (AC-6.1), silme akışı (AC-7.2)

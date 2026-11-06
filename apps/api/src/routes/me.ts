@@ -8,6 +8,7 @@ import type { AppConfig } from "../config";
 import { type Database, withTenant } from "../db/db";
 import { type Trx, auth, iso, notFound, parse } from "./common";
 import { MEMBER_COLUMNS, type MemberRow, listSessions, memberDto } from "./members";
+import { tenantSettings } from "./admin";
 import { templateBlocks } from "./templates";
 
 // Member self-service (B1–B4, B6) — specs/03 "Bugünün antrenmanı", specs/07 consent.
@@ -232,7 +233,8 @@ export function meRoutes(db: Kysely<Database>, config: AppConfig, tokens: Access
         ).rows[0];
         const lastPos = last ? dayIndexes.indexOf(last.workout_day_index) : -1;
         const nextDayIndex = dayIndexes[(lastPos + 1) % dayIndexes.length] ?? 0;
-        return { memberProgramId: program.id, days, nextDayIndex };
+        const { safetyPause } = await tenantSettings(trx);
+        return { memberProgramId: program.id, days, nextDayIndex, safetyPause };
       });
       return result ?? notFound(reply);
     });

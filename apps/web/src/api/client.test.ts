@@ -25,12 +25,12 @@ describe("GymApi client", () => {
     const fetchFn = fakeFetch({
       "POST /auth/device/pair": () => ({ status: 200, json: { deviceId: "d1", deviceToken: "t.x", tenantId: "t", stationId: "s" } }),
       "POST /auth/device/session": (b) => ({ status: 200, json: { accessToken: `acc-for-${(b as { deviceToken: string }).deviceToken}` } }),
-      "GET /auth/qr-public-key": (_b, auth) => (auth === "acc-for-t.x" ? { status: 200, json: { publicKey: "PK" } } : { status: 401 }),
+      "GET /auth/qr-public-key": (_b, auth) => (auth === "acc-for-t.x" ? { status: 200, json: { publicKey: "PK", safetyPause: true } } : { status: 401 }),
     });
     const api = createGymApi({ baseUrl: "https://api.test", store, fetchFn });
     await api.pairDevice("ABCD2345");
     expect(store.data.device).toMatchObject({ deviceId: "d1" });
-    expect(await api.qrPublicKey()).toBe("PK");
+    expect((await api.stationConfig()).publicKey).toBe("PK");
   });
 
   test("an expired device access token is renewed once", async () => {
@@ -38,10 +38,10 @@ describe("GymApi client", () => {
     const store = memoryStore({ device: { deviceId: "d1", deviceToken: "t.x", tenantId: "t", stationId: "s" } });
     const fetchFn = fakeFetch({
       "POST /auth/device/session": () => ({ status: 200, json: { accessToken: `acc${++n}` } }),
-      "GET /auth/qr-public-key": (_b, auth) => (auth === "acc2" ? { status: 200, json: { publicKey: "PK" } } : { status: 401 }),
+      "GET /auth/qr-public-key": (_b, auth) => (auth === "acc2" ? { status: 200, json: { publicKey: "PK", safetyPause: true } } : { status: 401 }),
     });
     const api = createGymApi({ baseUrl: "https://api.test", store, fetchFn });
-    expect(await api.qrPublicKey()).toBe("PK");
+    expect((await api.stationConfig()).publicKey).toBe("PK");
     expect(n).toBe(2);
   });
 

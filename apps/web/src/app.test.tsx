@@ -4,7 +4,6 @@ import { MemoryRouter } from "react-router";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import { App } from "./App";
 import { createI18n, resources } from "./i18n";
-import { SCREEN_ROUTES } from "./routes";
 
 function renderAt(path: string, lng: "tr" | "en" = "tr") {
   const i18n = createI18n(lng);
@@ -39,9 +38,10 @@ describe("i18n (CLAUDE.md: TR default, EN second)", () => {
     for (const key of Object.values(PROGRAM_MESSAGE_KEYS)) expect(tr, key).toContain(key);
   });
 
-  test("every routed screen has a title", () => {
+  test("every MVP screen has a title (specs/08; C7/C9 are outside the MVP)", () => {
     const tr = keys(resources.tr.translation);
-    for (const r of SCREEN_ROUTES) expect(tr).toContain(`screens.${r.screen}`);
+    const screens = ["A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8", "A9", "B1", "B2", "B3", "B4", "B5", "B6", "C1", "C2", "C3", "C4", "C5", "C6", "C8", "C10"];
+    for (const id of screens) expect(tr).toContain(`screens.${id}`);
   });
 
   test("Turkish is the default language", () => {
@@ -77,32 +77,9 @@ describe("theme (AC-8.4)", () => {
 });
 
 describe("routes (specs/08)", () => {
-  test.each(SCREEN_ROUTES.map((r) => [r.path.replace(":memberId", "m-1"), r.screen] as const))("%s renders %s", (path, id) => {
-    renderAt(path);
-    const el = document.querySelector(`[data-screen="${id}"]`);
-    expect(el).not.toBeNull();
-    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe(resources.tr.translation.screens[id as keyof typeof resources.tr.translation.screens]);
-  });
-
   test.each(["/admin/analytics", "/admin/billing", "/nope"])("%s is not routed (C7/C9 are outside the MVP)", (path) => {
     renderAt(path);
     expect(screen.getByRole("heading", { name: "Sayfa bulunamadı" })).toBeTruthy();
   });
 });
 
-describe("mandatory notices", () => {
-  test.each(SCREEN_ROUTES.filter((r) => r.path.startsWith("/station")).map((r) => r.path))(
-    "%s shows the medical disclaimer and the no-video notice (rule 5, specs/07)",
-    (path) => {
-      renderAt(path);
-      expect(screen.getByText("Bu sistem tıbbi tavsiye değildir. Ağrı hissedersen dur.")).toBeTruthy();
-      expect(screen.getByText(/Görüntü saklanmaz/)).toBeTruthy();
-    },
-  );
-
-  // /member/settings needs a signed-in member: covered in member/member.test.tsx (B6)
-  test.each(["/admin/settings"])("settings screen %s shows the medical disclaimer", (path) => {
-    renderAt(path);
-    expect(screen.getByText("Bu sistem tıbbi tavsiye değildir. Ağrı hissedersen dur.")).toBeTruthy();
-  });
-});

@@ -206,5 +206,100 @@
       "account": "Account",
       "signOut": "Sign out"
     }
+  },
+  "admin": {
+    "login": {
+      "tenant": "Gym ID",
+      "password": "Password",
+      "submit": "Sign in",
+      "failed": "Wrong e-mail or password.",
+      "locked": "Too many failed attempts. Try again in 15 minutes."
+    },
+    "overview": {
+      "active": "Active sessions: {{count}}",
+      "today": "Today: {{count}}"
+    },
+    "stations": {
+      "devices": "{{count}} devices",
+      "lastSeen": "last seen {{at}}",
+      "neverSeen": "never connected",
+      "pairingCode": "Create pairing code",
+      "expires": "(valid until {{at}})",
+      "removeDevice": "Remove device",
+      "name": "Station name",
+      "add": "Add station"
+    },
+    "members": {
+      "search": "Search",
+      "noConsent": "no camera consent",
+      "add": "Add member",
+      "name": "Full name",
+      "invite": "Send invite link"
+    },
+    "detail": {
+      "topFaults": "Most frequent faults (last 30 days)",
+      "weekly": "Weekly sessions (last 8 weeks)",
+      "assignProgram": "Assign program",
+      "template": "Program template",
+      "startDate": "Start date",
+      "programAssigned": "Program assigned.",
+      "trainer": "Trainer",
+      "assignTrainer": "Assign trainer",
+      "trainerAssigned": "Trainer assigned."
+    },
+    "templates": {
+      "new": "New template",
+      "blocks": "{{count}} blocks",
+      "delete": "Delete",
+      "inUse": "This template is assigned to a member and cannot be deleted.",
+      "name": "Template name",
+      "block": "Block {{n}}",
+      "day": "Day",
+      "sets": "Sets",
+      "reps": "Reps",
+      "rest": "Rest (s)",
+      "mode": "Mode",
+      "strict": "Strict (faulty reps don't count)",
+      "lenient": "Lenient (faulty reps count)",
+      "station": "Station",
+      "removeBlock": "Remove block",
+      "addBlock": "Add block",
+      "saveFailed": "Could not save the template."
+    },
+    "settings": {
+      "defaultMode": "Default mode",
+      "retention": "Retention (months)",
+      "safetyPause": "Safety pause",
+      "save": "Save settings",
+      "saved": "Saved.",
+      "staff": "Staff",
+      "staffEmail": "Staff e-mail",
+      "role": "Role",
+      "tempPassword": "Temporary password",
+      "addStaff": "Add staff",
+      "dataRequests": "Member data requests",
+      "requestKind": {
+        "delete": "deletion",
+        "export": "export"
+      },
+      "completed": "completed",
+      "open": "open",
+      "notice": "Gym entrance notice (template)",
+      "noticeText": [
+        "Camera-based movement analysis is used in this area.",
+        "Images are processed only on the station device; they are never recorded or sent anywhere.",
+        "Members using the system have given explicit consent. If you prefer not to appear on camera, stay outside the station area.",
+        "Please ask the gym management if you have questions."
+      ]
+    },
+    "roles": {
+      "owner": "Owner",
+      "manager": "Manager",
+      "trainer": "Trainer"
+    },
+    "calibration": {
+      "uploaded": "Recording encrypted and uploaded.",
+      "failed": "Upload failed."
+    }
   }
 }

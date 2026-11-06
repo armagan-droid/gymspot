@@ -34,8 +34,11 @@ export function StationApp({ returnDelayMs = 5000 }: { returnDelayMs?: number })
   useEffect(() => {
     if (phase.kind !== "scan" || !services.online()) return;
     void services.api
-      .qrPublicKey()
-      .then((k) => (offline.tenantKey = k))
+      .stationConfig()
+      .then((c) => {
+        offline.tenantKey = c.publicKey;
+        offline.safetyPause = c.safetyPause;
+      })
       .catch(() => undefined);
     void offline.flush((qr) => services.api.redeemQr(qr));
   }, [phase.kind, services, offline]);
@@ -77,7 +80,7 @@ export function StationApp({ returnDelayMs = 5000 }: { returnDelayMs?: number })
         />
       );
     case "session":
-      return <ExecutorSession checkin={phase.checkin} setup={phase.setup} onDone={() => setPhase({ kind: "return" })} />;
+      return <ExecutorSession checkin={phase.checkin} setup={phase.setup} safetyPause={offline.safetyPause} onDone={() => setPhase({ kind: "return" })} />;
     case "return":
       return (
         <section data-screen="A8">
@@ -165,7 +168,7 @@ function ScanScreen({ message, onCode }: { message?: string; onCode(qr: string):
 }
 
 /** Runs the delegated block as the program engine's executor (specs/03). */
-function ExecutorSession({ checkin, setup, onDone }: { checkin: CheckedIn; setup: ExerciseSetup; onDone(): void }) {
+function ExecutorSession({ checkin, setup, safetyPause, onDone }: { checkin: CheckedIn; setup: ExerciseSetup; safetyPause: boolean; onDone(): void }) {
   const services = useServices();
   const sync = useMemo(() => services.createSync("device"), [services]);
   const handlers = useRef<{ speak(key: string): void; show(c: ShowCommand): void }>({ speak: () => undefined, show: () => undefined });
@@ -186,6 +189,7 @@ function ExecutorSession({ checkin, setup, onDone }: { checkin: CheckedIn; setup
         ...(device?.stationId && { stationId: device.stationId }),
       },
       setup,
+      engine: { safetyPause },
       now: services.now,
       newId: services.newId,
       onCommand: (c: ProgramCommand) => {
@@ -196,7 +200,7 @@ function ExecutorSession({ checkin, setup, onDone }: { checkin: CheckedIn; setup
     });
     r.accept(checkin.cursor);
     return r;
-  }, [checkin, setup, services, sync, device?.deviceId, device?.stationId]);
+  }, [checkin, setup, safetyPause, services, sync, device?.deviceId, device?.stationId]);
 
   const bind = useCallback((h: typeof handlers.current) => void (handlers.current = h), []);
   return <LiveSession runner={runner} packs={packs} bindCommands={bind} onState={(s) => s.status === "IDLE" && onDone()} />;

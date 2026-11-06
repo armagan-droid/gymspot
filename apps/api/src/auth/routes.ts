@@ -4,6 +4,7 @@ import { type Kysely, type Transaction, sql } from "kysely";
 import { z } from "zod";
 import type { AppConfig } from "../config";
 import { type Database, asAppRole, withTenant } from "../db/db";
+import { tenantSettings } from "../routes/admin";
 import { requireAuth } from "./guard";
 import { createMagicLink } from "./magic-link";
 import { burnPasswordCheck, verifyPassword } from "./password";
@@ -262,7 +263,9 @@ export function authRoutes({ db, config, tokens, keys }: Deps) {
 
     app.get("/auth/qr-public-key", { preHandler: requireAuth(tokens, ["device"]) }, async (req) => {
       const { publicKey } = await keys.get(req.auth!.tid);
-      return { publicKey: toBase64Url(publicKey) };
+      // the tablet also needs the gym's safety pause setting (specs/05, C8)
+      const { safetyPause } = await withTenant(db, req.auth!.tid, tenantSettings);
+      return { publicKey: toBase64Url(publicKey), safetyPause };
     });
 
     app.post("/auth/qr/redeem", { preHandler: requireAuth(tokens, ["device"]) }, async (req, reply) => {

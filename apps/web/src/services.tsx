@@ -1,5 +1,6 @@
 import { type ReactNode, createContext, useContext, useMemo } from "react";
 import { type CredentialStore, type GymApi, createGymApi, localCredentialStore } from "./api/client";
+import { type StaffApi, createStaffApi } from "./api/staff";
 import { type CameraResult, requestCamera } from "./camera";
 import { createMediaPipeSource } from "./pose/mediapipe";
 import type { PoseSource } from "./pose/source";
@@ -17,6 +18,7 @@ export interface RecordSink {
 
 export interface AppServices {
   api: GymApi;
+  staff: StaffApi;
   store: CredentialStore;
   storage: Pick<Storage, "getItem" | "setItem" | "removeItem">;
   requestCamera: () => Promise<CameraResult>;
@@ -38,6 +40,7 @@ export function browserServices(): AppServices {
   const api = createGymApi({ baseUrl, store });
   return {
     api,
+    staff: createStaffApi({ baseUrl, store }),
     store,
     storage: localStorage,
     requestCamera,

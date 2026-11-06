@@ -10,6 +10,7 @@ platform_admins(id, email, password_hash, status)
 
 -- tenant yapısı
 branches(id, tenant_id, name, address, timezone)
+tenant_settings(tenant_id, default_mode[strict|lenient], retention_months, safety_pause bool)  -- C8
 users(id, tenant_id, email, password_hash, role[owner|manager|trainer], status)      -- personel
 members(id, tenant_id, branch_id, display_name, email?, phone?, external_ref,
         consent_at, consent_version, consent_withdrawn_at?, status)

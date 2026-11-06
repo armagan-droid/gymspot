@@ -11,7 +11,7 @@
 | Kimlik | E-posta/şifre (personel), magic link (üye), imzalı kısa ömürlü QR (istasyon check-in/devir), cihaz token'ı (tablet) | Salon akışına uygun; çevrimdışı doğrulanabilir (07) |
 | Seans sahipliği | **Üyenin telefonu** (istasyon tableti blok bazında yürütücü) | Çok istasyonlu seans çevrimdışı da sürer |
 | Gerçek zamanlı | Gerekirse WebSocket (panel canlı istasyon durumu) | MVP'de polling yeterli |
-| Dağıtım | Tek bölge, konteyner, yönetilen Postgres | MVP sadeliği |
+| Dağıtım | Tek bölge, konteyner (`deploy/Dockerfile.api`, `deploy/Dockerfile.web` + Caddy), yönetilen Postgres; API kısıtlı `gymspot_api` rolüyle bağlanır | MVP sadeliği; ayrıntılar `docs/deploy.md` |
 
 ## Monorepo
 ```
@@ -52,7 +52,7 @@ Kamera → MediaPipe Pose → landmarks (bellekte)
 - Model ağırlıkları PWA ile önbelleğe alınır.
 
 ## Cihaz kurulumu
-- **Tablet (istasyon):** sabit stand, yatay, kamera hareketi tam görecek şekilde. Kurulum sihirbazı açı/mesafe kontrolü yapar (08'e bakınız).
+- **Tablet (istasyon):** sabit stand, yatay, kamera hareketi tam görecek şekilde. Kurulum sihirbazı açı/mesafe kontrolü yapar (08'e bakınız). Kiosk modu, kamera konumu ve eşleştirme adımları: `docs/salon-kurulum.md`.
 - **Telefon:** üye kendi telefonunu standa koyar; aynı akış.
 
 ## Modüller ve sınırları

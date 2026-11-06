@@ -37,7 +37,7 @@ Her adım tek spec'e dayanır ve testlerle biter. Sıra bağımlılığa göre. 
 - [x] T5.1 Gizlilik e2e testi (AC-7.1), tenant izolasyon testleri (AC-6.1), silme akışı (AC-7.2)
 - [x] T5.2 Gözlemlenebilirlik, heartbeat, hata izleme (PII/landmark kırpma)
 - [x] T5.3 Pilot kalibrasyon araçları: etiketli kayıtlardan eşik ayarı, sayım doğruluğu ve yanlış alarm raporu (09 tanımları)
-- [ ] T5.4 Dağıtım ve salon kurulum kılavuzu (tablet kiosk modu, stand/açı, bilgilendirme metni)
+- [x] T5.4 Dağıtım ve salon kurulum kılavuzu (tablet kiosk modu, stand/açı, bilgilendirme metni)
 
 ## Claude Code'a görev verme şablonu
 > "specs/<NN-...>.md içindeki <AC-x.y> kabul kriterlerini karşılayan <T..> görevini yap. Önce testleri yaz, sonra uygula. Spec dışı davranış ekleme; eksik/çelişen nokta varsa dur ve belirt."

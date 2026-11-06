@@ -5,6 +5,7 @@ import type { DeviceCredentials } from "../api/client";
 import { RULE_PACKS } from "../rules";
 import { useServices } from "../services";
 import { LiveSession } from "../session/LiveSession";
+import { ManualSession } from "../session/ManualSession";
 import { SessionRunner } from "../session/runner";
 import type { ShowCommand } from "../session/SessionView";
 import { SetupWizard } from "../setup/SetupWizard";
@@ -17,7 +18,8 @@ type CheckedIn = Extract<CheckinResult, { ok: true }>;
 type Phase =
   | { kind: "pair" }
   | { kind: "scan"; message?: string }
-  | { kind: "noConsent" }
+  | { kind: "noConsent"; checkin: CheckedIn }
+  | { kind: "manual"; checkin: CheckedIn }
   | { kind: "setup"; checkin: CheckedIn }
   | { kind: "session"; checkin: CheckedIn; setup: ExerciseSetup }
   | { kind: "return" };
@@ -57,7 +59,7 @@ export function StationApp({ returnDelayMs = 5000 }: { returnDelayMs?: number })
   }, [paired, services, offline]);
 
   useEffect(() => {
-    if (phase.kind !== "return" && phase.kind !== "noConsent") return;
+    if (phase.kind !== "return") return;
     const h = setTimeout(() => setPhase({ kind: "scan" }), returnDelayMs);
     return () => clearTimeout(h);
   }, [phase.kind, returnDelayMs]);
@@ -67,7 +69,7 @@ export function StationApp({ returnDelayMs = 5000 }: { returnDelayMs?: number })
       const r = await checkIn(qr, { api: services.api, offline, now: services.now, online: services.online });
       if (!r.ok) return setPhase({ kind: "scan", message: t(`station.checkin.${r.reason}`) });
       if (!RULE_PACKS[r.block.exerciseId]) return setPhase({ kind: "scan", message: t("station.checkin.invalid") });
-      setPhase(r.cameraConsent ? { kind: "setup", checkin: r } : { kind: "noConsent" });
+      setPhase(r.cameraConsent ? { kind: "setup", checkin: r } : { kind: "noConsent", checkin: r });
     },
     [services, offline, t],
   );
@@ -82,6 +84,8 @@ export function StationApp({ returnDelayMs = 5000 }: { returnDelayMs?: number })
         <section data-screen="A9">
           <h1>{t("screens.A9")}</h1>
           <p role="alert">{t("station.noConsent")}</p>
+          <button onClick={() => setPhase({ kind: "manual", checkin: phase.checkin })}>{t("camera.manualEntry")}</button>
+          <button onClick={() => setPhase({ kind: "scan" })}>{t("station.cancel")}</button>
         </section>
       );
     case "setup":
@@ -89,11 +93,13 @@ export function StationApp({ returnDelayMs = 5000 }: { returnDelayMs?: number })
         <StationSetup
           exerciseId={phase.checkin.block.exerciseId}
           onReady={(setup) => setPhase({ kind: "session", checkin: phase.checkin, setup })}
-          onCancel={() => setPhase({ kind: "scan" })}
+          onCancel={() => setPhase({ kind: "manual", checkin: phase.checkin })}
         />
       );
     case "session":
       return <ExecutorSession checkin={phase.checkin} setup={phase.setup} safetyPause={offline.safetyPause} onDone={() => setPhase({ kind: "return" })} />;
+    case "manual":
+      return <ExecutorSession checkin={phase.checkin} manual safetyPause={offline.safetyPause} onDone={() => setPhase({ kind: "return" })} />;
     case "return":
       return (
         <section data-screen="A8">
@@ -181,7 +187,7 @@ function ScanScreen({ message, onCode }: { message?: string; onCode(qr: string):
 }
 
 /** Runs the delegated block as the program engine's executor (specs/03). */
-function ExecutorSession({ checkin, setup, safetyPause, onDone }: { checkin: CheckedIn; setup: ExerciseSetup; safetyPause: boolean; onDone(): void }) {
+function ExecutorSession({ checkin, setup, manual, safetyPause, onDone }: { checkin: CheckedIn; setup?: ExerciseSetup; manual?: boolean; safetyPause: boolean; onDone(): void }) {
   const services = useServices();
   const sync = useMemo(() => services.createSync("device"), [services]);
   const handlers = useRef<{ speak(key: string): void; show(c: ShowCommand): void }>({ speak: () => undefined, show: () => undefined });
@@ -201,7 +207,7 @@ function ExecutorSession({ checkin, setup, safetyPause, onDone }: { checkin: Che
         deviceId: device?.deviceId ?? "station",
         ...(device?.stationId && { stationId: device.stationId }),
       },
-      setup,
+      setup: setup ?? { view: "front", nearSide: "left" },
       engine: { safetyPause },
       now: services.now,
       newId: services.newId,
@@ -216,5 +222,10 @@ function ExecutorSession({ checkin, setup, safetyPause, onDone }: { checkin: Che
   }, [checkin, setup, safetyPause, services, sync, device?.deviceId, device?.stationId]);
 
   const bind = useCallback((h: typeof handlers.current) => void (handlers.current = h), []);
-  return <LiveSession runner={runner} packs={packs} bindCommands={bind} onState={(s) => s.status === "IDLE" && onDone()} />;
+  const onState = (s: { status: string }) => s.status === "IDLE" && onDone();
+  return manual ? (
+    <ManualSession runner={runner} packs={packs} bindCommands={bind} onState={onState} />
+  ) : (
+    <LiveSession runner={runner} packs={packs} bindCommands={bind} onState={onState} />
+  );
 }

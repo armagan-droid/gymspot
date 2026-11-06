@@ -47,6 +47,8 @@ export const ProgramInputSchema = z.discriminatedUnion("type", [
   z.strictObject({ type: z.literal("USER_ACTION"), kind: UserActionKindSchema }),
   z.strictObject({ type: z.literal("HANDOFF_ACCEPTED"), cursor: SessionCursorSchema }),
   z.strictObject({ type: z.literal("HANDOFF_RETURNED") }),
+  /** Camera-less set logged by hand (specs/03 rule 14). */
+  z.strictObject({ type: z.literal("MANUAL_SET"), reps: z.int().min(0).max(500) }),
   z.strictObject({ type: z.literal("TICK"), now: z.number().nonnegative() }),
 ]);
 export type ProgramInput = z.infer<typeof ProgramInputSchema>;

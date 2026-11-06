@@ -14,6 +14,7 @@ Saf TypeScript, `packages/engine/program`. Kamera ve UI'dan bağımsız. Zaman y
     - Aynı karede olaylar şu sırayla gelir: `FAULT_DETECTED` → `REP_COMPLETED` → `SAFETY_PAUSE`.
   - Kullanıcıdan: `USER_ACTION { kind }` — `START`, `READY` (hazırım), `PAUSE`, `RESUME`, `END_SET`, `CONTINUE_SET`, `SKIP_BLOCK`, `UNDO_SKIP`, `ABORT`
   - Devir: `HANDOFF_ACCEPTED { cursor }` (istasyon tableti), `HANDOFF_RETURNED` (telefon)
+  - Elle kayıt: `MANUAL_SET { reps }` (kamerasız mod, 07)
   - Zaman: `TICK { now }`
 - Çıktı: durum + yan etki komutları (`SPEAK`, `SHOW`, `NAVIGATE_TO_STATION`, `PERSIST_EVENT`, `SHOW_HANDOFF_QR`).
 
@@ -68,7 +69,8 @@ Yürütücüde BLOCK_DONE → IDLE ("Telefonundan devam et")
 11. **Güvenlik duraklatması:** `SET_ACTIVE`'de `SAFETY_PAUSE` gelirse "Dur, formunu kontrol et" söylenir ve `PAUSED` olur (`resumeTo = SET_ACTIVE`). Diğer durumlarda yok sayılır.
 12. **ABORT:** `ABORTED`. Devam eden sette en az bir deneme varsa set kaydı (`below_target`) yazılır, blok `partial` olur. Seans kaydı `aborted` olur.
 13. **Yürütücüde blok sonu:** blok kaydı (`done`) yazılır, `SHOW handoff.return_to_phone` gösterilir, durum `IDLE` olur.
-14. Geçersiz girdi durumu değiştirmez ve komut üretmez.
+14. **Elle kayıt:** `READY`'de `MANUAL_SET { reps }` kamera seti yerine geçer. Set kaydı `source = manual`, `validReps = reps` ile yazılır ve tekrar kaydı üretilmez (06). `below_target` değeri `reps < hedef` olur; süreli blokta `false` olur. Sonrası kural 4'teki gibidir (REST veya BLOCK_DONE). Başka durumlarda geçersizdir.
+15. Geçersiz girdi durumu değiştirmez ve komut üretmez.
 
 ## Kayıtlar (PERSIST_EVENT)
 - **Seans:** sahip yazar. Başlangıçta `active`, bitişte `done`, `aborted` veya `abandoned`.
@@ -89,4 +91,5 @@ Yürütücüde BLOCK_DONE → IDLE ("Telefonundan devam et")
 - AC-3.5: Durum, `serialize/deserialize` ile kaydedilip geri yüklenebilir (sayfa yenilenmesi seansı kaybettirmez).
 - AC-3.6: `PAUSED` → `RESUME` her kaynak durum için doğru `resumeTo`'ya döner; set sayacı korunur.
 - AC-3.7: Devir: telefon motoru ve tablet motoru ayrı örneklerle simüle edilir. Blok tablette tamamlanır, telefon imleci doğru bloğa ilerler (ağ yokken de). Devredilen bloğun kayıtlarını yalnız tablet üretir.
+- AC-3.9: `MANUAL_SET` READY'de manuel set kaydı üretir (tekrar kaydı yok, şemaya uygun), dinlenme ve blok akışı kamerasız setteki gibi ilerler; başka durumlarda yok sayılır.
 - AC-3.8: Atla/geri al: geri alınan atlama hiç kayıt üretmez; geri alma imkânı kapanınca `skipped`/`partial` kaydı tek kez yazılır.

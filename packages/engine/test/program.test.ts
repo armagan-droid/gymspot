@@ -506,6 +506,53 @@ describe("AC-3.8: skip and undo", () => {
   });
 });
 
+describe("AC-3.9: manual (camera-less) sets", () => {
+  const manual = (reps: number) => ({ type: "MANUAL_SET", reps }) as ProgramInput;
+
+  test("a manual set from READY writes a manual set record and no reps, then rests", () => {
+    const d = started([squat({ sets: 2, reps: 10 })]);
+    d.send(manual(8));
+    expect(d.status).toBe("REST");
+    expect(d.records("rep")).toEqual([]);
+    const set = d.records("set")[0]!.data;
+    expect(set).toMatchObject({ source: "manual", validReps: 8, faultyReps: 0, incompleteReps: 0, plannedReps: 10, belowTarget: true });
+    expect(set).not.toHaveProperty("view");
+    expect(SetRecordSchema.safeParse(set).success).toBe(true);
+  });
+
+  test("the block and session flow is the same as with the camera", () => {
+    const d = started([squat({ sets: 2, reps: 5 }), pushup({ sets: 1, reps: 8 })]);
+    d.send(manual(5));
+    d.tick(60_000);
+    d.send(manual(5));
+    expect(d.state.cursor.blockIndex).toBe(1);
+    expect(d.status).toBe("READY");
+    d.send(manual(8));
+    expect(d.status).toBe("SESSION_DONE");
+    expect(d.records("set").map((r) => (r.data as { belowTarget: boolean }).belowTarget)).toEqual([false, false, false]);
+    expect(d.records("session_block").map((r) => (r.data as { status: string }).status)).toEqual(["done", "done"]);
+  });
+
+  test("a timed block logged by hand is not below target", () => {
+    const d = started([squat({ reps: undefined, durationSec: 30, sets: 1 })]);
+    d.send(manual(0));
+    expect(d.records("set")[0]!.data).toMatchObject({ source: "manual", belowTarget: false });
+  });
+
+  test("the set summary shows the logged reps", () => {
+    const d = started([squat({ sets: 2, reps: 10 })]);
+    expect(d.send(manual(7))).toContainEqual({ type: "SHOW", key: "summary.set", params: { counted: 7, valid: 7, faulty: 0, incomplete: 0, mostFrequentFault: "" } });
+  });
+
+  test("ignored outside READY", () => {
+    const d = started([squat()]);
+    d.beginSet();
+    const before = structuredClone(d.state);
+    expect(d.send(manual(5))).toEqual([]);
+    expect(d.state).toEqual(before);
+  });
+});
+
 describe("ABORT", () => {
   test("mid-set abort persists the partial set, a partial block and an aborted session", () => {
     const d = started([squat()]);

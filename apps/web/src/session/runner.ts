@@ -67,6 +67,11 @@ export class SessionRunner {
     this.send({ type: "HANDOFF_ACCEPTED", cursor });
   }
 
+  /** Camera-less set logged by hand (specs/03 rule 14). */
+  manualSet(reps: number): void {
+    this.send({ type: "MANUAL_SET", reps });
+  }
+
   /** Phone: the member is back from the station. */
   returned(): void {
     this.send({ type: "HANDOFF_RETURNED" });

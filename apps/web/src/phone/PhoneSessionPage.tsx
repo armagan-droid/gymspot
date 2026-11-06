@@ -7,6 +7,7 @@ import type { MemberProgram } from "../api/client";
 import { RULE_PACKS } from "../rules";
 import { useServices } from "../services";
 import { LiveSession } from "../session/LiveSession";
+import { ManualSession } from "../session/ManualSession";
 import { SessionRunner } from "../session/runner";
 import type { ShowCommand } from "../session/SessionView";
 import { SetupWizard } from "../setup/SetupWizard";
@@ -19,6 +20,7 @@ import { ensureDelegation, phoneKeys } from "./phone-keys";
 const packs = Object.fromEntries(Object.entries(RULE_PACKS).map(([k, v]) => [k, v.pack]));
 const PROGRAM_KEY = "gymspot.member.program";
 const SESSION_KEY = "gymspot.member.session";
+const MANUAL_KEY = "gymspot.member.manualSession";
 const TERMINAL = new Set(["SESSION_DONE", "ABORTED", "ABANDONED"]);
 
 interface Loaded {
@@ -95,6 +97,8 @@ function OwnerSession({ loaded }: { loaded: Loaded }) {
   const sync = useMemo(() => services.createSync("member"), [services]);
   const handlers = useRef<{ speak(key: string): void; show(c: ShowCommand): void }>({ speak: () => undefined, show: () => undefined });
   const [setups, setSetups] = useState<Record<number, ExerciseSetup>>({});
+  // camera-less for the rest of the session once chosen (no consent / no camera)
+  const [manual, setManual] = useState(() => services.storage.getItem(MANUAL_KEY) === loaded.restored?.config.sessionId && !!loaded.restored);
   const { program } = loaded;
   const dayIndex = loaded.restored?.config.workoutDayIndex ?? program.nextDayIndex;
   const workout = program.days.find((d) => d.id.endsWith(`:${dayIndex}`)) ?? program.days[0]!;
@@ -140,7 +144,7 @@ function OwnerSession({ loaded }: { loaded: Loaded }) {
   const bind = useCallback((h: typeof handlers.current) => void (handlers.current = h), []);
 
   const block = workout.blocks[state.cursor.blockIndex];
-  const needsSetup = block && !setups[state.cursor.blockIndex] && !["IDLE", "TRANSFER", ...TERMINAL].includes(state.status);
+  const needsSetup = !manual && block && !setups[state.cursor.blockIndex] && !["IDLE", "TRANSFER", ...TERMINAL].includes(state.status);
 
   if (state.status === "IDLE") {
     return (
@@ -192,16 +196,21 @@ function OwnerSession({ loaded }: { loaded: Loaded }) {
           runner.setSetup(s);
           setSetups((m) => ({ ...m, [state.cursor.blockIndex]: s }));
         }}
+        onManualEntry={() => {
+          services.storage.setItem(MANUAL_KEY, state.config.sessionId);
+          setManual(true);
+        }}
       />
     );
   }
+  if (manual) return <ManualSession runner={runner} packs={packs} bindCommands={bind} />;
   return <LiveSession runner={runner} packs={packs} bindCommands={bind} />;
 }
 
-function PhoneSetup({ exerciseId, consent, onReady }: { exerciseId: string; consent: boolean; onReady(s: ExerciseSetup): void }) {
+function PhoneSetup({ exerciseId, consent, onReady, onManualEntry }: { exerciseId: string; consent: boolean; onReady(s: ExerciseSetup): void; onManualEntry(): void }) {
   const services = useServices();
   const source = useMemo(() => services.createPoseSource(), [services]);
   return (
-    <SetupWizard pack={packs[exerciseId]!} consent={consent} source={source} requestCamera={services.requestCamera} onReady={onReady} onManualEntry={() => undefined} />
+    <SetupWizard pack={packs[exerciseId]!} consent={consent} source={source} requestCamera={services.requestCamera} onReady={onReady} onManualEntry={onManualEntry} />
   );
 }

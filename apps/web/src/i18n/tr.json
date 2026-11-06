@@ -137,7 +137,8 @@
       "already_used": "Bu QR kod zaten kullanıldı. Telefonunda yeni kodu göster.",
       "invalid": "QR kod geçersiz ya da süresi dolmuş.",
       "no_key": "Bağlantı yok ve bu istasyon henüz doğrulama anahtarını almadı."
-    }
+    },
+    "cancel": "Vazgeç"
   },
   "phone": {
     "handoffHint": "Bu kodu istasyondaki tablete göster.",
@@ -303,5 +304,12 @@
       "uploaded": "Kayıt şifrelenerek yüklendi.",
       "failed": "Kayıt yüklenemedi."
     }
+  },
+  "manual": {
+    "hint": "Kamera kullanılmıyor. Setini yaptıktan sonra tekrar sayısını gir.",
+    "reps": "Yapılan tekrar (hedef {{target}})",
+    "repsTimed": "Yapılan tekrar (süreli hareket)",
+    "save": "Seti kaydet",
+    "skip": "Bu hareketi atla"
   }
 }

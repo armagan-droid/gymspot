@@ -107,5 +107,24 @@
     "denied": "Kamera izni verilmedi. Tarayıcı ayarlarından izin verebilir ya da setini elle kaydedebilirsin.",
     "unavailable": "Kamera kullanılamıyor. Setini elle kaydedebilirsin.",
     "manualEntry": "Elle kaydet"
+  },
+  "calibration": {
+    "staffOnly": "Kalibrasyon kaydını yalnızca yönetici veya salon sahibi başlatabilir.",
+    "exercise": "Hareket",
+    "participantRef": "Katılımcı kodu",
+    "consentText": "Bu kayıtta yalnızca eklem noktalarının koordinatları saklanır; görüntü veya video asla kaydedilmez. Kayıtlar eşik ayarı ve test için kullanılır, en fazla 12 ay saklanır ve rıza her an geri çekilebilir.",
+    "consentCheckbox": "Katılımcı kalibrasyon kaydına açık rıza verdi",
+    "start": "Kaydı başlat",
+    "recording": "KALİBRASYON KAYDI",
+    "frames": "{{count}} kare",
+    "stop": "Kaydı durdur",
+    "rep": "Tekrar {{n}}",
+    "outcome": "Sonuç",
+    "outcomes": {
+      "valid": "Doğru",
+      "faulty": "Hatalı",
+      "incomplete": "Yarım"
+    },
+    "save": "Kaydet"
   }
 }

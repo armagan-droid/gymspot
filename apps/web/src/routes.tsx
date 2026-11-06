@@ -32,6 +32,9 @@ export const SCREEN_ROUTES: { path: string; screen: ScreenId }[] = [
 
 // T2.2 pose spike: development builds only. Lazy so production drops the import entirely.
 const SpikePage = import.meta.env.DEV ? lazy(() => import("./spike/SpikePage").then((m) => ({ default: m.SpikePage }))) : null;
+const CalibrationSpikePage = import.meta.env.DEV
+  ? lazy(() => import("./spike/CalibrationSpikePage").then((m) => ({ default: m.CalibrationSpikePage })))
+  : null;
 const SessionSpikePage = import.meta.env.DEV
   ? lazy(() => import("./spike/SessionSpikePage").then((m) => ({ default: m.SessionSpikePage })))
   : null;
@@ -77,6 +80,16 @@ export function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
+      {CalibrationSpikePage && (
+        <Route
+          path="/spike/calibration"
+          element={
+            <Suspense>
+              <CalibrationSpikePage />
+            </Suspense>
+          }
+        />
+      )}
       {SessionSpikePage && (
         <Route
           path="/spike/session"

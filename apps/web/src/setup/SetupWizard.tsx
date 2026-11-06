@@ -27,9 +27,13 @@ export function SetupWizard({ pack, consent, source, requestCamera = defaultRequ
   const videoRef = useRef<HTMLVideoElement>(null);
   const [phase, setPhase] = useState<Phase>({ kind: "starting" });
   const [assessment, setAssessment] = useState<SetupAssessment | null>(null);
+  // Latest callbacks without restarting the camera on every render.
+  const deps = useRef({ source, requestCamera, pack });
+  deps.current = { source, requestCamera, pack };
 
   useEffect(() => {
     if (!consent) return;
+    const { source, requestCamera } = deps.current;
     let cancelled = false;
     let stream: MediaStream | undefined;
     const samples: (SetupSample & { t: number })[] = [];
@@ -55,7 +59,7 @@ export function SetupWizard({ pack, consent, source, requestCamera = defaultRequ
         track = sel.track;
         samples.push({ frame: sel.frame, ambiguous: sel.ambiguous, t: now });
         while (samples.length > 0 && now - samples[0]!.t > WINDOW_MS) samples.shift();
-        setAssessment(assessSetup(samples, pack));
+        setAssessment(assessSetup(samples, deps.current.pack));
       });
     })();
 
@@ -64,7 +68,7 @@ export function SetupWizard({ pack, consent, source, requestCamera = defaultRequ
       source.stop();
       stream?.getTracks?.().forEach((tr) => tr.stop());
     };
-  }, [consent, pack, source, requestCamera]);
+  }, [consent]);
 
   const lang = i18n.language === "en" ? "en" : "tr";
 

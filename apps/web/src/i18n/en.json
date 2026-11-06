@@ -107,5 +107,24 @@
     "denied": "Camera permission was denied. You can allow it in your browser settings or log your set manually.",
     "unavailable": "The camera is not available. You can log your set manually.",
     "manualEntry": "Log manually"
+  },
+  "calibration": {
+    "staffOnly": "Only a manager or the gym owner can start a calibration recording.",
+    "exercise": "Exercise",
+    "participantRef": "Participant code",
+    "consentText": "This recording stores only joint coordinates; images or video are never recorded. Recordings are used for threshold tuning and tests, kept for at most 12 months, and consent can be withdrawn at any time.",
+    "consentCheckbox": "The participant gave explicit consent to the calibration recording",
+    "start": "Start recording",
+    "recording": "CALIBRATION RECORDING",
+    "frames": "{{count}} frames",
+    "stop": "Stop recording",
+    "rep": "Rep {{n}}",
+    "outcome": "Outcome",
+    "outcomes": {
+      "valid": "Correct",
+      "faulty": "Faulty",
+      "incomplete": "Partial"
+    },
+    "save": "Save"
   }
 }

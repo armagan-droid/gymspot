@@ -76,7 +76,7 @@ Yürütücüde BLOCK_DONE → IDLE ("Telefonundan devam et")
 - Kimlikler (UUID) motor tarafından üretilir. Üretici dışarıdan enjekte edilir, böylece testler deterministiktir.
 
 ## Devir (handoff) protokolü
-1. Telefon handoff QR'ı üretir: kısa ömürlü imzalı token (07) + `SessionCursor`. QR yalnızca kimlik ve imleç taşır, program içeriği tablette önbellekten veya API'den alınır.
+1. Telefon handoff QR'ı üretir: kısa ömürlü imzalı token (07) + `SessionCursor` + devredilen bloğun tanımı. Tablet bloğu QR'daki tanımla yürütür; ağa ihtiyaç duymaz.
 2. Tablet token'ı doğrular (çevrimdışıysa imzayı yerelde doğrular, 07), bloğu yürütür. Blok bitince "Telefonundan devam et" gösterir.
 3. Telefon sonraki check-in'de veya kullanıcı "devam" dediğinde imleci devredilen bloğun **sonrasına** ilerletir. Blok sonuçları sunucu senkronu ile telefona gelir. Gelmezse geçmişte "senkron bekleniyor" görünür.
 4. Aynı blok için iki cihazdan sonuç gelirse sunucu `event_id` ile birleştirir. Çakışmada (aynı set iki kez) ilk gelen kazanır ve `audit_log`'a yazılır.

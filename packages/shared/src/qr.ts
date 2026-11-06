@@ -1,5 +1,6 @@
 import * as ed from "@noble/ed25519";
 import { z } from "zod";
+import { BlockSchema } from "./workout";
 
 // Signed check-in / handoff QR tokens — specs/07 "Check-in / devir QR token'ı".
 // Shared by the station tablet (offline verification) and the API.
@@ -64,6 +65,8 @@ export const QrPayloadSchema = z.strictObject({
   sid: z.uuid(),
   bi: z.int().nonnegative(),
   si: z.int().nonnegative(),
+  /** The delegated block, so the tablet can run it offline (specs/03 handoff). */
+  blk: BlockSchema,
   jti: z.string().min(1).max(64),
   exp: z.number().int(),
 });
@@ -151,7 +154,16 @@ export async function verifyQr(qr: string, tenantPublicKey: Uint8Array, now: num
 
 /** Offline single-use registry for the tablet (specs/07). */
 export class LocalJtiRegistry {
-  private used = new Map<string, number>();
+  private used: Map<string, number>;
+
+  constructor(entries: readonly (readonly [string, number])[] = []) {
+    this.used = new Map(entries);
+  }
+
+  /** Entries for persistence (the tablet keeps them across reloads). */
+  entries(): [string, number][] {
+    return [...this.used];
+  }
 
   get size(): number {
     return this.used.size;

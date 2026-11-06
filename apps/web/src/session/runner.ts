@@ -11,7 +11,7 @@ import {
   selectPerson,
   step,
 } from "@gymspot/engine";
-import type { Frame, ProgramInput, UserActionKind } from "@gymspot/shared";
+import type { Frame, ProgramInput, SessionCursor, UserActionKind } from "@gymspot/shared";
 
 // Wires camera candidates → person selection → ExerciseEngine → program state
 // machine, and forwards program commands. No DOM; driven by the UI or tests.
@@ -40,8 +40,11 @@ export class SessionRunner {
   private lostSent = false;
   private readonly listeners = new Set<(s: ProgramState) => void>();
 
-  constructor(private readonly o: SessionRunnerOptions) {
-    this._state = createProgram(o.program, o.now());
+  constructor(
+    private readonly o: SessionRunnerOptions,
+    restored?: ProgramState,
+  ) {
+    this._state = restored ?? createProgram(o.program, o.now());
   }
 
   get state(): ProgramState {
@@ -57,6 +60,16 @@ export class SessionRunner {
   setSetup(setup: ExerciseSetup): void {
     this.o.setup = setup;
     this.engineBlock = -1;
+  }
+
+  /** Station tablet: start the block handed over by the phone (specs/03 devir). */
+  accept(cursor: SessionCursor): void {
+    this.send({ type: "HANDOFF_ACCEPTED", cursor });
+  }
+
+  /** Phone: the member is back from the station. */
+  returned(): void {
+    this.send({ type: "HANDOFF_RETURNED" });
   }
 
   act(kind: UserActionKind): void {

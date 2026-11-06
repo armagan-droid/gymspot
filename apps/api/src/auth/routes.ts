@@ -293,6 +293,7 @@ export function authRoutes({ db, config, tokens, keys }: Deps) {
         memberId: payload.mid,
         cameraConsent: delegation.consent,
         cursor: { sessionId: payload.sid, blockIndex: payload.bi, setIndex: payload.si },
+        block: payload.blk,
       };
     });
   };

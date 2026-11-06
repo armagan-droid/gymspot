@@ -29,7 +29,7 @@ Her adım tek spec'e dayanır ve testlerle biter. Sıra bağımlılığa göre. 
 - [x] T3.5 Kalibrasyon kayıt yükleme (ayrı şifreli depo, rıza kontrolü) — AC-7.5
 
 ## Faz 4 — Ürün ekranları
-- [ ] T4.1 İstasyon akışı A1–A9 uçtan uca (telefon modu + istasyon devri)
+- [x] T4.1 İstasyon akışı A1–A9 uçtan uca (telefon modu + istasyon devri) _(açık: A9'daki "elle kaydet" seçeneği sunuluyor, elle set kaydı akışının kendisi henüz yok; görsel test AC-8.1 tarayıcıda)_
 - [ ] T4.2 Üye alanı B1–B6 (magic link, rıza, rıza geri çekme) — AC-7.4
 - [ ] T4.3 Yönetim paneli C1–C6, C8
 

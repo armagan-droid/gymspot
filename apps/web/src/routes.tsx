@@ -1,8 +1,9 @@
-import { Suspense, lazy } from "react";
+import { type ReactNode, Suspense, lazy } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, Route, Routes } from "react-router";
 import { AdminLayout, MemberLayout, StationLayout } from "./components/Layouts";
 import { SettingsPanel } from "./components/Settings";
+
 
 // Route skeleton for the three areas in specs/08. Screens are placeholders
 // until their roadmap tasks (T2.3+, T4.x). C7 and C9 are outside the MVP (specs/09).
@@ -10,10 +11,6 @@ import { SettingsPanel } from "./components/Settings";
 export type ScreenId = `A${1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9}` | `B${1 | 2 | 3 | 4 | 5 | 6}` | `C${1 | 2 | 3 | 4 | 5 | 6 | 8 | 10}`;
 
 export const SCREEN_ROUTES: { path: string; screen: ScreenId }[] = [
-  { path: "/station", screen: "A2" },
-  { path: "/station/pair", screen: "A1" },
-  // A3–A9 are states of one session view driven by the program engine (T2.4, T4.1)
-  { path: "/station/session", screen: "A5" },
   { path: "/member", screen: "B2" },
   { path: "/member/login", screen: "B1" },
   { path: "/member/program", screen: "B3" },
@@ -41,6 +38,11 @@ const SessionSpikePage = import.meta.env.DEV
 const SetupSpikePage = import.meta.env.DEV
   ? lazy(() => import("./spike/SetupSpikePage").then((m) => ({ default: m.SetupSpikePage })))
   : null;
+
+// Camera/engine screens are split out of the main bundle (specs/02 first-load budget).
+const StationApp = lazy(() => import("./station/StationApp").then((m) => ({ default: m.StationApp })));
+const PhoneSessionPage = lazy(() => import("./phone/PhoneSessionPage").then((m) => ({ default: m.PhoneSessionPage })));
+const suspended = (el: ReactNode) => <Suspense>{el}</Suspense>;
 
 const SETTINGS_SCREENS: ReadonlySet<ScreenId> = new Set(["B6", "C8"]);
 
@@ -80,6 +82,14 @@ export function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
+      {/* A1–A9: the station tablet is one state-driven app (T4.1) */}
+      <Route element={<StationLayout />}>
+        <Route path="/station" element={suspended(<StationApp />)} />
+        <Route path="/station/pair" element={suspended(<StationApp />)} />
+      </Route>
+      <Route element={<StationLayout />}>
+        <Route path="/member/session" element={suspended(<PhoneSessionPage />)} />
+      </Route>
       {CalibrationSpikePage && (
         <Route
           path="/spike/calibration"

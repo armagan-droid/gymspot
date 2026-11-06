@@ -7,7 +7,11 @@ import { VitePWA } from "vite-plugin-pwa";
 // `vite --mode https`: LAN dev server over HTTPS (self-signed) so phones and
 // tablets can open the camera (getUserMedia needs a secure context).
 export default defineConfig(({ mode }) => ({
-  server: mode === "https" ? { host: true } : undefined,
+  server: {
+    ...(mode === "https" && { host: true }),
+    // `pnpm --filter @gymspot/api dev` on :3000; the app calls /api (VITE_API_URL in production)
+    proxy: { "/api": { target: "http://localhost:3000", rewrite: (p) => p.replace(/^\/api/, "") } },
+  },
   plugins: [
     ...(mode === "https" ? [basicSsl()] : []),
     react(),

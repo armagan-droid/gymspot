@@ -126,5 +126,27 @@
       "incomplete": "Yarım"
     },
     "save": "Kaydet"
+  },
+  "station": {
+    "pairCode": "Eşleştirme kodu",
+    "pair": "Eşleştir",
+    "pairFailed": "Kod geçersiz ya da süresi dolmuş.",
+    "offline": "Çevrimdışı mod: QR kodlar cihazda doğrulanır.",
+    "noConsent": "Kamera rızan olmadığı için kamera açılmıyor. Setini telefonundan elle kaydedebilirsin.",
+    "checkin": {
+      "already_used": "Bu QR kod zaten kullanıldı. Telefonunda yeni kodu göster.",
+      "invalid": "QR kod geçersiz ya da süresi dolmuş.",
+      "no_key": "Bağlantı yok ve bu istasyon henüz doğrulama anahtarını almadı."
+    }
+  },
+  "phone": {
+    "handoffHint": "Bu kodu istasyondaki tablete göster.",
+    "handoffQr": "Devir QR kodu",
+    "returned": "İstasyondan döndüm",
+    "runHere": "Bu bloğu telefonda yap",
+    "signedOut": "Seansı başlatmak için giriş yapmalısın.",
+    "noProgram": "Atanmış bir programın yok. Antrenörüne danış.",
+    "loading": "Program yükleniyor…",
+    "noDelegation": "İstasyon için kod üretilemedi (bağlantı yok). Bloğu telefonda yapabilirsin."
   }
 }

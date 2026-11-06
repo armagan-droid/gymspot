@@ -214,14 +214,19 @@ describe("AC-7.3: QR check-in (online)", () => {
     return { phone, delegation: res.json() };
   }
   const makeQr = (p: Awaited<ReturnType<typeof memberPhone>>, jti = "jti-1", mid = MEMBER) =>
-    createQr({ v: 1, tid: A, mid, sid: SESSION, bi: 1, si: 0, jti, exp: clock + QR_TTL_MS }, p.phone.secretKey, p.delegation);
+    createQr({ v: 1, tid: A, mid, sid: SESSION, bi: 1, si: 0, blk: { exerciseId: "squat", exerciseVersion: 1, sets: 3, reps: 10, restSec: 60, mode: "strict" as const }, jti, exp: clock + QR_TTL_MS }, p.phone.secretKey, p.delegation);
 
   test("a tablet redeems a member's QR once", async () => {
     const t = await pairTablet();
     const qr = await makeQr(await memberPhone());
     const ok = await post("/auth/qr/redeem", { qr }, t.deviceAccess);
     expect(ok.statusCode).toBe(200);
-    expect(ok.json()).toEqual({ memberId: MEMBER, cameraConsent: true, cursor: { sessionId: SESSION, blockIndex: 1, setIndex: 0 } });
+    expect(ok.json()).toEqual({
+      memberId: MEMBER,
+      cameraConsent: true,
+      cursor: { sessionId: SESSION, blockIndex: 1, setIndex: 0 },
+      block: { exerciseId: "squat", exerciseVersion: 1, sets: 3, reps: 10, restSec: 60, mode: "strict" },
+    });
     const again = await post("/auth/qr/redeem", { qr }, t.deviceAccess);
     expect(again.statusCode).toBe(409);
   });

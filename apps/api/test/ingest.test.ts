@@ -155,7 +155,7 @@ describe("tablet writes for a handed-off session (specs/03 'Kayıtlar')", () => 
   async function handOff(device: string, sessionId: string) {
     const phone = await generateKeyPair();
     const delegation = (await api.call("POST", "/auth/member/qr-delegation", memberToken, { publicKey: phone.publicKeyB64 })).json();
-    const qr = await createQr({ v: 1, tid: A, mid: memberId, sid: sessionId, bi: 0, si: 0, jti: uuid(), exp: T0 + QR_TTL_MS }, phone.secretKey, delegation);
+    const qr = await createQr({ v: 1, tid: A, mid: memberId, sid: sessionId, bi: 0, si: 0, blk: { exerciseId: "squat", exerciseVersion: 1, sets: 3, reps: 10, restSec: 60, mode: "strict" as const }, jti: uuid(), exp: T0 + QR_TTL_MS }, phone.secretKey, delegation);
     expect((await api.call("POST", "/auth/qr/redeem", device, { qr })).status).toBe(200);
   }
 

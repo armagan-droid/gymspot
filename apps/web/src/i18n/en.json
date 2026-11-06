@@ -126,5 +126,27 @@
       "incomplete": "Partial"
     },
     "save": "Save"
+  },
+  "station": {
+    "pairCode": "Pairing code",
+    "pair": "Pair",
+    "pairFailed": "The code is invalid or has expired.",
+    "offline": "Offline mode: QR codes are verified on this device.",
+    "noConsent": "The camera stays off because there is no camera consent. You can log your set on your phone.",
+    "checkin": {
+      "already_used": "This QR code was already used. Show the new code on your phone.",
+      "invalid": "The QR code is invalid or has expired.",
+      "no_key": "No connection, and this station has not received its verification key yet."
+    }
+  },
+  "phone": {
+    "handoffHint": "Show this code to the station tablet.",
+    "handoffQr": "Handoff QR code",
+    "returned": "I'm back from the station",
+    "runHere": "Do this block on my phone",
+    "signedOut": "Sign in to start a session.",
+    "noProgram": "You have no program yet. Ask your trainer.",
+    "loading": "Loading your program…",
+    "noDelegation": "Could not create a station code (no connection). You can do this block on your phone."
   }
 }

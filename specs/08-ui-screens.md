@@ -9,6 +9,8 @@ Tek PWA, rota bazlı üç alan: **İstasyon/Seans**, **Üye**, **Yönetim**. Duy
 - Erişilebilirlik: renk tek başına bilgi taşımaz (ikon+metin), ses uyarısı kapatılabilir.
 
 ## A) İstasyon / Seans ekranları
+Rotalar: tablet için `/station` (eşleştirilmemişse A1, sonra A2 → A3 → aktif blok → "Telefonundan devam et" → A2; tek bir durum makinesi) ve `/station/pair`. Telefonla seans için `/member/session` (A4 → A3 → A5/A6 → devirde A7 → A8). Kamera ve motor ekranları ana paketten ayrı yüklenir.
+
 | # | Ekran | Cihaz | İçerik |
 |---|---|---|---|
 | A1 | Cihaz eşleştirme | Tablet | Yönetici kodu ile cihazı istasyona bağla |

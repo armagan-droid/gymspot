@@ -24,7 +24,7 @@ async function setup(o: { delegationExp?: number; consent?: boolean } = {}) {
     tenant.secretKey,
   );
   const qr = (p: Partial<{ exp: number; jti: string; tid: string; mid: string }> = {}) =>
-    createQr({ v: 1, tid: TENANT, mid: MEMBER, sid: SESSION, bi: 1, si: 0, jti: "j-1", exp: NOW + QR_TTL_MS, ...p }, phone.secretKey, delegation);
+    createQr({ v: 1, tid: TENANT, mid: MEMBER, sid: SESSION, bi: 1, si: 0, blk: { exerciseId: "squat", exerciseVersion: 1, sets: 3, reps: 10, restSec: 60, mode: "strict" as const }, jti: "j-1", exp: NOW + QR_TTL_MS, ...p }, phone.secretKey, delegation);
   return { tenant, phone, delegation, qr };
 }
 
@@ -93,6 +93,17 @@ describe("QR check-in tokens (specs/07, AC-7.3 offline)", () => {
     expect(reg.use("j-2", NOW + 1000, NOW + 10)).toBe(true);
     reg.use("j-3", NOW + 5000, NOW + 2000); // prunes j-1/j-2 (expired)
     expect(reg.size).toBe(1);
+  });
+
+  test("LocalJtiRegistry round-trips through its entries", () => {
+    const reg = new LocalJtiRegistry();
+    reg.use("j-1", NOW + 1000, NOW);
+    expect(new LocalJtiRegistry(reg.entries()).use("j-1", NOW + 1000, NOW)).toBe(false);
+  });
+
+  test("a QR with a delegated block stays comfortably scannable", async () => {
+    const s = await setup();
+    expect((await s.qr()).length).toBeLessThan(1200); // QR version ~25 at medium error correction
   });
 
   test("public key derivation from a 32-byte secret is deterministic", async () => {

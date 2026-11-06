@@ -5,4 +5,5 @@ export * from "./frame";
 export * from "./landmarks";
 export * from "./records";
 export * from "./rule-pack";
+export * from "./sequence";
 export * from "./workout";

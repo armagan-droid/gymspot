@@ -113,6 +113,27 @@ Konum anlamları:
 - `at_start`: deneme bittiğinde, `REP_STARTED` anındaki kareyle bir kez değerlendirilir.
 - `during_rep`: deneme boyunca her karede değerlendirilir; ifade en az `holdMs` boyunca kesintisiz doğruysa hata tespit edilir. Tek karelik gürültü hata üretmez.
 
+## Landmark dizisi (fixture) formatı
+Test fixture'ları ve kalibrasyon kayıtları (07) aynı formatı kullanır. Şema `packages/shared` → `LandmarkSequenceSchema`:
+
+```jsonc
+{
+  "formatVersion": 1,
+  "exerciseId": "squat",
+  "source": "synthetic",            // "synthetic" | "calibration" | "team"
+  "view": "front",                  // kaydın görünümü: "front" | "side"
+  "fps": 30,
+  "labels": {                       // gerçek değer (etiket); opsiyonel
+    "reps": [ { "outcome": "valid", "faults": [] }, { "outcome": "faulty", "faults": ["insufficient_depth"] } ]
+  },
+  "frames": [ /* Frame[] (02) */ ]
+}
+```
+
+- **Sentetik** diziler `@gymspot/engine/testing` ile üretilir: verilen eklem açılarından basit kinematik iskelet → MediaPipe biçiminde 33 nokta (image + world), tohumlu (seed) gürültü, ön/yan görünüm, iki yöne dönüş, aynalama (sol↔sağ). Yan görünümde uzak taraf noktalarının visibility değeri düşüktür (varsayılan 0.4).
+- Sentetik diziler motor testleri içindir; **AC-4.3'teki gerçek kayıt şartının yerini tutmaz** (gerçek kayıtlar T2.5).
+- World koordinat yönleri (MediaPipe ile uyumlu varsayım, T2.2'de doğrulanır): kalça merkezli, metre, x görüntüde sağa, y aşağı, z kameradan uzağa.
+
 ## Hata tanımı kuralları
 - `severity`: `minor` | `major`. `major` hatanın güvenlik duraklatması 05'te tanımlıdır.
 - `affectsValidity`: tekrar outcome'unu `faulty` yapar (yukarıdaki tablo).

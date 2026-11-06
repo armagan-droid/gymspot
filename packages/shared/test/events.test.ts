@@ -20,6 +20,11 @@ describe("engine events (specs/03, 04)", () => {
     }
   });
 
+  test("SAFETY_PAUSE requires a fault id", () => {
+    expect(EngineEventSchema.safeParse({ type: "SAFETY_PAUSE" }).success).toBe(false);
+    expect(EngineEventSchema.safeParse({ type: "SAFETY_PAUSE", faultId: "knee_valgus" }).success).toBe(true);
+  });
+
   test("FAULT_DETECTED requires a fault id", () => {
     expect(EngineEventSchema.safeParse({ type: "FAULT_DETECTED" }).success).toBe(false);
     expect(EngineEventSchema.safeParse({ type: "FAULT_DETECTED", faultId: "hip_sag" }).success).toBe(true);

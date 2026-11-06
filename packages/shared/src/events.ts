@@ -16,7 +16,10 @@ const engineEventOptions = [
     faults: z.array(IdentifierSchema),
     durationMs: z.int().nonnegative(),
   }),
+  /** A fault that passed the cue rules (specs/05) and should be announced. */
   z.strictObject({ type: z.literal("FAULT_DETECTED"), faultId: IdentifierSchema }),
+  /** A major fault in two consecutive attempts (specs/05 "Güvenlik"). */
+  z.strictObject({ type: z.literal("SAFETY_PAUSE"), faultId: IdentifierSchema }),
   z.strictObject({ type: z.literal("TRACKING_LOST") }),
   z.strictObject({ type: z.literal("TRACKING_RESTORED") }),
   z.strictObject({ type: z.literal("READY_POSE_HELD") }),

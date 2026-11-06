@@ -9,7 +9,9 @@ Saf TypeScript, `packages/engine/program`. Kamera ve UI'dan bağımsız. Zaman y
 
 ## Girdi / Çıktı
 - Girdi: `Workout` (sıralı bloklar) ve olaylar:
-  - Tekrar motorundan (04): `REP_STARTED`, `REP_COMPLETED { outcome: valid|faulty|incomplete, faults[], durationMs }`, `FAULT_DETECTED { faultId }`, `TRACKING_LOST`, `TRACKING_RESTORED`, `READY_POSE_HELD`
+  - Tekrar motorundan (04): `REP_STARTED`, `REP_COMPLETED { outcome: valid|faulty|incomplete, faults[], durationMs }`, `FAULT_DETECTED { faultId }`, `SAFETY_PAUSE { faultId }`, `TRACKING_LOST`, `TRACKING_RESTORED`, `READY_POSE_HELD`
+    - `FAULT_DETECTED` yalnızca uyarı kurallarından (05: bekleme, art arda deneme, öncelik) geçmiş, **seslendirilecek** hatadır. Tüm tespitler `REP_COMPLETED.faults` içinde kaydedilir.
+    - Aynı karede olaylar şu sırayla gelir: `FAULT_DETECTED` → `REP_COMPLETED` → `SAFETY_PAUSE`.
   - Kullanıcıdan: `USER_ACTION { kind }` — `START`, `READY` (hazırım), `PAUSE`, `RESUME`, `END_SET`, `CONTINUE_SET`, `SKIP_BLOCK`, `UNDO_SKIP`, `ABORT`
   - Devir: `HANDOFF_ACCEPTED { cursor }` (istasyon tableti), `HANDOFF_RETURNED` (telefon)
   - Zaman: `TICK { now }`
@@ -51,6 +53,7 @@ SESSION_DONE → IDLE
 8. **Farklı istasyon (TRANSFER):** ekran "Sıradaki: {stationHint}" gösterir. Telefon `SHOW_HANDOFF_QR` üretir. Yeni istasyonda QR okutulunca tablet `HANDOFF_ACCEPTED` alır ve devam eder. 30 dk içinde devam edilmezse seans `PAUSED`, 2 saat sonra otomatik kapanır (`status=abandoned`).
 9. **Atla:** `SKIP_BLOCK` bloğu `skipped` kaydeder ve sonrakine geçer. **Geri al:** `UNDO_SKIP`, yalnız atlamadan sonraki blokta henüz set başlamamışken (READY veya TRANSFER) geçerlidir ve atlanan bloğa döner. Başka durumlarda geçersizdir.
 10. **Takip kaybı:** SET_ACTIVE veya READY'de `TRACKING_LOST` sonrası 5 sn içinde `TRACKING_RESTORED` gelmezse `PAUSED`. Geri gelince ekran "Devam" önerir (`RESUME`).
+11. **Güvenlik duraklatması:** SET_ACTIVE'de `SAFETY_PAUSE` gelirse "Dur, formunu kontrol et" söylenir ve `PAUSED` olur (`resumeTo = SET_ACTIVE`). Diğer durumlarda yok sayılır.
 
 ## Devir (handoff) protokolü
 1. Telefon handoff QR'ı üretir: kısa ömürlü imzalı token (07) + `SessionCursor`. QR yalnızca kimlik ve imleç taşır, program içeriği tablette önbellekten veya API'den alınır.

@@ -17,24 +17,22 @@ Her hareket `exercises/<id>.json` dosyasıdır. Şema `packages/shared`'te Zod i
     "setupHint": { "tr": "...", "en": "..." }
   },
   "metrics": {                        // türetilmiş ölçümler (her karede hesaplanır)
-    "knee_angle_l": { "angle": ["left_hip", "left_knee", "left_ankle"] },
-    "knee_angle_r": { "angle": ["right_hip", "right_knee", "right_ankle"] },
-    "knee_angle_avg": { "avg": ["knee_angle_l", "knee_angle_r"] }
+    "knee_angle_near": { "angle": ["near_hip", "near_knee", "near_ankle"] }
   },
   "rep": {
-    "metric": "knee_angle_avg",       // tekrarı süren tek metrik
+    "metric": "knee_angle_near",      // tekrarı süren tek metrik
     "start":  { "enter": 160, "exit": 150 },   // başlangıç bölgesi (histerezisli)
     "target": { "enter": 100, "exit": 110 },   // hedef bölgesi (histerezisli)
     "attemptMinExcursion": 20,        // start.exit'ten en az bu kadar uzaklaşmadan deneme sayılmaz
     "minDurationMs": 800,
     "maxDurationMs": 8000
   },
-  "readyPose": "knee_angle_avg > 165 for 1500ms",
+  "readyPose": "knee_angle_near > 165 for 1500ms",
   "faults": [
     {
       "id": "insufficient_depth",
       "severity": "minor",
-      "check": "at_turn: knee_angle_avg > 100",
+      "check": "at_turn: knee_angle_near > 100",
       "views": ["front", "side"],     // opsiyonel; yoksa camera.views
       "cue": { "tr": "Biraz daha aşağı in", "en": "Go a little lower" },
       "affectsValidity": true,
@@ -72,7 +70,7 @@ Döngü:
 
 5. Süre `minDurationMs`'den kısa veya `maxDurationMs`'den uzunsa outcome `incomplete` olur.
 
-Not: Yarım tekrarların uyarı alabilmesi için "yetersiz derinlik/uzatma" türü hata eşiği `target.enter` ile aynı tutulur. Böylece hedefe ulaşmayan her deneme bu hatayı tetikler (ör. squat `at_turn: knee_angle_avg > 100`).
+Not: Yarım tekrarların uyarı alabilmesi için "yetersiz derinlik/uzatma" türü hata eşiği `target.enter` ile aynı tutulur. Böylece hedefe ulaşmayan her deneme bu hatayı tetikler (ör. squat `at_turn: knee_angle_near > 100`).
 
 ## Görünüm (view) ve taraf
 - **Görünüm tespiti:** Motor her karede `front | side | ambiguous` üretir. Omuzlar arası yatay mesafe / gövde boyu oranı ≥ 0.45 ise `front`, ≤ 0.20 ise `side`, arasıysa `ambiguous` (eşikler motor yapılandırmasındadır ve kalibre edilir). Set boyunca baskın görünüm kullanılır.
@@ -82,6 +80,8 @@ Not: Yarım tekrarların uyarı alabilmesi için "yetersiz derinlik/uzatma" tür
 
 ## Görünürlük
 - Bir hatanın ifadesinde kullanılan herhangi bir noktanın visibility değeri `minVisibility` altındaysa o karede hata değerlendirilmez.
+- **Yan görünümde uzak taraf görünmez.** Bu yüzden iki tarafı birden kullanan bir metrik (ör. iki bacağın ortalaması) yan görünümde görünürlük kuralına takılır. Yan görünümü destekleyen hareketlerde tekrar metriği, her iki görünümde geçerli hatalar ve `readyPose` `near_` noktalarıyla tanımlanmalıdır. İki tarafı karşılaştıran metrikler (asimetri, diz içe kaçma) yalnız `front` görünümlü hatalarda kullanılır.
+- `readyPose` de aynı kurala tabidir: kullandığı noktalardan biri eşik altındaysa o karede sağlanmamış sayılır.
 - `minVisibleLandmarks` noktaları 1 sn boyunca eşik altındaysa motor `TRACKING_LOST`, geri gelince `TRACKING_RESTORED` olayı üretir (03, kural 10).
 
 ## İfade dili

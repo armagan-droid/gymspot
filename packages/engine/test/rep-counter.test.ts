@@ -70,9 +70,9 @@ describe("RepCounter — decreasing movement (squat)", () => {
     const [a] = attempts(run(squat.pack.rep, sig, lean));
     expect(a!.turn.value).toBeCloseTo(90);
     expect(a!.turn.values.torso_lean).toBeCloseTo(a!.turn.t / 100);
-    expect(a!.turn.values.knee_angle_avg).toBe(a!.turn.value);
+    expect(a!.turn.values[squat.pack.rep.metric]).toBe(a!.turn.value);
     expect(a!.start.values.torso_lean).toBeCloseTo(a!.start.t / 100);
-    expect(a!.start.values.knee_angle_avg).toBeLessThan(150);
+    expect(a!.start.values[squat.pack.rep.metric]).toBeLessThan(150);
   });
 
   test("duration runs from leaving the start zone to re-entering it", () => {
@@ -94,8 +94,8 @@ describe("RepCounter — decreasing movement (squat)", () => {
 
   test("reset() returns to waiting for the start zone", () => {
     const c = new RepCounter(squat.pack.rep);
-    c.push(0, { knee_angle_avg: 172 });
-    c.push(33, { knee_angle_avg: 140 });
+    c.push(0, { [squat.pack.rep.metric]: 172 });
+    c.push(33, { [squat.pack.rep.metric]: 140 });
     expect(c.state).toBe("IN_REP");
     c.reset();
     expect(c.state).toBe("WAITING");
@@ -120,7 +120,7 @@ describe("AC-4.4: noisy signals are not double counted", () => {
   test("REP_STARTED fires once the excursion is confirmed, not on leaving the start zone", () => {
     const sig = scalarSignal({ fps: 30, from: 172, reps: [{ to: 90 }] });
     const c = new RepCounter(squat.pack.rep);
-    const firstStart = sig.find((p) => c.push(p.t, { knee_angle_avg: p.value }).some((e) => e.type === "REP_STARTED"))!;
+    const firstStart = sig.find((p) => c.push(p.t, { [squat.pack.rep.metric]: p.value }).some((e) => e.type === "REP_STARTED"))!;
     expect(firstStart.value).toBeLessThanOrEqual(130);
     expect(firstStart.value).toBeGreaterThan(120);
   });

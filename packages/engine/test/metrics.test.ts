@@ -152,7 +152,7 @@ describe("real rule packs on synthetic frames", () => {
   test("squat pack metrics match the synthetic pose", () => {
     const c = createMetricComputer(pack("squat").metrics);
     const v = c.compute(squatFrame({ kneeAngle: 95, torsoLean: 35 }, { view: "side" }), "left");
-    expect(v.knee_angle_avg).toBeCloseTo(95, 1);
+    expect(v.knee_angle_near).toBeCloseTo(95, 1);
     expect(v.torso_lean).toBeCloseTo(35, 1);
   });
 

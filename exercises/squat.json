@@ -14,27 +14,25 @@
     }
   },
   "metrics": {
-    "knee_angle_l": { "angle": ["left_hip", "left_knee", "left_ankle"] },
-    "knee_angle_r": { "angle": ["right_hip", "right_knee", "right_ankle"] },
-    "knee_angle_avg": { "avg": ["knee_angle_l", "knee_angle_r"] },
+    "knee_angle_near": { "angle": ["near_hip", "near_knee", "near_ankle"] },
     "torso_lean": { "angleFromVertical": ["near_hip", "near_shoulder"] },
     "knee_valgus_l": { "kneeInwardRatio": ["left_hip", "left_knee", "left_ankle"] },
     "knee_valgus_r": { "kneeInwardRatio": ["right_hip", "right_knee", "right_ankle"] }
   },
   "rep": {
-    "metric": "knee_angle_avg",
+    "metric": "knee_angle_near",
     "start": { "enter": 160, "exit": 150 },
     "target": { "enter": 100, "exit": 110 },
     "attemptMinExcursion": 20,
     "minDurationMs": 800,
     "maxDurationMs": 8000
   },
-  "readyPose": "knee_angle_avg > 165 for 1500ms",
+  "readyPose": "knee_angle_near > 165 for 1500ms",
   "faults": [
     {
       "id": "insufficient_depth",
       "severity": "minor",
-      "check": "at_turn: knee_angle_avg > 100",
+      "check": "at_turn: knee_angle_near > 100",
       "cue": { "tr": "Biraz daha aşağı in", "en": "Go a little lower" },
       "affectsValidity": true,
       "cooldownMs": 4000,

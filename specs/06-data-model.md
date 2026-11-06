@@ -23,6 +23,7 @@ auth_refresh_tokens(id, tenant_id, subject_kind[user|member|device], subject_id,
 qr_tokens(id, tenant_id, member_id, session_id?, jti, expires_at, used_at)           -- check-in/devir
 login_attempts(tenant_id, email, failed_count, window_started_at, locked_until)       -- personel giriş kilidi
 device_pairing_codes(id, tenant_id, station_id, code_hash, expires_at, used_at, created_by)
+ingest_conflicts(tenant_id, record_id, kind, reason, at)                              -- reddedilen çakışan kayıtlar
 
 -- program
 exercises(id, version, definition_json, status, tenant_id NULL=global)  -- PK (id, version)
@@ -52,6 +53,13 @@ audit_log(id, tenant_id, actor, action, target, at)
 ## Kurallar
 - **İdempotency:** `sessions`, `session_blocks`, `sets` ve `rep_events` satırlarının `id`'si istemcinin ürettiği UUID'dir (= `event_id`). Yazım `INSERT … ON CONFLICT (id) DO NOTHING`. Tek istisna `sessions`: aynı `id` ile gelen kayıt durumu **ileri** taşıyorsa günceller (`active` → `paused` → `done`/`aborted`/`abandoned`; terminal durum değişmez). Diğer kayıtlar yazıldıktan sonra değişmez; motor onları yalnız kesinleşince üretir (03). Set sayaçları güncellenirken son yazan değil, `rep_events`'ten yeniden hesaplanan değer esas alınır.
 - Her seans bloğu kural paketinin **sürümünü** (`exercise_version`) kaydeder. Eşikler değişse de geçmiş yorumlanabilir.
+- **Kayıt alımı** (`POST /ingest`, en fazla 500 kayıt):
+  - Her kayıt için ayrı sonuç döner: `ok`, `duplicate` (aynı `id` zaten var), `retry` (ebeveyn kayıt henüz yok; istemci kuyrukta tutar ve sonra yeniden dener), `rejected` (geçersiz, yetkisiz veya çakışma; istemci atar).
+  - Paket içinde kayıtlar bağımlılık sırasına göre işlenir: seans → blok → set → tekrar. Motor kayıtları farklı sırada üretir (tekrar, set ve blok sonuna göre).
+  - **Yetki:** üye yalnız kendi seansını ve onun alt kayıtlarını yazar. Cihaz (tablet) seans kaydı yazamaz. Cihaz yalnız, tenant'ta QR ile devralınmış (`qr_tokens.session_id`) bir seansın blok, set ve tekrarlarını yazabilir.
+  - **Çakışma:** aynı seansta aynı `position` için iki farklı blok gelirse ilk gelen kazanır (03, devir adım 4). İkincisi ve alt kayıtları `rejected` olur, çakışma `ingest_conflicts` ve `audit_log`'a yazılır.
+  - Aynı pakette ebeveyni reddedilen kayıt da `rejected` olur. Farklı paketlere dağılmış yetim kayıtlar `retry` kalır; istemci kuyruğu 7 günden eski kayıtları bırakır ve kaydeder.
+  - Set sayaçları (`valid_reps`, `faulty_reps`, `incomplete_reps`), sette tekrar kaydı varsa `rep_events`'ten yeniden hesaplanır.
 - **Landmark veya video verisi seans tablolarında saklanmaz.** Tek istisna, açık rızalı kalibrasyon kayıtlarıdır (07). Bunlar ana veritabanında değil, ayrı erişim yetkili şifreli nesne deposunda tutulur, burada yalnızca referans vardır.
 - Elle kayıt (rıza yok veya kamera izni yok) setleri `source = manual` ile yazılır; `rep_events` üretmez.
 - Üye silme talebi: üye ve bağlı seans verisi anonimleştirilir/silinir (07).

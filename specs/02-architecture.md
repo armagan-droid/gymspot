@@ -42,7 +42,7 @@ Kamera → MediaPipe Pose → landmarks (bellekte)
 - MVP'de telefonu olmayan üye için istasyon akışı yoktur (personel elle kayıt yapabilir).
 
 ## Çevrimdışı dayanıklılık
-- Seans sırasında ağ kopsa bile seans devam eder; olaylar IndexedDB kuyruğunda tutulur, bağlantı gelince gönderilir (idempotent, `event_id` ile).
+- Seans sırasında ağ kopsa bile seans devam eder; olaylar IndexedDB kuyruğunda tutulur, bağlantı gelince gönderilir (idempotent, `event_id` ile). Kuyruk `ok`, `duplicate` ve `rejected` sonuçlu kayıtları siler, `retry` ve ağ hatalarını üstel bekleme ile (1 sn'den 5 dk'ya) yeniden dener. Sayfa yenilense de kuyruk korunur.
 - Program ve kural paketleri seans başlamadan önbelleğe alınır.
 
 ## Performans bütçesi

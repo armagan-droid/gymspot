@@ -106,7 +106,7 @@ describe("AC-6.1: tenant isolation by RLS", () => {
       join information_schema.columns col on col.table_name = c.relname and col.column_name = 'tenant_id'
       where c.relkind = 'r' and c.relnamespace = 'public'::regnamespace
       order by c.relname`.execute(db);
-    expect(r.rows.length).toBe(TENANT_TABLES.length + AUTH_TENANT_TABLES.length + 1); // + exercises
+    expect(r.rows.length).toBe(TENANT_TABLES.length + AUTH_TENANT_TABLES.length + 2); // + exercises, ingest_conflicts
     for (const row of r.rows) expect(row, row.table).toMatchObject({ rls: true, forced: true });
     for (const row of r.rows) expect(row.policies, row.table).toBeGreaterThan(0);
   });

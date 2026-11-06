@@ -4,6 +4,7 @@ import { type Kysely, sql } from "kysely";
 import { authRoutes } from "./auth/routes";
 import { AccessTokens, TenantKeys } from "./auth/tokens";
 import { type AppConfig, configFromEnv } from "./config";
+import { ingestRoutes } from "./routes/ingest";
 import { meRoutes } from "./routes/me";
 import { memberRoutes } from "./routes/members";
 import { stationRoutes } from "./routes/stations";
@@ -30,6 +31,7 @@ export function buildApp({ db, config = configFromEnv(), logger = false }: AppDe
   void app.register(templateRoutes(db, tokens));
   void app.register(meRoutes(db, config, tokens));
   void app.register(stationRoutes(db, tokens));
+  void app.register(ingestRoutes(db, tokens));
 
   app.get("/health", async (_req, reply) => {
     try {

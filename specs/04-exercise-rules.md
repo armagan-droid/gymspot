@@ -83,6 +83,7 @@ Not: Yarım tekrarların uyarı alabilmesi için "yetersiz derinlik/uzatma" tür
 - Bir hatanın ifadesinde kullanılan herhangi bir noktanın visibility değeri `minVisibility` altındaysa o karede hata değerlendirilmez.
 - **Yan görünümde uzak taraf görünmez.** Bu yüzden iki tarafı birden kullanan bir metrik (ör. iki bacağın ortalaması) yan görünümde görünürlük kuralına takılır. Yan görünümü destekleyen hareketlerde tekrar metriği, her iki görünümde geçerli hatalar ve `readyPose` `near_` noktalarıyla tanımlanmalıdır. İki tarafı karşılaştıran metrikler (asimetri, diz içe kaçma) yalnız `front` görünümlü hatalarda kullanılır.
 - `readyPose` de aynı kurala tabidir: kullandığı noktalardan biri eşik altındaysa o karede sağlanmamış sayılır.
+- Kamerada kişi hiç algılanmıyorsa veya kişi seçimi belirsizse (07), uygulama 1 sn sonra aynı `TRACKING_LOST` sinyalini üretir. Kişi geri gelince ve görünürlük de yeterliyse `TRACKING_RESTORED` üretilir. Program motoru iki kaynağı tek sinyal olarak görür.
 - `minVisibleLandmarks` noktaları 1 sn boyunca eşik altındaysa motor `TRACKING_LOST`, geri gelince `TRACKING_RESTORED` olayı üretir (03, kural 10).
 
 ## İfade dili

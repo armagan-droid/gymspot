@@ -62,7 +62,18 @@
     "stop": "Dur, formunu kontrol et"
   },
   "session": {
-    "done": "Seans tamamlandı"
+    "done": "Seans tamamlandı",
+    "setLabel": "Set {{current}} / {{total}}",
+    "repsLabel": "Tekrar",
+    "readyHint": "Hazır duruşa geç ya da Başla'ya dokun",
+    "continue": "Devam",
+    "endSet": "Seti bitir",
+    "pause": "Duraklat",
+    "resume": "Devam et",
+    "paused": "Duraklatıldı",
+    "readyNow": "Hazırım",
+    "soundOn": "Ses açık",
+    "soundOff": "Ses kapalı"
   },
   "summary": {
     "set": "{{counted}} tekrar · {{valid}} temiz"

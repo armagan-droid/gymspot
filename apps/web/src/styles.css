@@ -83,3 +83,46 @@ main {
   gap: 0.5rem;
   padding: 0.5rem 1rem;
 }
+
+/* A5: counter ≥ 25% of the screen height, readable from 2 m (AC-8.2) */
+.rep-counter {
+  font-size: max(25vh, 6rem);
+  line-height: 1;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  margin: 0.25rem 0;
+}
+
+.rep-target {
+  font-size: 0.4em;
+  color: var(--muted);
+}
+
+.cue-band {
+  font-size: clamp(1.5rem, 5vh, 3rem);
+  min-height: 1.4em;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.camera-preview {
+  width: 100%;
+  max-height: 50vh;
+  object-fit: contain;
+  background: #000;
+}
+
+/* phone portrait: camera on top, counter below; landscape/tablet: side by side (specs/08) */
+@media (orientation: landscape) {
+  .active-set {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    align-items: start;
+  }
+}

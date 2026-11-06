@@ -62,7 +62,18 @@
     "stop": "Stop, check your form"
   },
   "session": {
-    "done": "Session complete"
+    "done": "Session complete",
+    "setLabel": "Set {{current}} / {{total}}",
+    "repsLabel": "Reps",
+    "readyHint": "Get into the ready pose or tap Start",
+    "continue": "Continue",
+    "endSet": "End set",
+    "pause": "Pause",
+    "resume": "Resume",
+    "paused": "Paused",
+    "readyNow": "I'm ready",
+    "soundOn": "Sound on",
+    "soundOff": "Sound off"
   },
   "summary": {
     "set": "{{counted}} reps · {{valid}} clean"

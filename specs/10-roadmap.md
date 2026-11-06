@@ -3,7 +3,7 @@
 Her adım tek spec'e dayanır ve testlerle biter. Sıra bağımlılığa göre. **Faz 1 ile T2.2 spike'ı paralel yürür**: spike projenin en büyük teknik riskini (FPS, `worldLandmarks` doğruluğu, iOS) erken ölçer ve sonucu 04'teki metrik koordinatlarını etkileyebilir.
 
 ## Faz 0 — Temel
-- [ ] T0.1 pnpm monorepo, TypeScript, ESLint, Vitest, CI iskeleti (`CLAUDE.md` komutlarını doldur)
+- [x] T0.1 pnpm monorepo, TypeScript, ESLint, Vitest, CI iskeleti (`CLAUDE.md` komutlarını doldur)
 - [ ] T0.2 `packages/shared`: Zod şemaları (rule pack, workout, olaylar, `Frame`) + `exercises/*.json` CI doğrulaması — 04 (AC-4.1), 03, 06
 
 ## Faz 1 — Çekirdek motor (kamerasız) — **en yüksek öncelik**

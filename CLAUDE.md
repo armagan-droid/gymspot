@@ -33,11 +33,19 @@ TypeScript her yerde. pnpm monorepo: `apps/web` (React + Vite PWA), `apps/api` (
 4. Geri bildirim kısa olur; aynı uyarı bekleme süresi dolmadan tekrarlanmaz.
 5. Sağlık iddiası yok: "tıbbi tavsiye değildir" ibaresi zorunlu.
 
-## Komutlar (kurulumdan sonra doldurulacak)
+## Komutlar
+Node ≥ 22, pnpm sürümü `package.json` → `packageManager` alanında sabit. `pnpm` PATH'te yoksa her komut `corepack pnpm …` ile çalışır.
 - Kurulum: `pnpm install`
-- Test: `pnpm test`
+- Test: `pnpm test` (izleme: `pnpm test:watch`)
 - Geliştirme: `pnpm dev`
 - Tip kontrolü: `pnpm typecheck`
+- Lint: `pnpm lint`
+- Hepsi (CI ile aynı): `pnpm check`
+
+## Araç notları
+- TypeScript 6.0'a sabit: typescript-eslint henüz TS 7'yi desteklemiyor (`<6.1`). TS 7'ye geçiş typescript-eslint desteği gelince yapılır.
+- `packages/engine` ve `packages/shared` tsconfig'i DOM ve Node tiplerini içermez; motor sınırı (02) derleyiciyle zorlanır.
+- İç paketler derlenmez, `exports` doğrudan `src/index.ts`'i gösterir.
 
 ## Dil
 Kod ve tanımlayıcılar İngilizce; kullanıcıya görünen metinler i18n ile (varsayılan Türkçe, ikinci dil İngilizce).

@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "migrate": "tsx src/db/migrate-cli.ts",
-    "typecheck": "tsc -p tsconfig.json"
+    "typecheck": "tsc -p tsconfig.json",
+    "calibration:report": "tsx src/cli/calibration-report.ts"
   },
   "dependencies": {
     "@fastify/rate-limit": "^11.2.2",
@@ -16,10 +17,10 @@
     "jose": "^6.2.15",
     "kysely": "^0.29.8",
     "pg": "^8.23.1",
-    "zod": "^4.6.7"
+    "zod": "^4.6.7",
+    "@gymspot/engine": "workspace:*"
   },
   "devDependencies": {
-    "@gymspot/engine": "workspace:*",
     "@types/pg": "^8.23.1",
     "tsx": "^4.23.15"
   }

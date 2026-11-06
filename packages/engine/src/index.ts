@@ -1,4 +1,15 @@
 // Pure engine: expression parser, metrics, rep counter, fault evaluator, program state machine (specs/03, 04, 05).
+export {
+  type AttemptComparison,
+  type CalibrationSummary,
+  type CueComparison,
+  type SequenceEvaluation,
+  type SweepRow,
+  evaluateSequence,
+  summarize,
+  sweep,
+  withParameter,
+} from "./calibration/evaluate";
 export { type ExerciseEngineOptions, type ExerciseSetup, ExerciseEngine, faultEnabledInView } from "./exercise/exercise-engine";
 export {
   type SetupAssessment,

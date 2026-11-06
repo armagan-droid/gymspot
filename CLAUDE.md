@@ -43,6 +43,7 @@ Node ≥ 22, pnpm sürümü `package.json` → `packageManager` alanında sabit.
 - Tip kontrolü: `pnpm typecheck`
 - Lint: `pnpm lint`
 - Derleme: `pnpm build` (web PWA → `apps/web/dist`)
+- Kalibrasyon raporu (09 pilot ölçütleri): `pnpm --filter @gymspot/api calibration:report -- --files <dizin>` veya `-- --db` (`CALIBRATION_ENCRYPTION_KEY` gerekir), isteğe bağlı `--exercise squat --sweep rep.target.enter=95,100,105`
 - Hepsi (CI ile aynı): `pnpm check` + `pnpm build`
 
 ## Araç notları

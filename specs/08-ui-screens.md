@@ -22,6 +22,7 @@ Rotalar: tablet için `/station` (eşleştirilmemişse A1, sonra A2 → A3 → a
 | A7 | Sıradaki istasyona geç | Her ikisi | "Sıradaki: Squat Rafı 2". Telefonda handoff QR'ı, tablette "Telefonundan devam et" |
 | A8 | Seans sonu özeti | Her ikisi | Toplam set/tekrar, temiz tekrar oranı, en sık hata, "Çıkış" |
 | A9 | Hata/Bağlantı durumları | Her ikisi | Kamera izni yok, kişi görünmüyor, ağ yok (çevrimdışı mod bildirimi) |
+| A5-e | Elle kayıt (kamerasız) | Her ikisi | Kamera izni ya da rıza yoksa A3/A9'daki "Elle kaydet" ile açılır: hareket, set (x / toplam), yapılan tekrar sayısı (hedefle öntanımlı), "Seti kaydet"; ardından normal dinlenme (A6). Seans boyunca kamera açılmaz. |
 
 ## B) Üye alanı (telefon öncelikli)
 | # | Ekran | İçerik |

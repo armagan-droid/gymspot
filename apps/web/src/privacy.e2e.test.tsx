@@ -13,6 +13,8 @@ import { testServices } from "./test-services";
 // AC-7.1 (specs/07): during a session no request leaving the client carries
 // video, images or landmarks. Real API client, real record queue, a fake server
 // that records every request; the camera is scripted with synthetic poses.
+// Heavy (lazy routes + crypto): generous waits so a loaded CI machine does not flake.
+const SLOW = { timeout: 5000 };
 
 afterEach(cleanup);
 
@@ -87,13 +89,13 @@ async function perform(t: ReturnType<typeof testServices>) {
 }
 
 async function setupReady(t: ReturnType<typeof testServices>) {
-  await screen.findByRole("heading", { name: "Kamera kurulumu" });
+  await screen.findByRole("heading", { name: "Kamera kurulumu" }, SLOW);
   await vi.waitFor(() => expect(t.pose.emit).toBeDefined());
   await act(async () => {
     for (let ms = 0; ms <= 1100; ms += 1000 / 30) t.pose.emit!([squatFrame({ kneeAngle: 172 }, { view: "front", t: ms })], ms);
   });
   t.pose.emit = undefined;
-  fireEvent.click(await screen.findByRole("button", { name: "Başla" }));
+  fireEvent.click(await screen.findByRole("button", { name: "Başla" }, SLOW));
 }
 
 function assertClean(captured: Captured[]) {
@@ -122,10 +124,10 @@ describe("AC-7.1: no video or landmarks leave the client during a session", () =
         <App i18n={createI18n("tr")} services={t.services} />
       </MemoryRouter>,
     );
-    fireEvent.click(await screen.findByRole("button", { name: "Başla" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Başla" }, SLOW));
     await setupReady(t);
     await perform(t);
-    await screen.findByText("Seans tamamlandı");
+    await screen.findByText("Seans tamamlandı", {}, SLOW);
 
     await vi.waitFor(() => expect(server.captured.filter((c) => c.path === "/ingest").length).toBeGreaterThan(0));
     const sent = server.captured.filter((c) => c.path === "/ingest").flatMap((c) => (c.body as { records: { kind: string }[] }).records.map((r) => r.kind));
@@ -154,11 +156,11 @@ describe("AC-7.1: no video or landmarks leave the client during a session", () =
         <App i18n={createI18n("tr")} services={t.services} />
       </MemoryRouter>,
     );
-    await vi.waitFor(() => expect(t.scanner.onCode).toBeDefined());
+    await vi.waitFor(() => expect(t.scanner.onCode).toBeDefined(), SLOW);
     await act(async () => t.scanner.onCode!(qr));
     await setupReady(t);
     await perform(t);
-    await screen.findByRole("heading", { name: "Telefonundan devam et" });
+    await screen.findByRole("heading", { name: "Telefonundan devam et" }, SLOW);
 
     await vi.waitFor(() => expect(server.captured.some((c) => c.path === "/ingest")).toBe(true));
     assertClean(server.captured);

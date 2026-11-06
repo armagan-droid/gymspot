@@ -137,7 +137,8 @@
       "already_used": "This QR code was already used. Show the new code on your phone.",
       "invalid": "The QR code is invalid or has expired.",
       "no_key": "No connection, and this station has not received its verification key yet."
-    }
+    },
+    "cancel": "Cancel"
   },
   "phone": {
     "handoffHint": "Show this code to the station tablet.",
@@ -303,5 +304,12 @@
       "uploaded": "Recording encrypted and uploaded.",
       "failed": "Upload failed."
     }
+  },
+  "manual": {
+    "hint": "The camera is not used. Enter your reps after the set.",
+    "reps": "Reps done (target {{target}})",
+    "repsTimed": "Reps done (timed exercise)",
+    "save": "Save set",
+    "skip": "Skip this exercise"
   }
 }

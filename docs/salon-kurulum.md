@@ -53,7 +53,7 @@ Yönetim paneli → **Salon ayarları**'ndaki "Salon girişi bilgilendirme metni
 3. Antrenör üyeye **Program şablonu** atar (üye detayı → Programı ata).
 4. Üye telefonunda **Seansı başlat**'a dokunur. İstasyondaki bir hareket sırası geldiğinde telefon bir QR kod gösterir; üye kodu tablete gösterir, tablet bloğu yürütür, sonra üye telefonundan devam eder.
 
-Rıza vermeyen üyenin kamerası hiçbir cihazda açılmaz. Kamerasız elle set kaydı MVP'de henüz yok.
+Rıza vermeyen üyenin kamerası hiçbir cihazda açılmaz. Bu üye (veya kamerası çalışmayan biri) **Elle kaydet** ile setini kamerasız kaydeder: setten sonra yaptığı tekrar sayısını girer, dinlenme ve program akışı aynı kalır.
 
 ## 7. Ayarlar
 
@@ -81,4 +81,4 @@ Eşiklerin salona göre ayarlanması için yönetici, gönüllü katılımcılar
 | "Bu QR kod zaten kullanıldı" | Üye telefonunda yeni kodu göstermeli (kodlar tek kullanımlık ve 2 dakika geçerli). |
 | Kurulum ekranı "hazır" olmuyor | İpucunu izleyin: tüm vücut görünmeli, tek kişi olmalı, hareket için doğru açıda durulmalı. |
 | Panelde istasyon çevrimdışı | Tablet kapalı, uygulama kapalı veya ağ yok. Tablet 60 saniyede bir sinyal gönderir. |
-| Kamera izni reddedildi | Tarayıcı ayarlarından site için kamera iznini verin. (Kamerasız elle set kaydı henüz yok; ekran seçeneği gösterir ama akış yol haritasında açık iş olarak duruyor.) |
+| Kamera izni reddedildi | Tarayıcı ayarlarından site için kamera iznini verin. Beklemeden devam etmek için ekrandaki **Elle kaydet** ile setler kamerasız kaydedilebilir. |

@@ -77,6 +77,7 @@ export function SetupWizard({ pack, consent, source, requestCamera = defaultRequ
       <section data-screen="A3">
         <h1>{t("screens.A3")}</h1>
         <p role="alert">{t("camera.consentRequired")}</p>
+        <button onClick={onManualEntry}>{t("camera.manualEntry")}</button>
       </section>
     );
   }

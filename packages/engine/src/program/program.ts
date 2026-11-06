@@ -85,6 +85,8 @@ export type ProgramCommand =
 
 interface SetProgress {
   id: string;
+  /** Logged by hand without the camera (rule 14). */
+  manual?: boolean;
   startedAt: number;
   attempts: { outcome: RepOutcome; faults: string[] }[];
   counted: number;
@@ -286,10 +288,10 @@ class Machine {
         sessionBlockId: this.s.block!.id,
         setIndex: this.s.cursor.setIndex,
         ...(b.reps !== undefined && { plannedReps: b.reps }),
-        validReps: n("valid"),
-        faultyReps: n("faulty"),
-        incompleteReps: n("incomplete"),
-        source: "camera",
+        validReps: set.manual ? set.counted : n("valid"),
+        faultyReps: set.manual ? 0 : n("faulty"),
+        incompleteReps: set.manual ? 0 : n("incomplete"),
+        source: set.manual ? "manual" : "camera",
         belowTarget,
         startedAt: this.iso(set.startedAt),
         endedAt: this.iso(this.s.now),
@@ -303,7 +305,9 @@ class Machine {
     const b = this.blk;
     const belowTarget = b.reps !== undefined ? set.counted < b.reps : !byTime;
     this.writeSet(belowTarget);
-    const summary = summarizeSet(set.attempts, this.cfg.faults?.[b.exerciseId] ?? [], b.mode);
+    const summary = set.manual
+      ? { counted: set.counted, valid: set.counted, faulty: 0, incomplete: 0, mostFrequentFault: null }
+      : summarizeSet(set.attempts, this.cfg.faults?.[b.exerciseId] ?? [], b.mode);
     this.show(K.setSummary, {
       counted: summary.counted,
       valid: summary.valid,
@@ -432,6 +436,13 @@ class Machine {
         s.status = "READY";
         return true;
       case "READY":
+        if (input.type === "MANUAL_SET") {
+          // rule 14: a camera-less set replaces the camera set
+          this.flushPendingSkip();
+          s.set = { id: this.deps.newId(), manual: true, startedAt: s.now, attempts: [], counted: input.reps, lastActivityAt: s.now };
+          this.endSet(this.blk.reps === undefined);
+          return true;
+        }
         if (input.type !== "READY_POSE_HELD") return false;
         this.flushPendingSkip();
         this.startCountdown();

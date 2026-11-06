@@ -1,0 +1,61 @@
+{
+  "app": {
+    "name": "AI Gym",
+    "home": "Home",
+    "notFound": "Page not found"
+  },
+  "areas": {
+    "station": "Station",
+    "member": "Member",
+    "admin": "Admin"
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "theme": "Theme",
+    "themeDark": "Dark",
+    "themeLight": "Light"
+  },
+  "legal": {
+    "medicalDisclaimer": "This system is not medical advice. Stop if you feel pain.",
+    "noVideoStored": "No video is stored"
+  },
+  "screens": {
+    "A1": "Device pairing",
+    "A2": "Show the QR code on your phone to the camera to start",
+    "A3": "Camera setup",
+    "A4": "Workout overview",
+    "A5": "Active set",
+    "A6": "Rest",
+    "A7": "Go to the next station",
+    "A8": "Session summary",
+    "A9": "Connection and camera status",
+    "B1": "Sign in",
+    "B2": "Today's workout",
+    "B3": "My program",
+    "B4": "Session history",
+    "B5": "Progress",
+    "B6": "Settings",
+    "C1": "Staff sign-in",
+    "C2": "Overview",
+    "C3": "Stations",
+    "C4": "Members",
+    "C5": "Program templates",
+    "C6": "Member details",
+    "C8": "Gym settings",
+    "C10": "Calibration recording"
+  },
+  "countdown": { "start": "Get ready" },
+  "set": { "go": "Go" },
+  "rest": { "over": "Rest is over" },
+  "prompt": {
+    "set_done": "Is the set done?",
+    "resume": "Tap to continue"
+  },
+  "safety": { "stop": "Stop, check your form" },
+  "session": { "done": "Session complete" },
+  "summary": {
+    "set": "{{counted}} reps · {{valid}} clean"
+  },
+  "handoff": { "return_to_phone": "Continue on your phone" }
+}

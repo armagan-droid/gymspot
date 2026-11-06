@@ -12,7 +12,8 @@
     "test:watch": "vitest",
     "typecheck": "pnpm -r --if-present typecheck",
     "lint": "eslint .",
-    "check": "pnpm lint && pnpm typecheck && pnpm test"
+    "check": "pnpm lint && pnpm typecheck && pnpm test",
+    "build": "pnpm -r --if-present build"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

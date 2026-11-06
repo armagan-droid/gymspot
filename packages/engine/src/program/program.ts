@@ -39,6 +39,23 @@ export const PROGRAM_TIMING = {
   transferAbandonMs: 2 * 60 * 60_000,
 } as const;
 
+/**
+ * i18n keys used in SPEAK/SHOW commands (besides `cue.<exerciseId>.<faultId>`,
+ * whose text comes from the rule pack). The web app must translate every key.
+ */
+export const PROGRAM_MESSAGE_KEYS = {
+  countdown: "countdown.start",
+  setGo: "set.go",
+  restOver: "rest.over",
+  setDonePrompt: "prompt.set_done",
+  resumePrompt: "prompt.resume",
+  safetyStop: "safety.stop",
+  sessionDone: "session.done",
+  setSummary: "summary.set",
+  returnToPhone: "handoff.return_to_phone",
+} as const;
+const K = PROGRAM_MESSAGE_KEYS;
+
 export interface ProgramConfig {
   /** owner = member's phone; executor = station tablet running one delegated block. */
   role: "owner" | "executor";
@@ -239,13 +256,13 @@ class Machine {
     this.flushPendingSkip();
     this.s.status = "SESSION_DONE";
     if (this.cfg.role === "owner") this.sessionRecord("done");
-    this.speak("session.done");
+    this.speak(K.sessionDone);
   }
 
   private startCountdown(): void {
     this.s.status = "COUNTDOWN";
     this.s.countdownEndsAt = this.s.now + PROGRAM_TIMING.countdownMs;
-    this.speak("countdown.start");
+    this.speak(K.countdown);
   }
 
   private enterSetActive(): void {
@@ -255,7 +272,7 @@ class Machine {
       this.s.set = { id: this.deps.newId(), startedAt: this.s.now, attempts: [], counted: 0, lastActivityAt: this.s.now };
     }
     this.s.set.lastActivityAt = this.s.now;
-    this.speak("set.go");
+    this.speak(K.setGo);
   }
 
   private writeSet(belowTarget: boolean): void {
@@ -287,7 +304,7 @@ class Machine {
     const belowTarget = b.reps !== undefined ? set.counted < b.reps : !byTime;
     this.writeSet(belowTarget);
     const summary = summarizeSet(set.attempts, this.cfg.faults?.[b.exerciseId] ?? [], b.mode);
-    this.show("summary.set", {
+    this.show(K.setSummary, {
       counted: summary.counted,
       valid: summary.valid,
       faulty: summary.faulty,
@@ -306,7 +323,7 @@ class Machine {
     this.blockRecord(this.s.cursor.blockIndex, this.s.block!.id, "done");
     if (this.cfg.role === "executor") {
       this.s.status = "IDLE";
-      this.show("handoff.return_to_phone");
+      this.show(K.returnToPhone);
       return;
     }
     this.nextBlock(this.s.cursor.blockIndex + 1);
@@ -402,7 +419,7 @@ class Machine {
     }
     if (input.type === "TRACKING_RESTORED") {
       s.trackingLostAt = undefined;
-      if (s.status === "PAUSED") this.show("prompt.resume");
+      if (s.status === "PAUSED") this.show(K.resumePrompt);
       return true;
     }
     if (input.type === "USER_ACTION") return this.onAction(input.kind);
@@ -431,8 +448,8 @@ class Machine {
           return true;
         }
         if (input.type === "SAFETY_PAUSE") {
-          this.speak("safety.stop");
-          this.show("safety.stop");
+          this.speak(K.safetyStop);
+          this.show(K.safetyStop);
           this.pause();
           return true;
         }
@@ -542,8 +559,8 @@ class Machine {
         if (this.trackingTimedOut()) return this.pause();
         if (now - s.set!.lastActivityAt >= PROGRAM_TIMING.inactivityPromptMs) {
           s.status = "SET_CONFIRM";
-          this.speak("prompt.set_done");
-          this.show("prompt.set_done");
+          this.speak(K.setDonePrompt);
+          this.show(K.setDonePrompt);
         }
         return;
       }
@@ -557,7 +574,7 @@ class Machine {
         if (now >= s.restEndsAt!) {
           s.restEndsAt = undefined;
           s.status = "READY";
-          this.speak("rest.over");
+          this.speak(K.restOver);
         }
         return;
       case "TRANSFER":

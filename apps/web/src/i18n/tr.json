@@ -1,0 +1,61 @@
+{
+  "app": {
+    "name": "AI Gym",
+    "home": "Ana sayfa",
+    "notFound": "Sayfa bulunamadı"
+  },
+  "areas": {
+    "station": "İstasyon",
+    "member": "Üye",
+    "admin": "Yönetim"
+  },
+  "settings": {
+    "title": "Ayarlar",
+    "language": "Dil",
+    "theme": "Tema",
+    "themeDark": "Koyu",
+    "themeLight": "Açık"
+  },
+  "legal": {
+    "medicalDisclaimer": "Bu sistem tıbbi tavsiye değildir. Ağrı hissedersen dur.",
+    "noVideoStored": "Görüntü saklanmaz"
+  },
+  "screens": {
+    "A1": "Cihaz eşleştirme",
+    "A2": "Başlamak için telefonundaki QR'ı kameraya göster",
+    "A3": "Kamera kurulumu",
+    "A4": "Antrenman özeti",
+    "A5": "Aktif set",
+    "A6": "Dinlenme",
+    "A7": "Sıradaki istasyona geç",
+    "A8": "Seans özeti",
+    "A9": "Bağlantı ve kamera durumu",
+    "B1": "Giriş",
+    "B2": "Bugünün antrenmanı",
+    "B3": "Programım",
+    "B4": "Seans geçmişi",
+    "B5": "İlerleme",
+    "B6": "Ayarlar",
+    "C1": "Personel girişi",
+    "C2": "Genel bakış",
+    "C3": "İstasyonlar",
+    "C4": "Üyeler",
+    "C5": "Program şablonları",
+    "C6": "Üye detayı",
+    "C8": "Salon ayarları",
+    "C10": "Kalibrasyon kaydı"
+  },
+  "countdown": { "start": "Hazır ol" },
+  "set": { "go": "Başla" },
+  "rest": { "over": "Dinlenme bitti" },
+  "prompt": {
+    "set_done": "Set bitti mi?",
+    "resume": "Devam etmek için dokun"
+  },
+  "safety": { "stop": "Dur, formunu kontrol et" },
+  "session": { "done": "Seans tamamlandı" },
+  "summary": {
+    "set": "{{counted}} tekrar · {{valid}} temiz"
+  },
+  "handoff": { "return_to_phone": "Telefonundan devam et" }
+}

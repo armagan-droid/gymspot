@@ -40,12 +40,15 @@ Node ≥ 22, pnpm sürümü `package.json` → `packageManager` alanında sabit.
 - Geliştirme: `pnpm dev`
 - Tip kontrolü: `pnpm typecheck`
 - Lint: `pnpm lint`
-- Hepsi (CI ile aynı): `pnpm check`
+- Derleme: `pnpm build` (web PWA → `apps/web/dist`)
+- Hepsi (CI ile aynı): `pnpm check` + `pnpm build`
 
 ## Araç notları
 - TypeScript 6.0'a sabit: typescript-eslint henüz TS 7'yi desteklemiyor (`<6.1`). TS 7'ye geçiş typescript-eslint desteği gelince yapılır.
 - `packages/engine` ve `packages/shared` tsconfig'i DOM ve Node tiplerini içermez; motor sınırı (02) derleyiciyle zorlanır.
 - İç paketler derlenmez, `exports` doğrudan `src/index.ts`'i gösterir.
+- Testler: kökteki `vitest.config.ts` iki proje çalıştırır: `packages` (node) ve `apps/web` (jsdom, kendi `vite.config.ts`'i).
+- Program motorunun `SPEAK`/`SHOW` anahtarları `PROGRAM_MESSAGE_KEYS`'te; web testi her anahtarın TR/EN çevirisini zorunlu kılar.
 
 ## Dil
 Kod ve tanımlayıcılar İngilizce; kullanıcıya görünen metinler i18n ile (varsayılan Türkçe, ikinci dil İngilizce).

@@ -2,7 +2,16 @@ import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   test: {
-    include: ["{apps,packages}/*/src/**/*.test.ts", "{apps,packages}/*/test/**/*.test.ts"],
     passWithNoTests: true,
+    projects: [
+      {
+        test: {
+          name: "packages",
+          include: ["packages/*/src/**/*.test.ts", "packages/*/test/**/*.test.ts"],
+        },
+      },
+      // apps/web brings its own config (React plugin, jsdom)
+      "apps/web",
+    ],
   },
 });

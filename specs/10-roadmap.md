@@ -15,7 +15,7 @@ Her adım tek spec'e dayanır ve testlerle biter. Sıra bağımlılığa göre. 
 - [x] T1.6 Program durum makinesi + devir protokolü — 03, AC-3.1…3.7
 
 ## Faz 2 — Poz ve istemci
-- [ ] T2.1 `apps/web` iskeleti (PWA, i18n, rotalar)
+- [x] T2.1 `apps/web` iskeleti (PWA, i18n, rotalar)
 - [ ] T2.2 **Spike (Faz 1 ile paralel):** MediaPipe Pose tarayıcıda; telefon/tablette FPS, gecikme, model varyantı, `worldLandmarks` açı tutarlılığı (ön/yan), iOS PWA kamera, Wake Lock, ses açılışı. Sonucu `specs/02-architecture.md`'ye yaz, gerekirse 04'ü güncelle
 - [ ] T2.3 Kamera izni, kurulum sihirbazı (A3, görünüm tespiti), kişi seçimi/takibi — AC-8.5
 - [ ] T2.4 Aktif set ekranı (A5) engine'e bağlı, ses kaynağı sırası (dosya → Web Speech → ekran) — 05, AC-5.5

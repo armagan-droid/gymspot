@@ -100,7 +100,8 @@ describe("mandatory notices", () => {
     },
   );
 
-  test.each(["/member/settings", "/admin/settings"])("settings screen %s shows the medical disclaimer", (path) => {
+  // /member/settings needs a signed-in member: covered in member/member.test.tsx (B6)
+  test.each(["/admin/settings"])("settings screen %s shows the medical disclaimer", (path) => {
     renderAt(path);
     expect(screen.getByText("Bu sistem tıbbi tavsiye değildir. Ağrı hissedersen dur.")).toBeTruthy();
   });

@@ -26,12 +26,12 @@ Rotalar: tablet için `/station` (eşleştirilmemişse A1, sonra A2 → A3 → a
 ## B) Üye alanı (telefon öncelikli)
 | # | Ekran | İçerik |
 |---|---|---|
-| B1 | Giriş + rıza | Davet/magic link ile giriş (e-posta veya telefon gir → bağlantı gönderildi), ilk girişte aydınlatma ve açık rıza onayı (07) |
+| B1 | Giriş + rıza | Davet/magic link ile giriş. Bağlantıdaki token'ın tenant öneki uygulamaya salonu tanıtır ve hatırlanır; sonraki girişlerde e-posta yeterlidir. Salon bilinmiyorsa "salonunun gönderdiği davet bağlantısını kullan" denir. İlk girişte ve rıza metni sürümü değiştiğinde aydınlatma ve açık rıza istenir; "şimdi değil" denebilir (kamera açılmaz) |
 | B2 | Ana sayfa | Bugünün antrenmanı, haftalık tamamlama, "Seansı başlat" (telefon modu) ve "İstasyona bağlan" (handoff QR) |
 | B3 | Programım | Gün ve hareket listesi |
 | B4 | Seans geçmişi | Liste + seans detayı (set bazlı tekrar, hatalar) |
-| B5 | İlerleme | Hareket bazlı tekrar ve temiz tekrar oranı trendi (sade grafikler) |
-| B6 | Ayarlar | Dil, ses, rızayı geri çekme, veri dışa aktarma/silme talebi |
+| B5 | İlerleme | Hareket bazlı haftalık tekrar ve temiz tekrar oranı (son 8 hafta; MVP'de tablo) |
+| B6 | Ayarlar | Dil, tema, rıza verme/geri çekme, verilerini JSON olarak indirme, silme talebi, çıkış |
 
 ## C) Yönetim paneli (tablet/masaüstü, telefonda sade)
 | # | Ekran | Rol | İçerik |

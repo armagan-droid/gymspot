@@ -28,6 +28,8 @@ export interface AppServices {
   now: () => number;
   online: () => boolean;
   newId: () => string;
+  /** Saves a file on the device (data export, specs/07). */
+  download: (filename: string, content: string) => void;
 }
 
 export function browserServices(): AppServices {
@@ -49,6 +51,13 @@ export function browserServices(): AppServices {
     now: () => Date.now(),
     online: () => navigator.onLine,
     newId: () => crypto.randomUUID(),
+    download: (filename, content) => {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([content], { type: "application/json" }));
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    },
   };
 }
 

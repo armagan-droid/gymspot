@@ -30,6 +30,33 @@ export interface MemberProfile {
   consentVersion: string | null;
 }
 
+export interface SessionSummary {
+  id: string;
+  workoutDayIndex: number;
+  startedAt: string;
+  endedAt: string | null;
+  status: string;
+}
+
+export interface SessionDetail extends SessionSummary {
+  blocks: {
+    position: number;
+    exerciseId: string;
+    status: string;
+    plannedSets: number;
+    sets: { setIndex: number; plannedReps: number | null; validReps: number; faultyReps: number; incompleteReps: number; faults: { faultId: string; count: number }[] }[];
+  }[];
+}
+
+export interface ProgressRow {
+  week: string;
+  exerciseId: string;
+  valid: number;
+  faulty: number;
+  incomplete: number;
+  cleanRatio: number | null;
+}
+
 export interface RedeemResult {
   memberId: string;
   cameraConsent: boolean;
@@ -37,10 +64,13 @@ export interface RedeemResult {
   block: Block;
 }
 
+/** device/member credentials, and the member's gym (tenant) remembered from the invite link. */
+export type CredentialKey = "device" | "member" | "tenant";
+
 export interface CredentialStore {
-  get<T>(key: "device" | "member"): T | null;
-  set(key: "device" | "member", value: unknown): void;
-  clear(key: "device" | "member"): void;
+  get<T>(key: CredentialKey): T | null;
+  set(key: CredentialKey, value: unknown): void;
+  clear(key: CredentialKey): void;
 }
 
 export class ApiError extends Error {
@@ -62,6 +92,17 @@ export interface GymApi {
   ingestAsDevice(records: PersistRecord[]): Promise<IngestResult[]>;
   memberProgram(): Promise<MemberProgram>;
   me(): Promise<MemberProfile>;
+  requestMagicLink(tenantId: string, email: string): Promise<void>;
+  /** Signs the member in; the gym is taken from the token's tenant prefix and remembered. */
+  verifyMagicLink(token: string): Promise<void>;
+  signOutMember(): Promise<void>;
+  giveConsent(version: string): Promise<void>;
+  withdrawConsent(): Promise<void>;
+  mySessions(): Promise<SessionSummary[]>;
+  mySession(id: string): Promise<SessionDetail>;
+  myProgress(): Promise<ProgressRow[]>;
+  exportMyData(): Promise<unknown>;
+  requestDeletion(): Promise<void>;
   qrDelegation(publicKey: string): Promise<SignedDelegation>;
   ingestAsMember(records: PersistRecord[]): Promise<IngestResult[]>;
 }
@@ -140,6 +181,24 @@ export function createGymApi({ baseUrl, store, fetchFn = fetch }: { baseUrl: str
     ingestAsDevice: async (records) => ((await asDevice("POST", "/ingest", { records })) as { results: IngestResult[] }).results,
     memberProgram: async () => (await asMember("GET", "/me/program")) as MemberProgram,
     me: async () => (await asMember("GET", "/me")) as MemberProfile,
+    requestMagicLink: async (tenantId, email) => void (await raw("POST", "/auth/member/magic-link", { tenantId, email })),
+    async verifyMagicLink(token) {
+      store.set("member", await raw("POST", "/auth/member/verify", { token }));
+      const tenant = token.split(".")[0];
+      if (tenant) store.set("tenant", tenant);
+    },
+    async signOutMember() {
+      const creds = store.get<MemberCredentials>("member");
+      store.clear("member");
+      if (creds) await raw("POST", "/auth/logout", { refreshToken: creds.refreshToken }).catch(() => undefined);
+    },
+    giveConsent: async (version) => void (await asMember("POST", "/me/consent", { version })),
+    withdrawConsent: async () => void (await asMember("DELETE", "/me/consent")),
+    mySessions: async () => (await asMember("GET", "/me/sessions")) as SessionSummary[],
+    mySession: async (id) => (await asMember("GET", `/me/sessions/${encodeURIComponent(id)}`)) as SessionDetail,
+    myProgress: async () => (await asMember("GET", "/me/progress")) as ProgressRow[],
+    exportMyData: async () => asMember("GET", "/me/export"),
+    requestDeletion: async () => void (await asMember("POST", "/me/data-requests", { kind: "delete" })),
     qrDelegation: async (publicKey) => (await asMember("POST", "/auth/member/qr-delegation", { publicKey })) as SignedDelegation,
     ingestAsMember: async (records) => ((await asMember("POST", "/ingest", { records })) as { results: IngestResult[] }).results,
   };

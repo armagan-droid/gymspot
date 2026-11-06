@@ -47,6 +47,7 @@ calibration_consents(id, tenant_id, participant_ref, consent_version, consented_
 calibration_recordings(id, tenant_id, consent_id, exercise_id, exercise_version, labels_json,
                        storage_ref, created_at)       -- landmark dizisi ayrı şifreli depoda
 
+data_requests(id, tenant_id, member_id, kind[export|delete], requested_at, completed_at)  -- 07 üye hakları
 audit_log(id, tenant_id, actor, action, target, at)
 ```
 

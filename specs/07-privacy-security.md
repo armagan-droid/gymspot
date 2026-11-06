@@ -33,7 +33,7 @@ Eşik kalibrasyonu ve test fixture'ları (AC-4.3) gerçek landmark verisi gerekt
 - **Saklama:** 12 aydan eski kayıtlar temizleme işiyle silinir.
 
 ## Üye hakları
-- Veri dışa aktarma (JSON/CSV) ve silme/anonimleştirme talebi: üye B6'dan veya yönetici panelinden; 30 gün içinde tamamlanır.
+- Veri dışa aktarma (JSON/CSV) ve silme/anonimleştirme talebi: üye B6'dan veya yönetici panelinden; 30 gün içinde tamamlanır. Üyenin JSON dışa aktarımı anında iner (`GET /me/export`: profil, rıza, programlar, seanslar ve set/tekrar özetleri). Silme talebi `data_requests`'e ve `audit_log`'a yazılır, yönetici işler (T5.1).
 - Saklama süresi: seans verisi varsayılan 24 ay, salon ayarlanabilir.
 
 ## Kimlik doğrulama

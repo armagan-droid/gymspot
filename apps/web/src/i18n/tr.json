@@ -148,5 +148,63 @@
     "noProgram": "Atanmış bir programın yok. Antrenörüne danış.",
     "loading": "Program yükleniyor…",
     "noDelegation": "İstasyon için kod üretilemedi (bağlantı yok). Bloğu telefonda yapabilirsin."
+  },
+  "member": {
+    "startSession": "Seansı başlat",
+    "weekDone": "Bu hafta tamamlanan seans: {{count}}",
+    "noSessions": "Henüz seansın yok.",
+    "loadFailed": "Veriler yüklenemedi. Bağlantını kontrol et.",
+    "setLine": "Set {{n}}: {{valid}} temiz · {{faulty}} hatalı · {{incomplete}} yarım",
+    "status": {
+      "active": "Devam ediyor",
+      "paused": "Duraklatıldı",
+      "done": "Tamamlandı",
+      "abandoned": "Yarım kaldı",
+      "aborted": "İptal edildi"
+    },
+    "progress": {
+      "week": "Hafta",
+      "valid": "Temiz",
+      "faulty": "Hatalı",
+      "incomplete": "Yarım",
+      "clean": "Temiz oranı",
+      "percent": "%{{value}}"
+    },
+    "login": {
+      "email": "E-posta",
+      "send": "Giriş bağlantısı gönder",
+      "sent": "E-postanı kontrol et: kayıtlıysan giriş bağlantısı gönderdik.",
+      "useInvite": "Giriş için salonunun gönderdiği davet bağlantısını kullan.",
+      "invalid": "Bu bağlantı geçersiz ya da süresi dolmuş. Yeni bir bağlantı iste."
+    },
+    "consent": {
+      "title": "Aydınlatma ve açık rıza",
+      "checkbox": "Aydınlatma metnini okudum, kamera kullanımına açık rıza veriyorum.",
+      "accept": "Onaylıyorum",
+      "skip": "Şimdi değil",
+      "points": [
+        "Kamera görüntün yalnızca bu cihazda işlenir; görüntü saklanmaz ve hiçbir yere gönderilmez.",
+        "Sunucuya yalnızca tekrar sayısı, hata türü ve süre gibi sonuçlar gider.",
+        "Yüz tanıma kullanılmaz; seni QR kodun tanıtır.",
+        "Rızanı istediğin zaman ayarlardan geri çekebilirsin; o zaman setlerini elle kaydedersin.",
+        "Verilerini indirebilir veya silinmesini isteyebilirsin."
+      ]
+    },
+    "settings": {
+      "camera": "Kamera",
+      "consentOn": "Kamera kullanımına rıza verdin.",
+      "consentOff": "Kamera rızan yok; kamera açılmaz.",
+      "withdraw": "Kamera rızamı geri çek",
+      "give": "Kamera rızası ver",
+      "data": "Verilerim",
+      "export": "Verilerimi indir",
+      "delete": "Verilerimin silinmesini iste",
+      "deleteConfirm": "Tüm seans verilerin ve hesabın silinecek. Emin misin?",
+      "deleteYes": "Evet, silinsin",
+      "deleteNo": "Vazgeç",
+      "deletionRequested": "Talebin alındı. Verilerin 30 gün içinde silinecek.",
+      "account": "Hesap",
+      "signOut": "Çıkış yap"
+    }
   }
 }

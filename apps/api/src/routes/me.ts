@@ -6,11 +6,87 @@ import { requireAuth } from "../auth/guard";
 import type { AccessTokens } from "../auth/tokens";
 import type { AppConfig } from "../config";
 import { type Database, withTenant } from "../db/db";
-import { auth, iso, notFound, parse } from "./common";
+import { type Trx, auth, iso, notFound, parse } from "./common";
 import { MEMBER_COLUMNS, type MemberRow, listSessions, memberDto } from "./members";
 import { templateBlocks } from "./templates";
 
 // Member self-service (B1–B4, B6) — specs/03 "Bugünün antrenmanı", specs/07 consent.
+
+interface SetRow {
+  id: string;
+  session_block_id: string;
+  set_index: number;
+  planned_reps: number | null;
+  valid_reps: number;
+  faulty_reps: number;
+  incomplete_reps: number;
+  below_target: boolean;
+  started_at: Date;
+  ended_at: Date;
+}
+
+/** Blocks -> sets -> fault summaries (and reps for exports) of one session. */
+async function sessionDetail(trx: Trx, sessionId: string, withReps: boolean) {
+  const session = (
+    await sql<{ id: string; workout_day_index: number; started_at: Date; ended_at: Date | null; status: string }>`
+      select id, workout_day_index, started_at, ended_at, status from sessions where id = ${sessionId}`.execute(trx)
+  ).rows[0];
+  if (!session) return null;
+  const blocks = (
+    await sql<{ id: string; position: number; exercise_id: string; exercise_version: number; planned_sets: number; status: string }>`
+      select id, position, exercise_id, exercise_version, planned_sets, status from session_blocks where session_id = ${sessionId} order by position`.execute(trx)
+  ).rows;
+  const sets = (
+    await sql<SetRow>`select s.id, s.session_block_id, s.set_index, s.planned_reps, s.valid_reps, s.faulty_reps, s.incomplete_reps,
+        s.below_target, s.started_at, s.ended_at
+      from sets s join session_blocks b on b.id = s.session_block_id where b.session_id = ${sessionId} order by s.set_index`.execute(trx)
+  ).rows;
+  const faults = (
+    await sql<{ set_id: string; fault_id: string; count: number }>`select f.set_id, f.fault_id, f.count from fault_summaries f
+      join sets s on s.id = f.set_id join session_blocks b on b.id = s.session_block_id where b.session_id = ${sessionId}
+      order by f.count desc, f.fault_id`.execute(trx)
+  ).rows;
+  const reps = withReps
+    ? (
+        await sql<{ set_id: string; rep_index: number; outcome: string; duration_ms: number; faults: string[] }>`
+          select r.set_id, r.rep_index, r.outcome, r.duration_ms, r.faults from rep_events r
+          join sets s on s.id = r.set_id join session_blocks b on b.id = s.session_block_id where b.session_id = ${sessionId}
+          order by r.rep_index`.execute(trx)
+      ).rows
+    : [];
+  return {
+    id: session.id,
+    workoutDayIndex: session.workout_day_index,
+    startedAt: session.started_at.toISOString(),
+    endedAt: session.ended_at?.toISOString() ?? null,
+    status: session.status,
+    blocks: blocks.map((b) => ({
+      position: b.position,
+      exerciseId: b.exercise_id,
+      exerciseVersion: b.exercise_version,
+      plannedSets: b.planned_sets,
+      status: b.status,
+      sets: sets
+        .filter((s) => s.session_block_id === b.id)
+        .map((s) => ({
+          setIndex: s.set_index,
+          plannedReps: s.planned_reps,
+          validReps: s.valid_reps,
+          faultyReps: s.faulty_reps,
+          incompleteReps: s.incomplete_reps,
+          belowTarget: s.below_target,
+          startedAt: s.started_at.toISOString(),
+          endedAt: s.ended_at.toISOString(),
+          faults: faults.filter((f) => f.set_id === s.id).map((f) => ({ faultId: f.fault_id, count: f.count })),
+          ...(withReps && {
+            reps: reps
+              .filter((r) => r.set_id === s.id)
+              .map((r) => ({ repIndex: r.rep_index, outcome: r.outcome, durationMs: r.duration_ms, faults: r.faults })),
+          }),
+        })),
+    })),
+  };
+}
 
 export function meRoutes(db: Kysely<Database>, config: AppConfig, tokens: AccessTokens) {
   const member = requireAuth(tokens, ["member"]);
@@ -42,6 +118,73 @@ export function meRoutes(db: Kysely<Database>, config: AppConfig, tokens: Access
     app.get("/me/sessions", { preHandler: member }, async (req) => {
       const ctx = auth(req);
       return withTenant(db, ctx.tid, (trx) => listSessions(trx, ctx.sub));
+    });
+
+    app.get("/me/sessions/:sessionId", { preHandler: member }, async (req, reply) => {
+      const { sessionId } = req.params as { sessionId: string };
+      const ctx = auth(req);
+      if (!z.uuid().safeParse(sessionId).success) return notFound(reply);
+      const detail = await withTenant(db, ctx.tid, async (trx) => {
+        const own = (await sql`select 1 from sessions where id = ${sessionId} and member_id = ${ctx.sub}`.execute(trx)).rows[0];
+        return own ? sessionDetail(trx, sessionId, false) : null;
+      });
+      return detail ?? notFound(reply);
+    });
+
+    /** B5: weekly reps per exercise over the last 8 weeks. */
+    app.get("/me/progress", { preHandler: member }, async (req) => {
+      const ctx = auth(req);
+      const since = iso(config.now() - 56 * 24 * 3600_000);
+      const rows = await withTenant(db, ctx.tid, (trx) =>
+        sql<{ week: string; exercise_id: string; valid: number; faulty: number; incomplete: number }>`
+          select to_char(date_trunc('week', se.started_at), 'YYYY-MM-DD') as week, b.exercise_id,
+                 sum(s.valid_reps)::int as valid, sum(s.faulty_reps)::int as faulty, sum(s.incomplete_reps)::int as incomplete
+          from sessions se join session_blocks b on b.session_id = se.id join sets s on s.session_block_id = b.id
+          where se.member_id = ${ctx.sub} and se.started_at >= ${since}
+          group by 1, 2 order by 1, 2`.execute(trx),
+      );
+      return rows.rows.map((r) => ({
+        week: r.week,
+        exerciseId: r.exercise_id,
+        valid: r.valid,
+        faulty: r.faulty,
+        incomplete: r.incomplete,
+        cleanRatio: r.valid + r.faulty > 0 ? r.valid / (r.valid + r.faulty) : null,
+      }));
+    });
+
+    /** specs/07: the member's own data as JSON. */
+    app.get("/me/export", { preHandler: member }, async (req, reply) => {
+      const ctx = auth(req);
+      const data = await withTenant(db, ctx.tid, async (trx) => {
+        const profile = (await sql<MemberRow>`select ${MEMBER_COLUMNS} from members where id = ${ctx.sub}`.execute(trx)).rows[0];
+        if (!profile) return null;
+        const programs = (
+          await sql<{ id: string; template_id: string | null; start_date: string; end_date: string | null }>`
+            select id, template_id, start_date::text, end_date::text from member_programs where member_id = ${ctx.sub}`.execute(trx)
+        ).rows.map((p) => ({ id: p.id, templateId: p.template_id, startDate: p.start_date, endDate: p.end_date }));
+        const ids = (await sql<{ id: string }>`select id from sessions where member_id = ${ctx.sub} order by started_at`.execute(trx)).rows;
+        const sessions = [];
+        for (const { id } of ids) sessions.push(await sessionDetail(trx, id, true));
+        return { exportedAt: iso(config.now()), profile: memberDto(profile), programs, sessions };
+      });
+      if (!data) return notFound(reply);
+      return reply.header("content-disposition", 'attachment; filename="gymspot-export.json"').send(data);
+    });
+
+    app.post("/me/data-requests", { preHandler: member }, async (req, reply) => {
+      const body = parse(z.object({ kind: z.literal("delete") }), req.body, reply);
+      if (!body) return;
+      const ctx = auth(req);
+      await withTenant(db, ctx.tid, async (trx) => {
+        const inserted = await sql`insert into data_requests (tenant_id, member_id, kind, requested_at)
+            values (${ctx.tid}, ${ctx.sub}, 'delete', ${iso(config.now())})
+            on conflict (member_id) where kind = 'delete' and completed_at is null do nothing`.execute(trx);
+        if (inserted.numAffectedRows) {
+          await sql`insert into audit_log (tenant_id, actor, action, target) values (${ctx.tid}, ${`member:${ctx.sub}`}, 'data_request_delete', ${`member:${ctx.sub}`})`.execute(trx);
+        }
+      });
+      return reply.code(202).send({ status: "accepted" });
     });
 
     /** Active program as engine Workouts, one per day, plus the suggested next day. */

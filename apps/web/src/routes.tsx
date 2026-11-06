@@ -11,12 +11,6 @@ import { SettingsPanel } from "./components/Settings";
 export type ScreenId = `A${1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9}` | `B${1 | 2 | 3 | 4 | 5 | 6}` | `C${1 | 2 | 3 | 4 | 5 | 6 | 8 | 10}`;
 
 export const SCREEN_ROUTES: { path: string; screen: ScreenId }[] = [
-  { path: "/member", screen: "B2" },
-  { path: "/member/login", screen: "B1" },
-  { path: "/member/program", screen: "B3" },
-  { path: "/member/history", screen: "B4" },
-  { path: "/member/progress", screen: "B5" },
-  { path: "/member/settings", screen: "B6" },
   { path: "/admin", screen: "C2" },
   { path: "/admin/login", screen: "C1" },
   { path: "/admin/stations", screen: "C3" },
@@ -43,6 +37,17 @@ const SetupSpikePage = import.meta.env.DEV
 const StationApp = lazy(() => import("./station/StationApp").then((m) => ({ default: m.StationApp })));
 const PhoneSessionPage = lazy(() => import("./phone/PhoneSessionPage").then((m) => ({ default: m.PhoneSessionPage })));
 const suspended = (el: ReactNode) => <Suspense>{el}</Suspense>;
+
+const MemberLogin = lazy(() => import("./member/login").then((m) => ({ default: m.MemberLogin })));
+const member = (name: "RequireMember" | "MemberHome" | "MemberProgramPage" | "MemberHistory" | "MemberSessionDetail" | "MemberProgress" | "MemberSettings") =>
+  lazy(() => import("./member/pages").then((m) => ({ default: m[name] })));
+const RequireMember = member("RequireMember");
+const MemberHome = member("MemberHome");
+const MemberProgramPage = member("MemberProgramPage");
+const MemberHistory = member("MemberHistory");
+const MemberSessionDetail = member("MemberSessionDetail");
+const MemberProgress = member("MemberProgress");
+const MemberSettings = member("MemberSettings");
 
 const SETTINGS_SCREENS: ReadonlySet<ScreenId> = new Set(["B6", "C8"]);
 
@@ -89,6 +94,18 @@ export function AppRoutes() {
       </Route>
       <Route element={<StationLayout />}>
         <Route path="/member/session" element={suspended(<PhoneSessionPage />)} />
+      </Route>
+      {/* B1–B6 member area (T4.2) */}
+      <Route element={<MemberLayout />}>
+        <Route path="/member/login" element={suspended(<MemberLogin />)} />
+        <Route element={suspended(<RequireMember />)}>
+          <Route path="/member" element={suspended(<MemberHome />)} />
+          <Route path="/member/program" element={suspended(<MemberProgramPage />)} />
+          <Route path="/member/history" element={suspended(<MemberHistory />)} />
+          <Route path="/member/history/:sessionId" element={suspended(<MemberSessionDetail />)} />
+          <Route path="/member/progress" element={suspended(<MemberProgress />)} />
+          <Route path="/member/settings" element={suspended(<MemberSettings />)} />
+        </Route>
       </Route>
       {CalibrationSpikePage && (
         <Route

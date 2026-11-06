@@ -33,6 +33,7 @@ export function testServices(o: { api?: Partial<GymApi>; credentials?: Record<st
     now: () => clock.now, // components capture the function; tests move `clock`
     online: () => o.online ?? true,
     newId: () => `00000000-0000-4000-8000-${String(++n).padStart(12, "0")}`,
+    download: vi.fn(),
   };
   return { services, creds, storage, records, pose, scanner, clock };
 }

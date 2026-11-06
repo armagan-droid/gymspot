@@ -148,5 +148,63 @@
     "noProgram": "You have no program yet. Ask your trainer.",
     "loading": "Loading your program…",
     "noDelegation": "Could not create a station code (no connection). You can do this block on your phone."
+  },
+  "member": {
+    "startSession": "Start session",
+    "weekDone": "Sessions completed this week: {{count}}",
+    "noSessions": "No sessions yet.",
+    "loadFailed": "Could not load your data. Check your connection.",
+    "setLine": "Set {{n}}: {{valid}} clean · {{faulty}} faulty · {{incomplete}} partial",
+    "status": {
+      "active": "In progress",
+      "paused": "Paused",
+      "done": "Completed",
+      "abandoned": "Left unfinished",
+      "aborted": "Cancelled"
+    },
+    "progress": {
+      "week": "Week",
+      "valid": "Clean",
+      "faulty": "Faulty",
+      "incomplete": "Partial",
+      "clean": "Clean ratio",
+      "percent": "{{value}}%"
+    },
+    "login": {
+      "email": "E-mail",
+      "send": "Send sign-in link",
+      "sent": "Check your e-mail: if you are registered, we sent you a sign-in link.",
+      "useInvite": "Use the invite link your gym sent you to sign in.",
+      "invalid": "This link is invalid or has expired. Request a new one."
+    },
+    "consent": {
+      "title": "Information and explicit consent",
+      "checkbox": "I have read the notice and give explicit consent to camera use.",
+      "accept": "I agree",
+      "skip": "Not now",
+      "points": [
+        "Your camera image is processed only on this device; it is never stored or sent anywhere.",
+        "Only results such as rep counts, fault types and durations go to the server.",
+        "No face recognition is used; your QR code identifies you.",
+        "You can withdraw consent at any time in settings; you then log your sets manually.",
+        "You can download your data or request its deletion."
+      ]
+    },
+    "settings": {
+      "camera": "Camera",
+      "consentOn": "You have consented to camera use.",
+      "consentOff": "No camera consent; the camera stays off.",
+      "withdraw": "Withdraw my camera consent",
+      "give": "Give camera consent",
+      "data": "My data",
+      "export": "Download my data",
+      "delete": "Request deletion of my data",
+      "deleteConfirm": "All your session data and your account will be deleted. Are you sure?",
+      "deleteYes": "Yes, delete it",
+      "deleteNo": "Cancel",
+      "deletionRequested": "Request received. Your data will be deleted within 30 days.",
+      "account": "Account",
+      "signOut": "Sign out"
+    }
   }
 }

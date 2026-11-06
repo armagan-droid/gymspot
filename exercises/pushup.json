@@ -1,0 +1,60 @@
+{
+  "id": "pushup",
+  "version": 1,
+  "status": "draft",
+  "name": { "tr": "Şınav", "en": "Push-up" },
+  "type": "reps",
+  "camera": {
+    "views": ["side"],
+    "minVisibleLandmarks": ["near_shoulder", "near_elbow", "near_wrist", "near_hip", "near_knee", "near_ankle"],
+    "minVisibility": 0.6,
+    "setupHint": {
+      "tr": "Kamerayı yere yakın, yan tarafına koy; baştan ayağa tüm vücudun görünsün.",
+      "en": "Place the camera low, at your side, so you are fully visible from head to feet."
+    }
+  },
+  "metrics": {
+    "elbow_angle": { "angle": ["near_shoulder", "near_elbow", "near_wrist"] },
+    "body_line_angle": { "angle": ["near_shoulder", "near_hip", "near_ankle"] },
+    "hip_offset": { "signedOffset": ["near_shoulder", "near_hip", "near_ankle"] }
+  },
+  "rep": {
+    "metric": "elbow_angle",
+    "start": { "enter": 155, "exit": 145 },
+    "target": { "enter": 95, "exit": 105 },
+    "attemptMinExcursion": 20,
+    "minDurationMs": 700,
+    "maxDurationMs": 8000
+  },
+  "readyPose": "elbow_angle > 160 and body_line_angle > 160 for 1500ms",
+  "faults": [
+    {
+      "id": "partial_range",
+      "severity": "minor",
+      "check": "at_turn: elbow_angle > 95",
+      "cue": { "tr": "Göğsünü biraz daha yere yaklaştır", "en": "Lower your chest a bit more" },
+      "affectsValidity": true,
+      "cooldownMs": 4000,
+      "minConsecutiveReps": 1
+    },
+    {
+      "id": "hip_sag",
+      "severity": "major",
+      "check": "during_rep: hip_offset < -0.06",
+      "cue": { "tr": "Kalçanı sıkıp vücudunu düz tut", "en": "Tighten your core, keep a straight line" },
+      "affectsValidity": false,
+      "cooldownMs": 4000,
+      "minConsecutiveReps": 2
+    },
+    {
+      "id": "hip_pike",
+      "severity": "minor",
+      "check": "during_rep: hip_offset > 0.08",
+      "cue": { "tr": "Kalçanı biraz indir", "en": "Lower your hips slightly" },
+      "affectsValidity": false,
+      "cooldownMs": 4000,
+      "minConsecutiveReps": 2
+    }
+  ],
+  "smoothing": { "method": "one_euro", "minCutoff": 1.0, "beta": 0.05 }
+}

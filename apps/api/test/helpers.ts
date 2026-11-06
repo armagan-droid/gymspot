@@ -4,6 +4,7 @@ import type { FastifyInstance } from "fastify";
 import { type Kysely, sql } from "kysely";
 import { buildApp } from "../src/app";
 import { hashPassword } from "../src/auth/password";
+import type { BlobStore } from "../src/calibration/store";
 import type { AppConfig } from "../src/config";
 import type { Database } from "../src/db/db";
 
@@ -53,7 +54,7 @@ export interface TestApi {
   memberToken(email: string, tenantId?: string): Promise<string>;
 }
 
-export function testApi(db: Kysely<Database>, overrides: Partial<AppConfig> = {}): TestApi {
+export function testApi(db: Kysely<Database>, overrides: Partial<AppConfig> = {}, blobStore?: BlobStore): TestApi {
   const sent: { to: string; link: string }[] = [];
   const clock = { now: T0 };
   const app = buildApp({
@@ -65,8 +66,10 @@ export function testApi(db: Kysely<Database>, overrides: Partial<AppConfig> = {}
       now: () => clock.now,
       sendMagicLink: async (to, link) => void sent.push({ to, link }),
       authRateLimit: 10_000,
+      calibrationKey: new Uint8Array(32).fill(1),
       ...overrides,
     },
+    ...(blobStore && { blobStore }),
   });
   const call: TestApi["call"] = async (method, url, token, body) => {
     const res = await app.inject({ method, url, payload: body as object, headers: token ? { authorization: `Bearer ${token}` } : {} });

@@ -27,6 +27,10 @@ Eşik kalibrasyonu ve test fixture'ları (AC-4.3) gerçek landmark verisi gerekt
 - Yalnızca landmark dizileri (+ zaman damgası, etiket) kaydedilir. **Video, kare veya görüntü asla kaydedilmez.**
 - Kayıtlar takma adlıdır (`participant_ref`, isim yok), şifreli ayrı nesne deposunda tutulur, erişim yalnızca ürün ekibinin kalibrasyon rolüne açıktır. Saklama süresi en fazla 12 ay.
 - Ekranda kayıt sürerken belirgin "KALİBRASYON KAYDI" göstergesi bulunur.
+- **Depolama:** kayıt, `LandmarkSequenceSchema`'dan (katı; görüntü alanı olamaz) ve `source = calibration` kontrolünden geçer. AES-256-GCM ile şifrelenip nesne deposuna yazılır. Ek doğrulanmış veri (AAD) olarak `tenantId/recordingId` kullanılır; böylece bir kayıt başka bir kaydın yerine konamaz. Anahtar `CALIBRATION_ENCRYPTION_KEY` (32 bayt) değişkenindedir ve üretimde zorunludur. Veritabanında yalnız etiketler ve depo referansı tutulur.
+- **Erişim:** tenant personeli (yönetici/sahip) rıza kaydeder, kayıt yükler, kayıt meta verisini listeler ve rızayı geri çeker. Ham kareleri indiremez. İndirme yalnız ürün ekibinin kalibrasyon araçlarıyla mümkündür (T5.3).
+- **Geri çekme:** rıza geri çekilince o rızaya bağlı tüm kayıtlar depodan ve veritabanından silinir.
+- **Saklama:** 12 aydan eski kayıtlar temizleme işiyle silinir.
 
 ## Üye hakları
 - Veri dışa aktarma (JSON/CSV) ve silme/anonimleştirme talebi: üye B6'dan veya yönetici panelinden; 30 gün içinde tamamlanır.

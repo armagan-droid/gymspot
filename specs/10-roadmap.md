@@ -26,7 +26,7 @@ Her adım tek spec'e dayanır ve testlerle biter. Sıra bağımlılığa göre. 
 - [x] T3.2 Auth: personel parola, üye magic link, cihaz eşleştirme, imzalı QR + imza yetkisi — 07 (AC-7.3, 7.6)
 - [x] T3.3 Program/şablon/üye/antrenör ataması API'leri — 06 (AC-6.4)
 - [x] T3.4 Seans olay alımı (idempotent, istemci UUID) + istemcide çevrimdışı kuyruk + devir birleştirme — AC-6.2, 03
-- [ ] T3.5 Kalibrasyon kayıt yükleme (ayrı şifreli depo, rıza kontrolü) — AC-7.5
+- [x] T3.5 Kalibrasyon kayıt yükleme (ayrı şifreli depo, rıza kontrolü) — AC-7.5
 
 ## Faz 4 — Ürün ekranları
 - [ ] T4.1 İstasyon akışı A1–A9 uçtan uca (telefon modu + istasyon devri)

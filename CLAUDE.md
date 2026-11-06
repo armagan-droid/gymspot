@@ -50,7 +50,7 @@ Node ≥ 22, pnpm sürümü `package.json` → `packageManager` alanında sabit.
 - `packages/engine` ve `packages/shared` tsconfig'i DOM ve Node tiplerini içermez; motor sınırı (02) derleyiciyle zorlanır.
 - İç paketler derlenmez, `exports` doğrudan `src/index.ts`'i gösterir.
 - Testler: kökteki `vitest.config.ts` üç proje çalıştırır: `packages` (node), `apps/web` (jsdom, kendi `vite.config.ts`'i), `apps/api` (her çalıştırmada sıfırdan migrate edilmiş geçici bir veritabanı; Postgres yoksa testler açıkça başarısız olur).
-- API ortam değişkenleri: `DATABASE_URL`, `JWT_SECRET`, `QR_MASTER_SECRET` (üretimde zorunlu; geliştirmede süreç başına rastgele), `APP_BASE_URL`, `AUTH_RATE_LIMIT`. Saat (`now`) ve magic link göndericisi `AppConfig` ile enjekte edilir; testler sahte saat kullanır.
+- API ortam değişkenleri: `DATABASE_URL`, `JWT_SECRET`, `QR_MASTER_SECRET`, `CALIBRATION_ENCRYPTION_KEY` (32 bayt base64url) (üretimde zorunlu; geliştirmede süreç başına rastgele), `APP_BASE_URL`, `AUTH_RATE_LIMIT`. Saat (`now`) ve magic link göndericisi `AppConfig` ile enjekte edilir; testler sahte saat kullanır.
 - pnpm 12 onaylanmamış kurulum betiklerini hata sayar; izin verilenler `pnpm-workspace.yaml` → `allowBuilds` içinde (şimdilik yalnız `esbuild`).
 - Program motorunun `SPEAK`/`SHOW` anahtarları `PROGRAM_MESSAGE_KEYS`'te; web testi her anahtarın TR/EN çevirisini zorunlu kılar.
 

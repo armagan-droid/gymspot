@@ -13,6 +13,8 @@ export interface AppConfig {
   sendMagicLink: (to: string, link: string, tenantId: string) => Promise<void>;
   /** Requests per minute per client on auth endpoints (specs/07 rate limit). */
   authRateLimit: number;
+  /** AES-256 key (32 bytes) for calibration recordings at rest (specs/07). */
+  calibrationKey: Uint8Array;
 }
 
 export function configFromEnv(env: NodeJS.ProcessEnv = process.env): AppConfig {
@@ -33,5 +35,10 @@ export function configFromEnv(env: NodeJS.ProcessEnv = process.env): AppConfig {
       console.info(`[dev] magic link for ${to}: ${link}`);
     },
     authRateLimit: Number(env.AUTH_RATE_LIMIT ?? 30),
+    calibrationKey: (() => {
+      const key = Buffer.from(secret("CALIBRATION_ENCRYPTION_KEY"), "base64url");
+      if (key.length !== 32) throw new Error("CALIBRATION_ENCRYPTION_KEY must be 32 bytes (base64url)");
+      return key;
+    })(),
   };
 }

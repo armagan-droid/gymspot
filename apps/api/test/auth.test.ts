@@ -59,6 +59,7 @@ beforeEach(async () => {
       now: () => clock,
       sendMagicLink: async (to, link) => void sent.push({ to, link }),
       authRateLimit: 1000,
+      calibrationKey: new Uint8Array(32),
     },
   });
 });
@@ -260,7 +261,7 @@ describe("rate limiting", () => {
   test("auth endpoints are rate limited per client", async () => {
     const limited = buildApp({
       db,
-      config: { jwtSecret: "test-jwt-secret-at-least-32-bytes-long!!", qrMasterSecret: "x", appBaseUrl: "https://app.test", now: () => clock, sendMagicLink: vi.fn(), authRateLimit: 3 },
+      config: { jwtSecret: "test-jwt-secret-at-least-32-bytes-long!!", qrMasterSecret: "x", appBaseUrl: "https://app.test", now: () => clock, sendMagicLink: vi.fn(), authRateLimit: 3, calibrationKey: new Uint8Array(32) },
     });
     const codes: number[] = [];
     for (let i = 0; i < 5; i++) {

@@ -3,7 +3,9 @@ import Fastify, { type FastifyInstance } from "fastify";
 import { type Kysely, sql } from "kysely";
 import { authRoutes } from "./auth/routes";
 import { AccessTokens, TenantKeys } from "./auth/tokens";
+import { type BlobStore, FileBlobStore } from "./calibration/store";
 import { type AppConfig, configFromEnv } from "./config";
+import { calibrationRoutes } from "./routes/calibration";
 import { ingestRoutes } from "./routes/ingest";
 import { meRoutes } from "./routes/me";
 import { memberRoutes } from "./routes/members";
@@ -17,10 +19,12 @@ import type { Database } from "./db/db";
 export interface AppDeps {
   db: Kysely<Database>;
   config?: AppConfig;
+  /** Encrypted calibration recordings (specs/07); a local directory by default. */
+  blobStore?: BlobStore;
   logger?: boolean;
 }
 
-export function buildApp({ db, config = configFromEnv(), logger = false }: AppDeps): FastifyInstance {
+export function buildApp({ db, config = configFromEnv(), blobStore = new FileBlobStore("data/calibration"), logger = false }: AppDeps): FastifyInstance {
   const app = Fastify({ logger, requestIdHeader: "x-request-id", genReqId: () => crypto.randomUUID() });
   const tokens = new AccessTokens(config.jwtSecret, config.now);
   const keys = new TenantKeys(config.qrMasterSecret);
@@ -32,6 +36,7 @@ export function buildApp({ db, config = configFromEnv(), logger = false }: AppDe
   void app.register(meRoutes(db, config, tokens));
   void app.register(stationRoutes(db, tokens));
   void app.register(ingestRoutes(db, tokens));
+  void app.register(calibrationRoutes(db, config, tokens, blobStore));
 
   app.get("/health", async (_req, reply) => {
     try {

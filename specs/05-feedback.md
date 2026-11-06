@@ -24,8 +24,11 @@ Böylece JSON ile eklenen yeni bir hareket, ses dosyası üretilmeden de çalı�
 - `cooldownMs`: aynı hata için varsayılan 4 sn. Cooldown hata kimliği bazındadır.
 - `minConsecutiveReps`: uyarı, hata art arda bu kadar denemede görülünce verilir (04).
 - Aynı hata art arda 3 denemede sürerse "sık hata" olarak işaretlenir ve set sonu özetinde vurgulanır.
-- `during_rep` hataları tespit anında, `at_turn`/`at_start` hataları deneme bittiği anda uyarılır.
-- Dinlenme, geri sayım ve PAUSED sırasında uyarı verilmez. Kuyrukta bekleyen uyarı bu durumlara girilince atılır.
+- `during_rep` hataları tespit anında, `at_turn`/`at_start` hataları deneme bittiği anda uyarılır. Kesinleşmemiş denemedeki (04) `during_rep` tespiti, deneme kesinleşince uyarılır; deneme gürültü çıkarsa atılır.
+- Aynı anda birden fazla aday varsa yalnızca en öncelikli olan uyarılır, diğerleri **kuyruğa alınmaz**, atılır. Hata sürerse sonraki denemede yeniden aday olur.
+- "Art arda deneme" sayımı yalnızca kesinleşmiş denemeleri kapsar ve her set başında sıfırlanır.
+- Uyarılar kapalıyken (dinlenme, geri sayım, PAUSED) adaylar atılır ve bekleme süresi başlatılmaz.
+- Dinlenme, geri sayım ve PAUSED sırasında uyarı verilmez. Arayüzde çalmayı bekleyen ses de bu durumlara girilince atılır.
 - Kullanıcı sesi kapatabilir; ekran uyarısı sürer.
 
 ## Set sonu özeti

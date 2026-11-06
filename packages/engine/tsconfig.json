@@ -1,0 +1,9 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    // The engine is pure TS: no DOM, no Node APIs (specs/02 "Modüller ve sınırları").
+    "lib": ["ES2022"],
+    "types": []
+  },
+  "include": ["src"]
+}

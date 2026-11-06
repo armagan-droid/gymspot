@@ -36,6 +36,11 @@ Analitik grafikleri (C7 tam), faturalama (C9), çoklu şube, süreli (`hold`) ha
 - Eşikler pilot verisiyle yeniden kalibre edilecek (kalibrasyon modu ile toplanan etiketli landmark dizileri). Pilot ölçütleri bu etiketli setle ölçülür:
   - Sayım doğruluğu = |sayılan − etiketlenen tekrar| / etiketlenen tekrar, set bazında.
   - Yanlış alarm oranı = etikette olmayan hata için verilen uyarı / toplam uyarı.
+  - **Araç (T5.3):** `pnpm --filter @gymspot/api calibration:report`, şifreli kalibrasyon kayıtlarını (`--db`) veya indirilmiş JSON dosyalarını (`--files`) güncel kural paketleriyle motor üzerinden oynatır.
+    - Eşleştirme: tahmin edilen tekrarlar etiketlerle sırasıyla eşleştirilir. Bir uyarı, verildiği sıradaki denemeye aittir.
+    - Sayım, strict mod kuralıyla yapılır (yalnız `valid`).
+    - Çıktı: hareket başına sayım doğruluğu, yanlış alarm oranı, hata bazında isabet ve kaçırma sayıları. Pilot hedefleri: sayımda ≥ %95, yanlış alarmda ≤ %10.
+    - `--sweep <yol>=<değerler>` bir eşiği aday değerlerle dener. Yol örnekleri: `rep.target.enter` veya `faults.<id>.threshold` (kontroldeki son sayı).
 - Salon wifi'si seans için zorunlu değil (çevrimdışı kuyruk var).
 
 ## Açık sorular

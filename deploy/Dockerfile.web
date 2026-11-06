@@ -1,0 +1,15 @@
+# Web (PWA) image: static build served by Caddy, which also proxies /api and
+# obtains HTTPS certificates (the camera needs a secure context, specs/07).
+#   docker build -f deploy/Dockerfile.web -t gymspot-web .
+FROM node:24-slim AS build
+WORKDIR /app
+ENV COREPACK_ENABLE_DOWNLOAD_PROMPT=0
+ARG APP_VERSION=dev
+ENV VITE_APP_VERSION=$APP_VERSION
+RUN corepack enable
+COPY . .
+RUN pnpm install --frozen-lockfile && pnpm --filter @gymspot/web build
+
+FROM caddy:2-alpine
+COPY deploy/Caddyfile /etc/caddy/Caddyfile
+COPY --from=build /app/apps/web/dist /srv

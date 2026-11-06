@@ -1,0 +1,16 @@
+{
+  "name": "@gymspot/shared",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json && tsc -p test/tsconfig.json"
+  },
+  "dependencies": {
+    "@noble/ed25519": "^3.2.0",
+    "zod": "^4.6.7"
+  }
+}

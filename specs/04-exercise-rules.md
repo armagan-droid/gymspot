@@ -17,24 +17,23 @@ Her hareket `exercises/<id>.json` dosyasıdır. Şema `packages/shared`'te Zod i
     "setupHint": { "tr": "...", "en": "..." }
   },
   "metrics": {                        // türetilmiş ölçümler (her karede hesaplanır)
-    "knee_angle_l": { "angle": ["left_hip", "left_knee", "left_ankle"] },
-    "knee_angle_r": { "angle": ["right_hip", "right_knee", "right_ankle"] },
-    "knee_angle_avg": { "avg": ["knee_angle_l", "knee_angle_r"] }
+    "knee_angle_near": { "angle": ["near_hip", "near_knee", "near_ankle"] }
   },
   "rep": {
-    "metric": "knee_angle_avg",       // tekrarı süren tek metrik
+    "metric": "knee_angle_near",      // tekrarı süren tek metrik
     "start":  { "enter": 160, "exit": 150 },   // başlangıç bölgesi (histerezisli)
     "target": { "enter": 100, "exit": 110 },   // hedef bölgesi (histerezisli)
     "attemptMinExcursion": 20,        // start.exit'ten en az bu kadar uzaklaşmadan deneme sayılmaz
     "minDurationMs": 800,
     "maxDurationMs": 8000
   },
-  "readyPose": "knee_angle_avg > 165 for 1500ms",
+  "readyPose": "knee_angle_near > 165 for 1500ms",
   "faults": [
     {
       "id": "insufficient_depth",
+      "name": { "tr": "Yetersiz derinlik", "en": "Insufficient depth" },  // A3'te aktif kontrol adı
       "severity": "minor",
-      "check": "at_turn: knee_angle_avg > 100",
+      "check": "at_turn: knee_angle_near > 100",
       "views": ["front", "side"],     // opsiyonel; yoksa camera.views
       "cue": { "tr": "Biraz daha aşağı in", "en": "Go a little lower" },
       "affectsValidity": true,
@@ -54,9 +53,11 @@ Bölge kuralı (azalan yön için; artan yönde işaretler ters):
 - Start bölgesine giriş: metrik ≥ `start.enter`; çıkış: metrik < `start.exit`.
 - Target bölgesine giriş: metrik ≤ `target.enter`; çıkış: metrik > `target.exit`.
 
+Doğrulayıcı bölgelerin tutarlılığını zorlar: `start.enter ≠ target.enter`; azalan yönde `start.exit < start.enter`, `target.exit > target.enter` ve `target.exit < start.exit` (bölgeler örtüşmez); artan yönde işaretler ters. Ayrıca `minDurationMs < maxDurationMs`. Metrik adları ifade dilinin ayrılmış sözcükleri (`and`, `or`, `not`, `for`, `ms`, fonksiyon ve konum adları) olamaz.
+
 Döngü:
 1. Metrik start bölgesindeyken `IDLE_AT_START`.
-2. Start bölgesinden çıkış → `REP_STARTED` olayı; bu andan itibaren **dönüş noktası** (metriğin en uç değeri) izlenir.
+2. Start bölgesinden çıkış → deneme adayı başlar. Bu kare **başlangıç anıdır** (süre ve `at_start` için), ayrıca **dönüş noktası** (metriğin en uç değeri) izlenmeye başlar. Metrik `start.exit`'ten `attemptMinExcursion` kadar uzaklaşınca deneme kesinleşir ve `REP_STARTED` olayı üretilir. Böylece eşik civarındaki salınım olay üretmez ve hareketsizlik sayacını (03, kural 5) sıfırlamaz.
 3. Target bölgesine girildiyse `reachedTarget = true`.
 4. Start bölgesine geri giriş → deneme biter:
    - Dönüş noktası `start.exit`'ten `attemptMinExcursion` kadar uzaklaşmadıysa → gürültü, olay yok.
@@ -70,7 +71,7 @@ Döngü:
 
 5. Süre `minDurationMs`'den kısa veya `maxDurationMs`'den uzunsa outcome `incomplete` olur.
 
-Not: Yarım tekrarların uyarı alabilmesi için "yetersiz derinlik/uzatma" türü hata eşiği `target.enter` ile aynı tutulur. Böylece hedefe ulaşmayan her deneme bu hatayı tetikler (ör. squat `at_turn: knee_angle_avg > 100`).
+Not: Yarım tekrarların uyarı alabilmesi için "yetersiz derinlik/uzatma" türü hata eşiği `target.enter` ile aynı tutulur. Böylece hedefe ulaşmayan her deneme bu hatayı tetikler (ör. squat `at_turn: knee_angle_near > 100`).
 
 ## Görünüm (view) ve taraf
 - **Görünüm tespiti:** Motor her karede `front | side | ambiguous` üretir. Omuzlar arası yatay mesafe / gövde boyu oranı ≥ 0.45 ise `front`, ≤ 0.20 ise `side`, arasıysa `ambiguous` (eşikler motor yapılandırmasındadır ve kalibre edilir). Set boyunca baskın görünüm kullanılır.
@@ -80,6 +81,9 @@ Not: Yarım tekrarların uyarı alabilmesi için "yetersiz derinlik/uzatma" tür
 
 ## Görünürlük
 - Bir hatanın ifadesinde kullanılan herhangi bir noktanın visibility değeri `minVisibility` altındaysa o karede hata değerlendirilmez.
+- **Yan görünümde uzak taraf görünmez.** Bu yüzden iki tarafı birden kullanan bir metrik (ör. iki bacağın ortalaması) yan görünümde görünürlük kuralına takılır. Yan görünümü destekleyen hareketlerde tekrar metriği, her iki görünümde geçerli hatalar ve `readyPose` `near_` noktalarıyla tanımlanmalıdır. İki tarafı karşılaştıran metrikler (asimetri, diz içe kaçma) yalnız `front` görünümlü hatalarda kullanılır.
+- `readyPose` de aynı kurala tabidir: kullandığı noktalardan biri eşik altındaysa o karede sağlanmamış sayılır.
+- Kamerada kişi hiç algılanmıyorsa veya kişi seçimi belirsizse (07), uygulama 1 sn sonra aynı `TRACKING_LOST` sinyalini üretir. Kişi geri gelince ve görünürlük de yeterliyse `TRACKING_RESTORED` üretilir. Program motoru iki kaynağı tek sinyal olarak görür.
 - `minVisibleLandmarks` noktaları 1 sn boyunca eşik altındaysa motor `TRACKING_LOST`, geri gelince `TRACKING_RESTORED` olayı üretir (03, kural 10).
 
 ## İfade dili
@@ -96,12 +100,41 @@ compare    = value ( ">" | "<" | ">=" | "<=" ) value ;
 value      = NUMBER | METRIC | func "(" value { "," value } ")" ;
 func       = "abs" | "avg" | "min" | "max" ;
 METRIC     = metrics içinde tanımlı bir ad ;
+NUMBER     = [ "-" ] digit { digit } [ "." digit { digit } ] ;
+INT        = digit { digit } ;
 ```
+
+- Karşılaştırmalar zincirlenemez (`a < b < c` hata). Öncelik: `or` < `and` < `not` < karşılaştırma.
+- `abs` tam 1, `avg`/`min`/`max` en az 1 argüman alır.
+- Gramer dışı her karakter (`=`, `;`, `.`, tırnak vb.), bilinmeyen fonksiyon ve tanımsız metrik ayrıştırma hatasıdır.
+- **Bilinmeyen değer:** Değerlendirmede bir metriğin değeri yoksa veya `NaN` ise o karşılaştırma *bilinmiyor* olur (üç değerli mantık: `false and ? = false`, `true or ? = true`, `not ? = ?`). Sonuç bilinmiyorsa koşul **sağlanmamış** sayılır. Böylece belirsiz veri hiçbir zaman uyarı üretmez (05).
+- Kural paketi yüklenirken (`packages/engine` `loadRulePack`) tüm `check` ve `readyPose` ifadeleri ayrıştırılır, tanımsız metrik varsa paket reddedilir (AC-4.1).
 
 Konum anlamları:
 - `at_turn`: deneme bittiğinde, **dönüş noktası karesindeki** metrik değerleriyle bir kez değerlendirilir.
 - `at_start`: deneme bittiğinde, `REP_STARTED` anındaki kareyle bir kez değerlendirilir.
 - `during_rep`: deneme boyunca her karede değerlendirilir; ifade en az `holdMs` boyunca kesintisiz doğruysa hata tespit edilir. Tek karelik gürültü hata üretmez.
+
+## Landmark dizisi (fixture) formatı
+Test fixture'ları ve kalibrasyon kayıtları (07) aynı formatı kullanır. Şema `packages/shared` → `LandmarkSequenceSchema`:
+
+```jsonc
+{
+  "formatVersion": 1,
+  "exerciseId": "squat",
+  "source": "synthetic",            // "synthetic" | "calibration" | "team"
+  "view": "front",                  // kaydın görünümü: "front" | "side"
+  "fps": 30,
+  "labels": {                       // gerçek değer (etiket); opsiyonel
+    "reps": [ { "outcome": "valid", "faults": [] }, { "outcome": "faulty", "faults": ["insufficient_depth"] } ]
+  },
+  "frames": [ /* Frame[] (02) */ ]
+}
+```
+
+- **Sentetik** diziler `@gymspot/engine/testing` ile üretilir: verilen eklem açılarından basit kinematik iskelet → MediaPipe biçiminde 33 nokta (image + world), tohumlu (seed) gürültü, ön/yan görünüm, iki yöne dönüş, aynalama (sol↔sağ). Yan görünümde uzak taraf noktalarının visibility değeri düşüktür (varsayılan 0.4).
+- Sentetik diziler motor testleri içindir; **AC-4.3'teki gerçek kayıt şartının yerini tutmaz** (gerçek kayıtlar T2.5).
+- World koordinat yönleri (MediaPipe ile uyumlu varsayım, T2.2'de doğrulanır): kalça merkezli, metre, x görüntüde sağa, y aşağı, z kameradan uzağa.
 
 ## Hata tanımı kuralları
 - `severity`: `minor` | `major`. `major` hatanın güvenlik duraklatması 05'te tanımlıdır.
@@ -133,6 +166,14 @@ Konum anlamları:
 | `angleFromVertical: [a, b]` | a→b doğrusunun dikeyden sapma açısı (0–180°) | görüntü (2B) |
 | `kneeInwardRatio: [hip, knee, ankle]` | dizin kalça–ayak bileği çizgisinden vücut orta hattına doğru sapması (pozitif = içe), bacak boyuna normalize | görüntü (2B) |
 | `signedOffset: [a, b, c]` | b'nin a–c doğrusuna dik işaretli uzaklığı (pozitif = görüntüde yukarı), a–c uzunluğuna normalize | görüntü (2B) |
+
+Tanımlar:
+- **Gövde boyu** (görüntü): omuz orta noktası ile kalça orta noktası arasındaki görüntü mesafesi. `diffY` ve görünüm tespiti bunu kullanır.
+- **Bacak boyu** (`kneeInwardRatio`): görüntüde kalça–diz + diz–ayak bileği uzunluklarının toplamı. Sapma, dizin kalça–ayak bileği doğrusundan yatay uzaklığıdır. İşaret, vücut orta hattına (iki kalçanın orta noktası) doğruysa pozitiftir.
+- **`signedOffset`'te "yukarı"**, görüntüde y'nin azaldığı yöndür. a–c doğrusu tam dikeyse pozitif yön görüntüde +x'tir.
+- Geometri tanımsızsa (çakışan noktalar, sıfır uzunluk) metrik `NaN` olur. `NaN` ifade dilinde *bilinmiyor* sayılır.
+- **Yumuşatma:** `smoothing` her karede hesaplanan **metrik değerlerine** uygulanır (landmark'lara değil). One Euro filtresinde `dCutoff = 1.0` ve zaman saniye cinsindendir. `NaN` değer filtreyi sıfırlamadan `NaN` olarak geçer.
+- **Yakın taraf** seçiminde iki tarafın ortalama visibility değeri eşitse sol taraf seçilir.
 
 "world" = MediaPipe `worldLandmarks` (metre, kalça merkezli): eklem açılarını kamera açısından büyük ölçüde bağımsız kılar. Bu seçim T2.2 spike'ında doğrulanır. Doğrulanamazsa sonuç 02'ye yazılır ve bu tablo güncellenir.
 

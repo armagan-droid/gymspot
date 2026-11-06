@@ -9,6 +9,8 @@ Tek PWA, rota bazlı üç alan: **İstasyon/Seans**, **Üye**, **Yönetim**. Duy
 - Erişilebilirlik: renk tek başına bilgi taşımaz (ikon+metin), ses uyarısı kapatılabilir.
 
 ## A) İstasyon / Seans ekranları
+Rotalar: tablet için `/station` (eşleştirilmemişse A1, sonra A2 → A3 → aktif blok → "Telefonundan devam et" → A2; tek bir durum makinesi) ve `/station/pair`. Telefonla seans için `/member/session` (A4 → A3 → A5/A6 → devirde A7 → A8). Kamera ve motor ekranları ana paketten ayrı yüklenir.
+
 | # | Ekran | Cihaz | İçerik |
 |---|---|---|---|
 | A1 | Cihaz eşleştirme | Tablet | Yönetici kodu ile cihazı istasyona bağla |
@@ -24,26 +26,40 @@ Tek PWA, rota bazlı üç alan: **İstasyon/Seans**, **Üye**, **Yönetim**. Duy
 ## B) Üye alanı (telefon öncelikli)
 | # | Ekran | İçerik |
 |---|---|---|
-| B1 | Giriş + rıza | Davet/magic link ile giriş (e-posta veya telefon gir → bağlantı gönderildi), ilk girişte aydınlatma ve açık rıza onayı (07) |
+| B1 | Giriş + rıza | Davet/magic link ile giriş. Bağlantıdaki token'ın tenant öneki uygulamaya salonu tanıtır ve hatırlanır; sonraki girişlerde e-posta yeterlidir. Salon bilinmiyorsa "salonunun gönderdiği davet bağlantısını kullan" denir. İlk girişte ve rıza metni sürümü değiştiğinde aydınlatma ve açık rıza istenir; "şimdi değil" denebilir (kamera açılmaz) |
 | B2 | Ana sayfa | Bugünün antrenmanı, haftalık tamamlama, "Seansı başlat" (telefon modu) ve "İstasyona bağlan" (handoff QR) |
 | B3 | Programım | Gün ve hareket listesi |
 | B4 | Seans geçmişi | Liste + seans detayı (set bazlı tekrar, hatalar) |
-| B5 | İlerleme | Hareket bazlı tekrar ve temiz tekrar oranı trendi (sade grafikler) |
-| B6 | Ayarlar | Dil, ses, rızayı geri çekme, veri dışa aktarma/silme talebi |
+| B5 | İlerleme | Hareket bazlı haftalık tekrar ve temiz tekrar oranı (son 8 hafta; MVP'de tablo) |
+| B6 | Ayarlar | Dil, tema, rıza verme/geri çekme, verilerini JSON olarak indirme, silme talebi, çıkış |
 
 ## C) Yönetim paneli (tablet/masaüstü, telefonda sade)
 | # | Ekran | Rol | İçerik |
 |---|---|---|---|
-| C1 | Giriş | Personel | E-posta/şifre |
+| C1 | Giriş | Personel | Salon kimliği (ilk girişte; davet/kurulum bağlantısındaki `?tenant=` ile gelir ve hatırlanır), e-posta, şifre |
 | C2 | Genel bakış | Yönetici | Aktif seans, bugünkü seans sayısı, istasyon sağlığı |
 | C3 | İstasyonlar | Yönetici | Liste, cihaz durumu (heartbeat), eşleştirme, hareket ataması |
 | C4 | Üyeler | Yönetici/Antrenör | Arama, üye detayı, program atama |
 | C5 | Program şablonları | Antrenör | Şablon oluştur/düzenle (hareket, set, tekrar, dinlenme, mod) |
-| C6 | Üye detayı | Antrenör | Seans geçmişi, en sık hatalar, devamlılık |
+| C6 | Üye detayı | Antrenör | Seans geçmişi, son 30 günün en sık hataları, haftalık seans sayısı (son 8 hafta), antrenör ataması, program atama |
 | C7 | Analitik | Yönetici | İstasyon kullanımı (saat bazlı), aktif üye oranı, devamlılık |
-| C8 | Ayarlar | Sahip | Şube, kullanıcılar, strict/lenient varsayılanı, saklama süresi, bilgilendirme şablonu |
+| C8 | Ayarlar | Sahip | Kullanıcılar (personel ekleme), strict/lenient varsayılanı (yeni şablon bloklarında öntanımlı), saklama süresi (ay, varsayılan 24), güvenlik duraklatması açık/kapalı (05; telefona programla, tablete tenant anahtarıyla iletilir), bilgilendirme metni şablonu, üye veri talepleri |
 | C9 | Faturalama | Sahip | Plan, istasyon sayısı, faturalar |
 | C10 | Kalibrasyon kaydı | Yönetici/Sahip | Katılımcı rızası (ayrı metin), hareket seçimi, etiketleme (doğru/hatalı + hata türü), kayıt göstergesi. Yalnız landmark kaydeder (07) |
+
+## A3 kurulum kontrolleri
+Son 1 sn'lik karelerin en az %80'i aşağıdakilerin hepsini sağlıyorsa kurulum **hazırdır**:
+- **Tüm vücut görünüyor:** kural paketindeki `minVisibleLandmarks` noktalarının hepsi `minVisibility` üstünde ve görüntünün içinde (kenarlardan %2 pay). İpucu: `setup.hint.show_full_body`.
+- **Çok uzak değil:** görünen noktaları içine alan kutunun uzun kenarı (yatay veya dikey) görüntünün en az %45'i. Uzun kenar kullanılır, çünkü şınav gibi yatay hareketlerde vücut dikeyde kısa kalır. İpucu: `setup.hint.move_closer`.
+- **Çok yakın değil:** `minVisibleLandmarks` noktalarından biri kenar payının dışındaysa `setup.hint.step_back`.
+- **Görünüm uygun:** baskın görünüm (04) `camera.views` içinde. Değilse ipucu `setup.hint.turn_side` (desteklenen görünüm yalnız `side` ise) veya `setup.hint.face_camera` (yalnız `front` ise). Belirsiz görünümde `setup.hint.adjust_angle`.
+- **Tek kişi:** kişi seçimi belirsiz değil (07). İpucu: `setup.hint.multiple_people`.
+
+Hazır olunca A3 algılanan görünümü, yakın tarafı ve bu görünümde aktif olan form kontrollerinin adlarını (`faults[].name`) gösterir.
+
+## Kamera izni
+- Rıza yoksa veya geri çekildiyse kamera **istenmez** (AC-7.4). Ekran rıza gerektiğini söyler.
+- İzin reddedilirse veya kamera yoksa (güvensiz bağlam, cihaz yok) A9 açıklayıcı hata gösterir ve elle kayıt seçeneği sunar (AC-8.3).
 
 ## Duyarlı davranış
 | Alan | Telefon dikey | Telefon yatay | Tablet yatay |

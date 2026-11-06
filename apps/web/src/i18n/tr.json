@@ -1,0 +1,307 @@
+{
+  "app": {
+    "name": "AI Gym",
+    "home": "Ana sayfa",
+    "notFound": "Sayfa bulunamadı"
+  },
+  "areas": {
+    "station": "İstasyon",
+    "member": "Üye",
+    "admin": "Yönetim"
+  },
+  "settings": {
+    "title": "Ayarlar",
+    "language": "Dil",
+    "theme": "Tema",
+    "themeDark": "Koyu",
+    "themeLight": "Açık"
+  },
+  "legal": {
+    "medicalDisclaimer": "Bu sistem tıbbi tavsiye değildir. Ağrı hissedersen dur.",
+    "noVideoStored": "Görüntü saklanmaz"
+  },
+  "screens": {
+    "A1": "Cihaz eşleştirme",
+    "A2": "Başlamak için telefonundaki QR'ı kameraya göster",
+    "A3": "Kamera kurulumu",
+    "A4": "Antrenman özeti",
+    "A5": "Aktif set",
+    "A6": "Dinlenme",
+    "A7": "Sıradaki istasyona geç",
+    "A8": "Seans özeti",
+    "A9": "Bağlantı ve kamera durumu",
+    "B1": "Giriş",
+    "B2": "Bugünün antrenmanı",
+    "B3": "Programım",
+    "B4": "Seans geçmişi",
+    "B5": "İlerleme",
+    "B6": "Ayarlar",
+    "C1": "Personel girişi",
+    "C2": "Genel bakış",
+    "C3": "İstasyonlar",
+    "C4": "Üyeler",
+    "C5": "Program şablonları",
+    "C6": "Üye detayı",
+    "C8": "Salon ayarları",
+    "C10": "Kalibrasyon kaydı"
+  },
+  "countdown": {
+    "start": "Hazır ol"
+  },
+  "set": {
+    "go": "Başla"
+  },
+  "rest": {
+    "over": "Dinlenme bitti"
+  },
+  "prompt": {
+    "set_done": "Set bitti mi?",
+    "resume": "Devam etmek için dokun"
+  },
+  "safety": {
+    "stop": "Dur, formunu kontrol et"
+  },
+  "session": {
+    "done": "Seans tamamlandı",
+    "setLabel": "Set {{current}} / {{total}}",
+    "repsLabel": "Tekrar",
+    "readyHint": "Hazır duruşa geç ya da Başla'ya dokun",
+    "continue": "Devam",
+    "endSet": "Seti bitir",
+    "pause": "Duraklat",
+    "resume": "Devam et",
+    "paused": "Duraklatıldı",
+    "readyNow": "Hazırım",
+    "soundOn": "Ses açık",
+    "soundOff": "Ses kapalı"
+  },
+  "summary": {
+    "set": "{{counted}} tekrar · {{valid}} temiz"
+  },
+  "handoff": {
+    "return_to_phone": "Telefonundan devam et"
+  },
+  "setup": {
+    "ready": "Hazır",
+    "notReady": "Hazırlanıyor…",
+    "viewLabel": "Görünüm",
+    "activeChecks": "Bu görünümde aktif form kontrolleri",
+    "start": "Başla",
+    "view": {
+      "front": "Önden",
+      "side": "Yandan",
+      "ambiguous": "Belirsiz"
+    },
+    "hint": {
+      "multiple_people": "Kamerada tek kişi olmalı",
+      "show_full_body": "Tüm vücudun görünsün",
+      "step_back": "Biraz geri çekil",
+      "move_closer": "Biraz yaklaş",
+      "turn_side": "Yan dön, kamera seni yandan görsün",
+      "face_camera": "Kameraya dön",
+      "adjust_angle": "Kameraya tam önden ya da tam yandan dur"
+    }
+  },
+  "camera": {
+    "consentRequired": "Kamerayı kullanmak için önce açık rıza vermelisin.",
+    "denied": "Kamera izni verilmedi. Tarayıcı ayarlarından izin verebilir ya da setini elle kaydedebilirsin.",
+    "unavailable": "Kamera kullanılamıyor. Setini elle kaydedebilirsin.",
+    "manualEntry": "Elle kaydet"
+  },
+  "calibration": {
+    "staffOnly": "Kalibrasyon kaydını yalnızca yönetici veya salon sahibi başlatabilir.",
+    "exercise": "Hareket",
+    "participantRef": "Katılımcı kodu",
+    "consentText": "Bu kayıtta yalnızca eklem noktalarının koordinatları saklanır; görüntü veya video asla kaydedilmez. Kayıtlar eşik ayarı ve test için kullanılır, en fazla 12 ay saklanır ve rıza her an geri çekilebilir.",
+    "consentCheckbox": "Katılımcı kalibrasyon kaydına açık rıza verdi",
+    "start": "Kaydı başlat",
+    "recording": "KALİBRASYON KAYDI",
+    "frames": "{{count}} kare",
+    "stop": "Kaydı durdur",
+    "rep": "Tekrar {{n}}",
+    "outcome": "Sonuç",
+    "outcomes": {
+      "valid": "Doğru",
+      "faulty": "Hatalı",
+      "incomplete": "Yarım"
+    },
+    "save": "Kaydet"
+  },
+  "station": {
+    "pairCode": "Eşleştirme kodu",
+    "pair": "Eşleştir",
+    "pairFailed": "Kod geçersiz ya da süresi dolmuş.",
+    "offline": "Çevrimdışı mod: QR kodlar cihazda doğrulanır.",
+    "noConsent": "Kamera rızan olmadığı için kamera açılmıyor. Setini telefonundan elle kaydedebilirsin.",
+    "checkin": {
+      "already_used": "Bu QR kod zaten kullanıldı. Telefonunda yeni kodu göster.",
+      "invalid": "QR kod geçersiz ya da süresi dolmuş.",
+      "no_key": "Bağlantı yok ve bu istasyon henüz doğrulama anahtarını almadı."
+    }
+  },
+  "phone": {
+    "handoffHint": "Bu kodu istasyondaki tablete göster.",
+    "handoffQr": "Devir QR kodu",
+    "returned": "İstasyondan döndüm",
+    "runHere": "Bu bloğu telefonda yap",
+    "signedOut": "Seansı başlatmak için giriş yapmalısın.",
+    "noProgram": "Atanmış bir programın yok. Antrenörüne danış.",
+    "loading": "Program yükleniyor…",
+    "noDelegation": "İstasyon için kod üretilemedi (bağlantı yok). Bloğu telefonda yapabilirsin."
+  },
+  "member": {
+    "startSession": "Seansı başlat",
+    "weekDone": "Bu hafta tamamlanan seans: {{count}}",
+    "noSessions": "Henüz seansın yok.",
+    "loadFailed": "Veriler yüklenemedi. Bağlantını kontrol et.",
+    "setLine": "Set {{n}}: {{valid}} temiz · {{faulty}} hatalı · {{incomplete}} yarım",
+    "status": {
+      "active": "Devam ediyor",
+      "paused": "Duraklatıldı",
+      "done": "Tamamlandı",
+      "abandoned": "Yarım kaldı",
+      "aborted": "İptal edildi"
+    },
+    "progress": {
+      "week": "Hafta",
+      "valid": "Temiz",
+      "faulty": "Hatalı",
+      "incomplete": "Yarım",
+      "clean": "Temiz oranı",
+      "percent": "%{{value}}"
+    },
+    "login": {
+      "email": "E-posta",
+      "send": "Giriş bağlantısı gönder",
+      "sent": "E-postanı kontrol et: kayıtlıysan giriş bağlantısı gönderdik.",
+      "useInvite": "Giriş için salonunun gönderdiği davet bağlantısını kullan.",
+      "invalid": "Bu bağlantı geçersiz ya da süresi dolmuş. Yeni bir bağlantı iste."
+    },
+    "consent": {
+      "title": "Aydınlatma ve açık rıza",
+      "checkbox": "Aydınlatma metnini okudum, kamera kullanımına açık rıza veriyorum.",
+      "accept": "Onaylıyorum",
+      "skip": "Şimdi değil",
+      "points": [
+        "Kamera görüntün yalnızca bu cihazda işlenir; görüntü saklanmaz ve hiçbir yere gönderilmez.",
+        "Sunucuya yalnızca tekrar sayısı, hata türü ve süre gibi sonuçlar gider.",
+        "Yüz tanıma kullanılmaz; seni QR kodun tanıtır.",
+        "Rızanı istediğin zaman ayarlardan geri çekebilirsin; o zaman setlerini elle kaydedersin.",
+        "Verilerini indirebilir veya silinmesini isteyebilirsin."
+      ]
+    },
+    "settings": {
+      "camera": "Kamera",
+      "consentOn": "Kamera kullanımına rıza verdin.",
+      "consentOff": "Kamera rızan yok; kamera açılmaz.",
+      "withdraw": "Kamera rızamı geri çek",
+      "give": "Kamera rızası ver",
+      "data": "Verilerim",
+      "export": "Verilerimi indir",
+      "delete": "Verilerimin silinmesini iste",
+      "deleteConfirm": "Tüm seans verilerin ve hesabın silinecek. Emin misin?",
+      "deleteYes": "Evet, silinsin",
+      "deleteNo": "Vazgeç",
+      "deletionRequested": "Talebin alındı. Verilerin 30 gün içinde silinecek.",
+      "account": "Hesap",
+      "signOut": "Çıkış yap"
+    }
+  },
+  "admin": {
+    "login": {
+      "tenant": "Salon kimliği",
+      "password": "Şifre",
+      "submit": "Giriş yap",
+      "failed": "E-posta veya şifre hatalı.",
+      "locked": "Çok fazla hatalı deneme. 15 dakika sonra tekrar dene."
+    },
+    "overview": {
+      "active": "Aktif seans: {{count}}",
+      "today": "Bugün: {{count}}"
+    },
+    "stations": {
+      "devices": "{{count}} cihaz",
+      "lastSeen": "son görülme {{at}}",
+      "neverSeen": "hiç bağlanmadı",
+      "pairingCode": "Eşleştirme kodu üret",
+      "expires": "({{at}}'e kadar geçerli)",
+      "removeDevice": "Cihazı kaldır",
+      "name": "İstasyon adı",
+      "add": "İstasyon ekle"
+    },
+    "members": {
+      "search": "Ara",
+      "noConsent": "kamera rızası yok",
+      "add": "Üye ekle",
+      "name": "Ad soyad",
+      "invite": "Davet bağlantısı gönder"
+    },
+    "detail": {
+      "topFaults": "Son 30 günün en sık hataları",
+      "weekly": "Haftalık seans (son 8 hafta)",
+      "assignProgram": "Programı ata",
+      "template": "Program şablonu",
+      "startDate": "Başlangıç tarihi",
+      "programAssigned": "Program atandı.",
+      "trainer": "Antrenör",
+      "assignTrainer": "Antrenör ata",
+      "trainerAssigned": "Antrenör atandı."
+    },
+    "templates": {
+      "new": "Yeni şablon",
+      "blocks": "{{count}} blok",
+      "delete": "Sil",
+      "inUse": "Bu şablon bir üyeye atanmış olduğu için silinemez.",
+      "name": "Şablon adı",
+      "block": "Blok {{n}}",
+      "day": "Gün",
+      "sets": "Set",
+      "reps": "Tekrar",
+      "rest": "Dinlenme (sn)",
+      "mode": "Mod",
+      "strict": "Katı (hatalı tekrar sayılmaz)",
+      "lenient": "Esnek (hatalı tekrar sayılır)",
+      "station": "İstasyon",
+      "removeBlock": "Bloğu kaldır",
+      "addBlock": "Blok ekle",
+      "saveFailed": "Şablon kaydedilemedi."
+    },
+    "settings": {
+      "defaultMode": "Varsayılan mod",
+      "retention": "Saklama süresi (ay)",
+      "safetyPause": "Güvenlik duraklatması",
+      "save": "Ayarları kaydet",
+      "saved": "Kaydedildi.",
+      "staff": "Personel",
+      "staffEmail": "Personel e-postası",
+      "role": "Rol",
+      "tempPassword": "Geçici şifre",
+      "addStaff": "Personel ekle",
+      "dataRequests": "Üye veri talepleri",
+      "requestKind": {
+        "delete": "silme",
+        "export": "dışa aktarma"
+      },
+      "completed": "tamamlandı",
+      "open": "açık",
+      "notice": "Salon girişi bilgilendirme metni (şablon)",
+      "noticeText": [
+        "Bu alanda kamera ile hareket analizi yapılmaktadır.",
+        "Görüntüler yalnızca istasyondaki cihazda işlenir; kaydedilmez ve hiçbir yere gönderilmez.",
+        "Sistemi kullanan üyeler açık rıza vermiştir. Kamerada görünmek istemiyorsanız istasyon alanının dışında kalabilirsiniz.",
+        "Sorularınız için salon yönetimine başvurabilirsiniz."
+      ],
+      "erase": "Silme işlemini uygula",
+      "eraseConfirm": "{{name}} adlı üyenin tüm verileri kalıcı olarak silinecek. Devam edilsin mi?"
+    },
+    "roles": {
+      "owner": "Sahip",
+      "manager": "Yönetici",
+      "trainer": "Antrenör"
+    },
+    "calibration": {
+      "uploaded": "Kayıt şifrelenerek yüklendi.",
+      "failed": "Kayıt yüklenemedi."
+    }
+  }
+}

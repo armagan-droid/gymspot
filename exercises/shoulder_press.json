@@ -16,24 +16,25 @@
   "metrics": {
     "elbow_angle_l": { "angle": ["left_shoulder", "left_elbow", "left_wrist"] },
     "elbow_angle_r": { "angle": ["right_shoulder", "right_elbow", "right_wrist"] },
-    "elbow_angle_avg": { "avg": ["elbow_angle_l", "elbow_angle_r"] },
+    "elbow_angle_near": { "angle": ["near_shoulder", "near_elbow", "near_wrist"] },
     "torso_lean": { "angleFromVertical": ["near_hip", "near_shoulder"] },
     "arm_symmetry": { "absDiff": ["elbow_angle_l", "elbow_angle_r"] }
   },
   "rep": {
-    "metric": "elbow_angle_avg",
+    "metric": "elbow_angle_near",
     "start": { "enter": 95, "exit": 105 },
     "target": { "enter": 160, "exit": 150 },
     "attemptMinExcursion": 20,
     "minDurationMs": 900,
     "maxDurationMs": 9000
   },
-  "readyPose": "elbow_angle_avg < 100 for 1500ms",
+  "readyPose": "elbow_angle_near < 100 for 1500ms",
   "faults": [
     {
       "id": "incomplete_lockout",
+      "name": { "tr": "Eksik uzatma", "en": "Incomplete lockout" },
       "severity": "minor",
-      "check": "at_turn: elbow_angle_avg < 160",
+      "check": "at_turn: elbow_angle_near < 160",
       "cue": { "tr": "Kollarını tamamen yukarı uzat", "en": "Press all the way up" },
       "affectsValidity": true,
       "cooldownMs": 4000,
@@ -41,6 +42,7 @@
     },
     {
       "id": "back_arch",
+      "name": { "tr": "Bel yaylanması", "en": "Back arch" },
       "severity": "major",
       "check": "during_rep: torso_lean > 12",
       "views": ["side"],
@@ -51,6 +53,7 @@
     },
     {
       "id": "uneven_arms",
+      "name": { "tr": "Kolların asimetrisi", "en": "Uneven arms" },
       "severity": "minor",
       "check": "during_rep: arm_symmetry > 25",
       "views": ["front"],

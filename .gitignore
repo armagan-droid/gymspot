@@ -28,4 +28,5 @@ Thumbs.db
 
 # Calibration recordings must never be committed (07)
 calibration-data/
+data/
 *.landmarks.local.json

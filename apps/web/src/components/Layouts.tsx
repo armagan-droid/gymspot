@@ -1,0 +1,55 @@
+import { useTranslation } from "react-i18next";
+import { Link, Outlet } from "react-router";
+
+function Header({ area }: { area: "station" | "member" | "admin" }) {
+  const { t } = useTranslation();
+  return (
+    <header className="app-header">
+      <Link to="/">{t("app.name")}</Link>
+      <span className="area">{t(`areas.${area}`)}</span>
+    </header>
+  );
+}
+
+/** Station/session screens (A*): disclaimer and "no video stored" are always visible (specs/05, 07). */
+export function StationLayout() {
+  const { t } = useTranslation();
+  return (
+    <div className="layout layout-station">
+      <Header area="station" />
+      <main>
+        <Outlet />
+      </main>
+      <footer className="station-footer">
+        <span className="camera-notice" role="note">
+          <span aria-hidden="true">📷</span> {t("legal.noVideoStored")}
+        </span>
+        <span className="disclaimer" role="note">
+          {t("legal.medicalDisclaimer")}
+        </span>
+      </footer>
+    </div>
+  );
+}
+
+export function MemberLayout() {
+  return (
+    <div className="layout layout-member">
+      <Header area="member" />
+      <main>
+        <Outlet />
+      </main>
+    </div>
+  );
+}
+
+export function AdminLayout() {
+  return (
+    <div className="layout layout-admin">
+      <Header area="admin" />
+      <main>
+        <Outlet />
+      </main>
+    </div>
+  );
+}

@@ -10,6 +10,7 @@ platform_admins(id, email, password_hash, status)
 
 -- tenant yapısı
 branches(id, tenant_id, name, address, timezone)
+tenant_settings(tenant_id, default_mode[strict|lenient], retention_months, safety_pause bool)  -- C8
 users(id, tenant_id, email, password_hash, role[owner|manager|trainer], status)      -- personel
 members(id, tenant_id, branch_id, display_name, email?, phone?, external_ref,
         consent_at, consent_version, consent_withdrawn_at?, status)
@@ -21,6 +22,9 @@ devices(id, tenant_id, station_id?, kind[tablet|phone], token_hash, last_seen_at
 member_login_tokens(id, tenant_id, member_id, token_hash, expires_at, used_at)       -- magic link
 auth_refresh_tokens(id, tenant_id, subject_kind[user|member|device], subject_id, token_hash, expires_at, revoked_at)
 qr_tokens(id, tenant_id, member_id, session_id?, jti, expires_at, used_at)           -- check-in/devir
+login_attempts(tenant_id, email, failed_count, window_started_at, locked_until)       -- personel giriş kilidi
+device_pairing_codes(id, tenant_id, station_id, code_hash, expires_at, used_at, created_by)
+ingest_conflicts(tenant_id, record_id, kind, reason, at)                              -- reddedilen çakışan kayıtlar
 
 -- program
 exercises(id, version, definition_json, status, tenant_id NULL=global)  -- PK (id, version)
@@ -44,16 +48,27 @@ calibration_consents(id, tenant_id, participant_ref, consent_version, consented_
 calibration_recordings(id, tenant_id, consent_id, exercise_id, exercise_version, labels_json,
                        storage_ref, created_at)       -- landmark dizisi ayrı şifreli depoda
 
+data_requests(id, tenant_id, member_id, kind[export|delete], requested_at, completed_at)  -- 07 üye hakları
 audit_log(id, tenant_id, actor, action, target, at)
 ```
 
 ## Kurallar
-- **İdempotency:** `sessions`, `session_blocks`, `sets` ve `rep_events` satırlarının `id`'si istemcinin ürettiği UUID'dir (= `event_id`). Yazım `INSERT … ON CONFLICT (id) DO NOTHING`. Set sayaçları güncellenirken son yazan değil, `rep_events`'ten yeniden hesaplanan değer esas alınır.
+- **İdempotency:** `sessions`, `session_blocks`, `sets` ve `rep_events` satırlarının `id`'si istemcinin ürettiği UUID'dir (= `event_id`). Yazım `INSERT … ON CONFLICT (id) DO NOTHING`. Tek istisna `sessions`: aynı `id` ile gelen kayıt durumu **ileri** taşıyorsa günceller (`active` → `paused` → `done`/`aborted`/`abandoned`; terminal durum değişmez). Diğer kayıtlar yazıldıktan sonra değişmez; motor onları yalnız kesinleşince üretir (03). Set sayaçları güncellenirken son yazan değil, `rep_events`'ten yeniden hesaplanan değer esas alınır.
 - Her seans bloğu kural paketinin **sürümünü** (`exercise_version`) kaydeder. Eşikler değişse de geçmiş yorumlanabilir.
+- **Kayıt alımı** (`POST /ingest`, en fazla 500 kayıt):
+  - Her kayıt için ayrı sonuç döner: `ok`, `duplicate` (aynı `id` zaten var), `retry` (ebeveyn kayıt henüz yok; istemci kuyrukta tutar ve sonra yeniden dener), `rejected` (geçersiz, yetkisiz veya çakışma; istemci atar).
+  - Paket içinde kayıtlar bağımlılık sırasına göre işlenir: seans → blok → set → tekrar. Motor kayıtları farklı sırada üretir (tekrar, set ve blok sonuna göre).
+  - **Yetki:** üye yalnız kendi seansını ve onun alt kayıtlarını yazar. Cihaz (tablet) seans kaydı yazamaz. Cihaz yalnız, tenant'ta QR ile devralınmış (`qr_tokens.session_id`) bir seansın blok, set ve tekrarlarını yazabilir.
+  - **Çakışma:** aynı seansta aynı `position` için iki farklı blok gelirse ilk gelen kazanır (03, devir adım 4). İkincisi ve alt kayıtları `rejected` olur, çakışma `ingest_conflicts` ve `audit_log`'a yazılır.
+  - Aynı pakette ebeveyni reddedilen kayıt da `rejected` olur. Farklı paketlere dağılmış yetim kayıtlar `retry` kalır; istemci kuyruğu 7 günden eski kayıtları bırakır ve kaydeder.
+  - Set sayaçları (`valid_reps`, `faulty_reps`, `incomplete_reps`), sette tekrar kaydı varsa `rep_events`'ten yeniden hesaplanır.
 - **Landmark veya video verisi seans tablolarında saklanmaz.** Tek istisna, açık rızalı kalibrasyon kayıtlarıdır (07). Bunlar ana veritabanında değil, ayrı erişim yetkili şifreli nesne deposunda tutulur, burada yalnızca referans vardır.
 - Elle kayıt (rıza yok veya kamera izni yok) setleri `source = manual` ile yazılır; `rep_events` üretmez.
-- Üye silme talebi: üye ve bağlı seans verisi anonimleştirilir/silinir (07).
+- **Üye silme** (07, AC-7.2): yönetici talebi tamamlayınca (`POST /data-requests/:id/complete`) üyenin seansları ve alt kayıtları, token'ları, programları ve antrenör atamaları silinir. Üye satırı kalır ama anonimleştirilir: ad "Silinmiş üye" olur; e-posta, telefon, dış referans ve rıza alanları boşaltılır, durum `anonymized` olur. `audit_log` üyeye yalnız takma adlı kimliğiyle (UUID) atıf yapar.
+- **Saklama:** `tenant_settings.retention_months`'tan eski seanslar alt kayıtlarıyla birlikte temizleme işiyle silinir.
 - Saat dilimi şube bazlıdır; tüm zaman damgaları UTC saklanır.
+- **Uygulama rolü:** API her isteği bir transaction içinde `app.tenant_id` ayarlayıp `gymspot_app` rolüne geçerek çalıştırır. Bu rol RLS'yi atlayamaz; tablolarda `FORCE ROW LEVEL SECURITY` açıktır. Üretimde API'nin bağlantı kullanıcısı bu role üye olmalı, süper kullanıcı olmamalıdır. Migrasyonlar ayrı bir sahip kullanıcıyla çalışır.
+- `fault_summaries`, `rep_events`'ten türetilen bir görünümdür (`security_invoker`), bu yüzden RLS'ye tabidir ve hiç senkron dışı kalamaz.
 
 ## Roller ve yetki
 | İşlem | Üye | Antrenör | Yönetici | Sahip |
@@ -64,6 +79,14 @@ audit_log(id, tenant_id, actor, action, target, at)
 | İstasyon/cihaz yönetimi | | | ✓ | ✓ |
 | Kalibrasyon kaydı başlatma | | | ✓ | ✓ |
 | Kullanıcı yönetimi, faturalama | | | | ✓ |
+
+**API erişim kuralları (MVP):**
+- Başka tenant'ın kaydı, var olsa bile **404** döner (AC-6.1).
+- Antrenörün atanmamış bir üyeye (ve onun programlarına/seanslarına) erişimi de **404** döner; 403 kaydın varlığını sızdırırdı.
+- Program şablonlarını personelin tamamı (antrenör dahil) yönetebilir. Şablon bloklarındaki `exercise_id` görünür bir kural paketine (global veya tenant'ın kendi paketi) ait olmalıdır.
+- Üye yalnız kendi profilini, rızasını, programını ve seanslarını görür (`/me`).
+- Üye programı şablona referans verir, blokların kopyası tutulmaz (MVP). Bu yüzden bir üyeye atanmış şablon silinemez (`409 template_in_use`), şablondaki düzenlemeler atanmış üyelere yansır.
+- Aktif program: başlangıç tarihi bugün veya önce olan, bitişi olmayan ya da bugün veya sonra olan programlardan en son başlayanı.
 
 Platform yöneticisi tenant verisine yalnızca destek amaçlı, `audit_log`'a yazılan açık bir "destek erişimi" ile ulaşır (MVP'de salt okunur).
 

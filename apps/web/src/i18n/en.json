@@ -1,0 +1,307 @@
+{
+  "app": {
+    "name": "AI Gym",
+    "home": "Home",
+    "notFound": "Page not found"
+  },
+  "areas": {
+    "station": "Station",
+    "member": "Member",
+    "admin": "Admin"
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "theme": "Theme",
+    "themeDark": "Dark",
+    "themeLight": "Light"
+  },
+  "legal": {
+    "medicalDisclaimer": "This system is not medical advice. Stop if you feel pain.",
+    "noVideoStored": "No video is stored"
+  },
+  "screens": {
+    "A1": "Device pairing",
+    "A2": "Show the QR code on your phone to the camera to start",
+    "A3": "Camera setup",
+    "A4": "Workout overview",
+    "A5": "Active set",
+    "A6": "Rest",
+    "A7": "Go to the next station",
+    "A8": "Session summary",
+    "A9": "Connection and camera status",
+    "B1": "Sign in",
+    "B2": "Today's workout",
+    "B3": "My program",
+    "B4": "Session history",
+    "B5": "Progress",
+    "B6": "Settings",
+    "C1": "Staff sign-in",
+    "C2": "Overview",
+    "C3": "Stations",
+    "C4": "Members",
+    "C5": "Program templates",
+    "C6": "Member details",
+    "C8": "Gym settings",
+    "C10": "Calibration recording"
+  },
+  "countdown": {
+    "start": "Get ready"
+  },
+  "set": {
+    "go": "Go"
+  },
+  "rest": {
+    "over": "Rest is over"
+  },
+  "prompt": {
+    "set_done": "Is the set done?",
+    "resume": "Tap to continue"
+  },
+  "safety": {
+    "stop": "Stop, check your form"
+  },
+  "session": {
+    "done": "Session complete",
+    "setLabel": "Set {{current}} / {{total}}",
+    "repsLabel": "Reps",
+    "readyHint": "Get into the ready pose or tap Start",
+    "continue": "Continue",
+    "endSet": "End set",
+    "pause": "Pause",
+    "resume": "Resume",
+    "paused": "Paused",
+    "readyNow": "I'm ready",
+    "soundOn": "Sound on",
+    "soundOff": "Sound off"
+  },
+  "summary": {
+    "set": "{{counted}} reps · {{valid}} clean"
+  },
+  "handoff": {
+    "return_to_phone": "Continue on your phone"
+  },
+  "setup": {
+    "ready": "Ready",
+    "notReady": "Getting ready…",
+    "viewLabel": "View",
+    "activeChecks": "Form checks active in this view",
+    "start": "Start",
+    "view": {
+      "front": "Front",
+      "side": "Side",
+      "ambiguous": "Unclear"
+    },
+    "hint": {
+      "multiple_people": "Only one person should be in view",
+      "show_full_body": "Make sure your whole body is visible",
+      "step_back": "Step back a little",
+      "move_closer": "Come a little closer",
+      "turn_side": "Turn sideways so the camera sees your side",
+      "face_camera": "Face the camera",
+      "adjust_angle": "Stand facing the camera or fully sideways"
+    }
+  },
+  "camera": {
+    "consentRequired": "You need to give explicit consent before the camera can be used.",
+    "denied": "Camera permission was denied. You can allow it in your browser settings or log your set manually.",
+    "unavailable": "The camera is not available. You can log your set manually.",
+    "manualEntry": "Log manually"
+  },
+  "calibration": {
+    "staffOnly": "Only a manager or the gym owner can start a calibration recording.",
+    "exercise": "Exercise",
+    "participantRef": "Participant code",
+    "consentText": "This recording stores only joint coordinates; images or video are never recorded. Recordings are used for threshold tuning and tests, kept for at most 12 months, and consent can be withdrawn at any time.",
+    "consentCheckbox": "The participant gave explicit consent to the calibration recording",
+    "start": "Start recording",
+    "recording": "CALIBRATION RECORDING",
+    "frames": "{{count}} frames",
+    "stop": "Stop recording",
+    "rep": "Rep {{n}}",
+    "outcome": "Outcome",
+    "outcomes": {
+      "valid": "Correct",
+      "faulty": "Faulty",
+      "incomplete": "Partial"
+    },
+    "save": "Save"
+  },
+  "station": {
+    "pairCode": "Pairing code",
+    "pair": "Pair",
+    "pairFailed": "The code is invalid or has expired.",
+    "offline": "Offline mode: QR codes are verified on this device.",
+    "noConsent": "The camera stays off because there is no camera consent. You can log your set on your phone.",
+    "checkin": {
+      "already_used": "This QR code was already used. Show the new code on your phone.",
+      "invalid": "The QR code is invalid or has expired.",
+      "no_key": "No connection, and this station has not received its verification key yet."
+    }
+  },
+  "phone": {
+    "handoffHint": "Show this code to the station tablet.",
+    "handoffQr": "Handoff QR code",
+    "returned": "I'm back from the station",
+    "runHere": "Do this block on my phone",
+    "signedOut": "Sign in to start a session.",
+    "noProgram": "You have no program yet. Ask your trainer.",
+    "loading": "Loading your program…",
+    "noDelegation": "Could not create a station code (no connection). You can do this block on your phone."
+  },
+  "member": {
+    "startSession": "Start session",
+    "weekDone": "Sessions completed this week: {{count}}",
+    "noSessions": "No sessions yet.",
+    "loadFailed": "Could not load your data. Check your connection.",
+    "setLine": "Set {{n}}: {{valid}} clean · {{faulty}} faulty · {{incomplete}} partial",
+    "status": {
+      "active": "In progress",
+      "paused": "Paused",
+      "done": "Completed",
+      "abandoned": "Left unfinished",
+      "aborted": "Cancelled"
+    },
+    "progress": {
+      "week": "Week",
+      "valid": "Clean",
+      "faulty": "Faulty",
+      "incomplete": "Partial",
+      "clean": "Clean ratio",
+      "percent": "{{value}}%"
+    },
+    "login": {
+      "email": "E-mail",
+      "send": "Send sign-in link",
+      "sent": "Check your e-mail: if you are registered, we sent you a sign-in link.",
+      "useInvite": "Use the invite link your gym sent you to sign in.",
+      "invalid": "This link is invalid or has expired. Request a new one."
+    },
+    "consent": {
+      "title": "Information and explicit consent",
+      "checkbox": "I have read the notice and give explicit consent to camera use.",
+      "accept": "I agree",
+      "skip": "Not now",
+      "points": [
+        "Your camera image is processed only on this device; it is never stored or sent anywhere.",
+        "Only results such as rep counts, fault types and durations go to the server.",
+        "No face recognition is used; your QR code identifies you.",
+        "You can withdraw consent at any time in settings; you then log your sets manually.",
+        "You can download your data or request its deletion."
+      ]
+    },
+    "settings": {
+      "camera": "Camera",
+      "consentOn": "You have consented to camera use.",
+      "consentOff": "No camera consent; the camera stays off.",
+      "withdraw": "Withdraw my camera consent",
+      "give": "Give camera consent",
+      "data": "My data",
+      "export": "Download my data",
+      "delete": "Request deletion of my data",
+      "deleteConfirm": "All your session data and your account will be deleted. Are you sure?",
+      "deleteYes": "Yes, delete it",
+      "deleteNo": "Cancel",
+      "deletionRequested": "Request received. Your data will be deleted within 30 days.",
+      "account": "Account",
+      "signOut": "Sign out"
+    }
+  },
+  "admin": {
+    "login": {
+      "tenant": "Gym ID",
+      "password": "Password",
+      "submit": "Sign in",
+      "failed": "Wrong e-mail or password.",
+      "locked": "Too many failed attempts. Try again in 15 minutes."
+    },
+    "overview": {
+      "active": "Active sessions: {{count}}",
+      "today": "Today: {{count}}"
+    },
+    "stations": {
+      "devices": "{{count}} devices",
+      "lastSeen": "last seen {{at}}",
+      "neverSeen": "never connected",
+      "pairingCode": "Create pairing code",
+      "expires": "(valid until {{at}})",
+      "removeDevice": "Remove device",
+      "name": "Station name",
+      "add": "Add station"
+    },
+    "members": {
+      "search": "Search",
+      "noConsent": "no camera consent",
+      "add": "Add member",
+      "name": "Full name",
+      "invite": "Send invite link"
+    },
+    "detail": {
+      "topFaults": "Most frequent faults (last 30 days)",
+      "weekly": "Weekly sessions (last 8 weeks)",
+      "assignProgram": "Assign program",
+      "template": "Program template",
+      "startDate": "Start date",
+      "programAssigned": "Program assigned.",
+      "trainer": "Trainer",
+      "assignTrainer": "Assign trainer",
+      "trainerAssigned": "Trainer assigned."
+    },
+    "templates": {
+      "new": "New template",
+      "blocks": "{{count}} blocks",
+      "delete": "Delete",
+      "inUse": "This template is assigned to a member and cannot be deleted.",
+      "name": "Template name",
+      "block": "Block {{n}}",
+      "day": "Day",
+      "sets": "Sets",
+      "reps": "Reps",
+      "rest": "Rest (s)",
+      "mode": "Mode",
+      "strict": "Strict (faulty reps don't count)",
+      "lenient": "Lenient (faulty reps count)",
+      "station": "Station",
+      "removeBlock": "Remove block",
+      "addBlock": "Add block",
+      "saveFailed": "Could not save the template."
+    },
+    "settings": {
+      "defaultMode": "Default mode",
+      "retention": "Retention (months)",
+      "safetyPause": "Safety pause",
+      "save": "Save settings",
+      "saved": "Saved.",
+      "staff": "Staff",
+      "staffEmail": "Staff e-mail",
+      "role": "Role",
+      "tempPassword": "Temporary password",
+      "addStaff": "Add staff",
+      "dataRequests": "Member data requests",
+      "requestKind": {
+        "delete": "deletion",
+        "export": "export"
+      },
+      "completed": "completed",
+      "open": "open",
+      "notice": "Gym entrance notice (template)",
+      "noticeText": [
+        "Camera-based movement analysis is used in this area.",
+        "Images are processed only on the station device; they are never recorded or sent anywhere.",
+        "Members using the system have given explicit consent. If you prefer not to appear on camera, stay outside the station area.",
+        "Please ask the gym management if you have questions."
+      ],
+      "erase": "Carry out deletion",
+      "eraseConfirm": "All data of {{name}} will be permanently deleted. Continue?"
+    },
+    "roles": {
+      "owner": "Owner",
+      "manager": "Manager",
+      "trainer": "Trainer"
+    },
+    "calibration": {
+      "uploaded": "Recording encrypted and uploaded.",
+      "failed": "Upload failed."
+    }
+  }
+}

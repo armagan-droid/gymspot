@@ -1,0 +1,56 @@
+# Production-like stack (docs/deploy.md). With a managed Postgres, drop `db`
+# and point the URLs at it after running deploy/db-init.sql there once.
+#   cp .env.example .env   # fill in secrets
+#   docker compose -f docker-compose.prod.yml up -d --build
+services:
+  db:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_USER: gymspot_owner
+      POSTGRES_PASSWORD: ${DB_OWNER_PASSWORD:?set in .env}
+      POSTGRES_DB: gymspot
+      GYMSPOT_API_DB_PASSWORD: ${DB_API_PASSWORD:?set in .env}
+    volumes:
+      - db-data:/var/lib/postgresql
+      - ./deploy/db-init.sql:/docker-entrypoint-initdb.d/db-init.sql.in:ro
+      - ./deploy/db-init.sh:/docker-entrypoint-initdb.d/10-gymspot.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gymspot_owner -d gymspot"]
+      interval: 5s
+      retries: 30
+    restart: unless-stopped
+
+  api:
+    build: { context: ., dockerfile: deploy/Dockerfile.api }
+    environment:
+      NODE_ENV: production
+      # the API runs as gymspot_api (RLS always on); operator commands use the owner URL
+      DATABASE_URL: postgres://gymspot_api:${DB_API_PASSWORD}@db:5432/gymspot
+      OWNER_DATABASE_URL: postgres://gymspot_owner:${DB_OWNER_PASSWORD}@db:5432/gymspot
+      JWT_SECRET: ${JWT_SECRET:?set in .env}
+      QR_MASTER_SECRET: ${QR_MASTER_SECRET:?set in .env}
+      CALIBRATION_ENCRYPTION_KEY: ${CALIBRATION_ENCRYPTION_KEY:?set in .env}
+      APP_BASE_URL: ${APP_BASE_URL:?set in .env}
+      CALIBRATION_STORE_DIR: /app/data/calibration
+    volumes:
+      - calibration-data:/app/data/calibration
+    depends_on:
+      db: { condition: service_healthy }
+    restart: unless-stopped
+
+  web:
+    build: { context: ., dockerfile: deploy/Dockerfile.web, args: { APP_VERSION: "${APP_VERSION:-dev}" } }
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS:-:80}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - caddy-data:/data
+    depends_on: [api]
+    restart: unless-stopped
+
+volumes:
+  db-data:
+  calibration-data:
+  caddy-data:

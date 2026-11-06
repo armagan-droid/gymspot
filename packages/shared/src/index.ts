@@ -6,5 +6,6 @@ export * from "./landmarks";
 export * from "./qr";
 export * from "./records";
 export * from "./rule-pack";
+export * from "./scrub";
 export * from "./sequence";
 export * from "./workout";

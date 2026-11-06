@@ -1,5 +1,5 @@
 import rateLimit from "@fastify/rate-limit";
-import Fastify, { type FastifyInstance } from "fastify";
+import Fastify, { type FastifyInstance, type FastifyServerOptions } from "fastify";
 import { type Kysely, sql } from "kysely";
 import { authRoutes } from "./auth/routes";
 import { AccessTokens, TenantKeys } from "./auth/tokens";
@@ -9,6 +9,7 @@ import { adminRoutes } from "./routes/admin";
 import { calibrationRoutes } from "./routes/calibration";
 import { ingestRoutes } from "./routes/ingest";
 import { meRoutes } from "./routes/me";
+import { opsRoutes } from "./routes/ops";
 import { memberRoutes } from "./routes/members";
 import { stationRoutes } from "./routes/stations";
 import { templateRoutes } from "./routes/templates";
@@ -22,11 +23,26 @@ export interface AppDeps {
   config?: AppConfig;
   /** Encrypted calibration recordings (specs/07); a local directory by default. */
   blobStore?: BlobStore;
-  logger?: boolean;
+  /** false, true, or pino options (e.g. a test stream). */
+  logger?: boolean | { level?: string; stream?: NodeJS.WritableStream };
+}
+
+/** No bodies, no credentials in logs (specs/02, 07): request logs carry method, url and id only. */
+function loggerOptions(logger: AppDeps["logger"]): FastifyServerOptions["logger"] {
+  if (!logger) return false;
+  return {
+    ...(typeof logger === "object" ? logger : {}),
+    redact: { paths: ["req.headers.authorization", "req.headers.cookie", "res.headers['set-cookie']"], censor: "[redacted]" },
+    serializers: {
+      req: (req: { method: string; url: string; id: string }) => ({ method: req.method, url: req.url.split("?")[0], id: req.id }),
+      res: (res: { statusCode: number }) => ({ statusCode: res.statusCode }),
+    },
+  } as FastifyServerOptions["logger"];
 }
 
 export function buildApp({ db, config = configFromEnv(), blobStore = new FileBlobStore("data/calibration"), logger = false }: AppDeps): FastifyInstance {
-  const app = Fastify({ logger, requestIdHeader: "x-request-id", genReqId: () => crypto.randomUUID() });
+  const app = Fastify({ logger: loggerOptions(logger), requestIdHeader: "x-request-id", genReqId: () => crypto.randomUUID() });
+  app.addHook("onSend", async (req, reply) => void reply.header("x-request-id", req.id));
   const tokens = new AccessTokens(config.jwtSecret, config.now);
   const keys = new TenantKeys(config.qrMasterSecret);
 
@@ -39,6 +55,7 @@ export function buildApp({ db, config = configFromEnv(), blobStore = new FileBlo
   void app.register(ingestRoutes(db, tokens));
   void app.register(calibrationRoutes(db, config, tokens, blobStore));
   void app.register(adminRoutes(db, config, tokens));
+  void app.register(opsRoutes(db, config, tokens));
 
   app.get("/health", async (_req, reply) => {
     try {

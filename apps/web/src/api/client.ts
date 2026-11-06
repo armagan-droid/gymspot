@@ -1,5 +1,5 @@
 import type { PersistRecord } from "@gymspot/engine";
-import type { Block, SessionCursor, SignedDelegation, Workout } from "@gymspot/shared";
+import type { Block, ErrorEvent as ScrubbedErrorEvent, SessionCursor, SignedDelegation, Workout } from "@gymspot/shared";
 import type { IngestResult } from "../sync/queue";
 
 // Typed API client (apps/api). Tokens live in an injected store (localStorage in the app).
@@ -93,6 +93,10 @@ export interface GymApi {
   stationConfig(): Promise<{ publicKey: string; safetyPause: boolean }>;
   redeemQr(qr: string): Promise<RedeemResult>;
   ingestAsDevice(records: PersistRecord[]): Promise<IngestResult[]>;
+  /** specs/02: station tablet liveness every 60 s. */
+  heartbeat(body: { appVersion?: string; fps?: number; queued?: number }): Promise<void>;
+  /** Scrubbed client error report (specs/02, 07); works without signing in. */
+  reportError(event: ScrubbedErrorEvent): Promise<void>;
   memberProgram(): Promise<MemberProgram>;
   me(): Promise<MemberProfile>;
   requestMagicLink(tenantId: string, email: string): Promise<void>;
@@ -182,6 +186,8 @@ export function createGymApi({ baseUrl, store, fetchFn = fetch }: { baseUrl: str
     stationConfig: async () => (await asDevice("GET", "/auth/qr-public-key")) as { publicKey: string; safetyPause: boolean },
     redeemQr: async (qr) => (await asDevice("POST", "/auth/qr/redeem", { qr })) as RedeemResult,
     ingestAsDevice: async (records) => ((await asDevice("POST", "/ingest", { records })) as { results: IngestResult[] }).results,
+    heartbeat: async (body) => void (await asDevice("POST", "/devices/heartbeat", body)),
+    reportError: async (event) => void (await raw("POST", "/client-errors", event)),
     memberProgram: async () => (await asMember("GET", "/me/program")) as MemberProgram,
     me: async () => (await asMember("GET", "/me")) as MemberProfile,
     requestMagicLink: async (tenantId, email) => void (await raw("POST", "/auth/member/magic-link", { tenantId, email })),

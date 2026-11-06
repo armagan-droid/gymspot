@@ -50,7 +50,7 @@ describe("C2 overview", () => {
     await session(m, "done", "2026-11-05T08:00:00Z");
     await api.call("POST", "/stations", manager, { name: "Squat Rafı 2" });
     const r = (await api.call("GET", "/admin/overview", manager)).json();
-    expect(r).toMatchObject({ activeSessions: 1, sessionsToday: 2, stations: [{ name: "Squat Rafı 2", devices: 0, lastSeenAt: null }] });
+    expect(r).toMatchObject({ activeSessions: 1, sessionsToday: 2, stations: [{ name: "Squat Rafı 2", devices: 0, lastSeenAt: null, online: false }] });
     expect((await api.call("GET", "/admin/overview", trainer)).status).toBe(403);
   });
 });

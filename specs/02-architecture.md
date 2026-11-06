@@ -101,4 +101,7 @@ Araç yalnız geliştirme derlemesinde vardır (`/spike`; A3 kurulum sihirbazı 
 - **WASM ve model dosyaları:** spike bunları CDN'den yükler (jsDelivr, Google Storage). Üretimde çevrimdışı çalışma (yukarıdaki "Çevrimdışı dayanıklılık") ve üçüncü taraflara istek gitmemesi için kendi sunucumuzdan verilmeli ve PWA önbelleğine alınmalı.
 
 ## Gözlemlenebilirlik
-Yapılandırılmış log, istek kimliği, istasyon cihazı için heartbeat (60 sn). Hata izleme için Sentry benzeri bir servis (video/landmark içermeyen).
+- **Loglar:** yapılandırılmış JSON log (pino). Her isteğin bir istek kimliği vardır ve yanıtta `x-request-id` olarak döner. `Authorization` ve çerez başlıkları maskelenir; istek gövdeleri hiç loglanmaz (parola, token, kayıt içeriği loga düşmez).
+- **Heartbeat:** istasyon tableti açıkken 60 sn'de bir `POST /devices/heartbeat` gönderir (uygulama sürümü, işlenen FPS, çevrimdışı kuyruk uzunluğu). Son 3 dk içinde sinyal veren istasyon `online`, diğerleri `offline` sayılır (C2, C3).
+- **Hata izleme:** istemci hataları (yakalanmamış hata, reddedilmiş promise) `POST /client-errors` ile gönderilir ve sunucu logunda tutulur. Sağlayıcı (Sentry vb.) seçilince yalnız gönderici değişir.
+- **Temizleme** (`packages/shared` → `scrubErrorEvent`, 07): olaylar izin listesiyle kurulur (mesaj, kısaltılmış yığın, sınırlı etiketler). E-posta, telefon numarası, JWT ve tenant token'ları metinlerden silinir. 33 elemanlı ve uzun sayı dizileri atılır, metinler kısaltılır. İstemci gönderirken, sunucu alırken yeniden uygular.

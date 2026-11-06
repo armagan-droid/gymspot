@@ -7,6 +7,7 @@ import type { AccessTokens } from "../auth/tokens";
 import type { AppConfig } from "../config";
 import { type Database, withTenant } from "../db/db";
 import { eraseMember } from "../privacy/erase";
+import { HEARTBEAT_ONLINE_MS } from "./ops";
 import { type Trx, auth, canSeeMember, isUniqueViolation, iso, notFound, parse } from "./common";
 
 // Admin panel endpoints (C2, C6, C8) — specs/06 roles, specs/08.
@@ -51,7 +52,13 @@ export function adminRoutes(db: Kysely<Database>, config: AppConfig, tokens: Acc
         return {
           activeSessions: counts.active,
           sessionsToday: counts.today,
-          stations: stations.map((s) => ({ id: s.id, name: s.name, devices: s.devices, lastSeenAt: s.last_seen_at?.toISOString() ?? null })),
+          stations: stations.map((s) => ({
+            id: s.id,
+            name: s.name,
+            devices: s.devices,
+            lastSeenAt: s.last_seen_at?.toISOString() ?? null,
+            online: s.last_seen_at !== null && config.now() - s.last_seen_at.getTime() <= HEARTBEAT_ONLINE_MS,
+          })),
         };
       });
     });

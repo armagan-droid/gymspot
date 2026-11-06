@@ -24,6 +24,8 @@ type Phase =
 
 const packs = Object.fromEntries(Object.entries(RULE_PACKS).map(([k, v]) => [k, v.pack]));
 
+export const HEARTBEAT_MS = 60_000;
+
 export function StationApp({ returnDelayMs = 5000 }: { returnDelayMs?: number }) {
   const { t } = useTranslation();
   const services = useServices();
@@ -42,6 +44,17 @@ export function StationApp({ returnDelayMs = 5000 }: { returnDelayMs?: number })
       .catch(() => undefined);
     void offline.flush((qr) => services.api.redeemQr(qr));
   }, [phase.kind, services, offline]);
+
+  // liveness for C2/C3 (specs/02): every 60 s while paired, whatever the screen
+  const paired = phase.kind !== "pair";
+  useEffect(() => {
+    if (!paired) return;
+    const beat = () =>
+      void services.api.heartbeat({ appVersion: import.meta.env.VITE_APP_VERSION ?? "dev", queued: offline.pending().length }).catch(() => undefined);
+    beat();
+    const h = setInterval(beat, HEARTBEAT_MS);
+    return () => clearInterval(h);
+  }, [paired, services, offline]);
 
   useEffect(() => {
     if (phase.kind !== "return" && phase.kind !== "noConsent") return;

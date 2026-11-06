@@ -20,7 +20,7 @@ export function testServices(o: { api?: Partial<GymApi>; staff?: Partial<StaffAp
   let n = 0;
 
   const services: AppServices = {
-    api: { ...o.api } as GymApi,
+    api: { heartbeat: async () => undefined, reportError: async () => undefined, ...o.api } as GymApi,
     staff: { role: () => null, ...o.staff } as StaffApi,
     store,
     storage,

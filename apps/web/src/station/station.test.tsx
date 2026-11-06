@@ -68,6 +68,27 @@ describe("A1 pairing", () => {
   });
 });
 
+describe("heartbeat (specs/02)", () => {
+  test("a paired tablet sends a heartbeat now and every 60 s", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    const heartbeat = vi.fn(async () => undefined);
+    const t = testServices({ credentials: { device: DEVICE }, api: { heartbeat, stationConfig: vi.fn(async () => ({ publicKey: "k", safetyPause: true })), redeemQr: vi.fn() } });
+    renderStation(t);
+    await vi.waitFor(() => expect(heartbeat).toHaveBeenCalledTimes(1));
+    expect(heartbeat).toHaveBeenCalledWith(expect.objectContaining({ appVersion: expect.any(String), queued: 0 }));
+    await act(async () => void (await vi.advanceTimersByTimeAsync(60_000)));
+    expect(heartbeat).toHaveBeenCalledTimes(2);
+    vi.useRealTimers();
+  });
+
+  test("an unpaired tablet stays silent", async () => {
+    const heartbeat = vi.fn(async () => undefined);
+    renderStation(testServices({ api: { heartbeat } }));
+    await screen.findByRole("heading", { name: "Cihaz eşleştirme" });
+    expect(heartbeat).not.toHaveBeenCalled();
+  });
+});
+
 describe("A2 check-in", () => {
   test("station screens always show the medical disclaimer and the no-video notice (rule 5, specs/07)", () => {
     renderStation(testServices({ credentials: { device: DEVICE }, api: { stationConfig: vi.fn(async () => ({ publicKey: "k", safetyPause: true })), redeemQr: vi.fn() } }));

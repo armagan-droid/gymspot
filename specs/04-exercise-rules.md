@@ -165,6 +165,14 @@ Test fixture'ları ve kalibrasyon kayıtları (07) aynı formatı kullanır. Şe
 | `kneeInwardRatio: [hip, knee, ankle]` | dizin kalça–ayak bileği çizgisinden vücut orta hattına doğru sapması (pozitif = içe), bacak boyuna normalize | görüntü (2B) |
 | `signedOffset: [a, b, c]` | b'nin a–c doğrusuna dik işaretli uzaklığı (pozitif = görüntüde yukarı), a–c uzunluğuna normalize | görüntü (2B) |
 
+Tanımlar:
+- **Gövde boyu** (görüntü): omuz orta noktası ile kalça orta noktası arasındaki görüntü mesafesi. `diffY` ve görünüm tespiti bunu kullanır.
+- **Bacak boyu** (`kneeInwardRatio`): görüntüde kalça–diz + diz–ayak bileği uzunluklarının toplamı. Sapma, dizin kalça–ayak bileği doğrusundan yatay uzaklığıdır. İşaret, vücut orta hattına (iki kalçanın orta noktası) doğruysa pozitiftir.
+- **`signedOffset`'te "yukarı"**, görüntüde y'nin azaldığı yöndür. a–c doğrusu tam dikeyse pozitif yön görüntüde +x'tir.
+- Geometri tanımsızsa (çakışan noktalar, sıfır uzunluk) metrik `NaN` olur. `NaN` ifade dilinde *bilinmiyor* sayılır.
+- **Yumuşatma:** `smoothing` her karede hesaplanan **metrik değerlerine** uygulanır (landmark'lara değil). One Euro filtresinde `dCutoff = 1.0` ve zaman saniye cinsindendir. `NaN` değer filtreyi sıfırlamadan `NaN` olarak geçer.
+- **Yakın taraf** seçiminde iki tarafın ortalama visibility değeri eşitse sol taraf seçilir.
+
 "world" = MediaPipe `worldLandmarks` (metre, kalça merkezli): eklem açılarını kamera açısından büyük ölçüde bağımsız kılar. Bu seçim T2.2 spike'ında doğrulanır. Doğrulanamazsa sonuç 02'ye yazılır ve bu tablo güncellenir.
 
 ## Kabul kriterleri

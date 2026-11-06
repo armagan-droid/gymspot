@@ -13,6 +13,16 @@ export {
 } from "./expr/parse";
 export type { CompareOp } from "./expr/tokenize";
 export {
+  type MetricComputer,
+  type Side,
+  chooseNearSide,
+  createMetricComputer,
+  resolveLandmark,
+  torsoLength,
+} from "./metrics/compute";
+export { OneEuroFilter, type OneEuroParams, createMetricSmoother } from "./metrics/smoothing";
+export { DEFAULT_VIEW_THRESHOLDS, type ViewThresholds, detectView, dominantView } from "./metrics/view";
+export {
   type CompiledFault,
   type LoadResult,
   type LoadedRulePack,

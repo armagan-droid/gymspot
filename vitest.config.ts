@@ -12,6 +12,8 @@ export default defineConfig({
       },
       // apps/web brings its own config (React plugin, jsdom)
       "apps/web",
+      // apps/api needs PostgreSQL (docker compose up -d db; CI service)
+      "apps/api",
     ],
   },
 });

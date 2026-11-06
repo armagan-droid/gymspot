@@ -54,6 +54,8 @@ audit_log(id, tenant_id, actor, action, target, at)
 - Elle kayıt (rıza yok veya kamera izni yok) setleri `source = manual` ile yazılır; `rep_events` üretmez.
 - Üye silme talebi: üye ve bağlı seans verisi anonimleştirilir/silinir (07).
 - Saat dilimi şube bazlıdır; tüm zaman damgaları UTC saklanır.
+- **Uygulama rolü:** API her isteği bir transaction içinde `app.tenant_id` ayarlayıp `gymspot_app` rolüne geçerek çalıştırır. Bu rol RLS'yi atlayamaz; tablolarda `FORCE ROW LEVEL SECURITY` açıktır. Üretimde API'nin bağlantı kullanıcısı bu role üye olmalı, süper kullanıcı olmamalıdır. Migrasyonlar ayrı bir sahip kullanıcıyla çalışır.
+- `fault_summaries`, `rep_events`'ten türetilen bir görünümdür (`security_invoker`), bu yüzden RLS'ye tabidir ve hiç senkron dışı kalamaz.
 
 ## Roller ve yetki
 | İşlem | Üye | Antrenör | Yönetici | Sahip |

@@ -22,7 +22,7 @@ Her adım tek spec'e dayanır ve testlerle biter. Sıra bağımlılığa göre. 
 - [x] T2.5 Kalibrasyon kayıt ekranı (C10, yalnız landmark) → ilk gerçek fixture'lar (AC-4.3) — 07 _(ekran ve geliştirme kaydı `/spike/calibration` hazır; gerçek kayıtlar cihazda alınınca AC-4.3 kapanır, sunucuya yükleme T3.5)_
 
 ## Faz 3 — Backend
-- [ ] T3.1 `apps/api` iskeleti, Postgres migrasyonları, RLS — 06 (AC-6.1, 6.3)
+- [x] T3.1 `apps/api` iskeleti, Postgres migrasyonları, RLS — 06 (AC-6.1, 6.3)
 - [ ] T3.2 Auth: personel parola, üye magic link, cihaz eşleştirme, imzalı QR + imza yetkisi — 07 (AC-7.3, 7.6)
 - [ ] T3.3 Program/şablon/üye/antrenör ataması API'leri — 06 (AC-6.4)
 - [ ] T3.4 Seans olay alımı (idempotent, istemci UUID) + istemcide çevrimdışı kuyruk + devir birleştirme — AC-6.2, 03

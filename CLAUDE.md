@@ -44,7 +44,7 @@ Node ≥ 22, pnpm sürümü `package.json` → `packageManager` alanında sabit.
 - Lint: `pnpm lint`
 - Derleme: `pnpm build` (web PWA → `apps/web/dist`)
 - Operatör komutları: `pnpm --filter @gymspot/api ops -- migrate | seed-exercises | bootstrap-tenant --name N --owner-email E | daily-jobs` (sahip yetkili `DATABASE_URL`; parola `OWNER_PASSWORD` ile)
-- Dağıtım ve salon kurulumu: `docs/deploy.md`, `docs/salon-kurulum.md`
+- Dağıtım ve salon kurulumu: `docs/deploy.md`, `docs/salon-kurulum.md`; kullanım kılavuzu: `docs/kullanim-kilavuzu.md`
 - Kalibrasyon raporu (09 pilot ölçütleri): `pnpm --filter @gymspot/api calibration:report -- --files <dizin>` veya `-- --db` (`CALIBRATION_ENCRYPTION_KEY` gerekir), isteğe bağlı `--exercise squat --sweep rep.target.enter=95,100,105`
 - Hepsi (CI ile aynı): `pnpm check` + `pnpm build`
 

@@ -1,6 +1,6 @@
 # Salon kurulum kılavuzu (pilot)
 
-Bu kılavuz, salon personelinin istasyonları kurması ve üyeleri sisteme alması içindir.
+Bu kılavuz, salon personelinin istasyonları kurması ve üyeleri sisteme alması içindir. Günlük kullanım (panel, üye telefonu, istasyon) için bkz. [kullanim-kilavuzu.md](kullanim-kilavuzu.md).
 
 > Bu sistem tıbbi tavsiye değildir. Ağrı hisseden üye hareketi bırakmalıdır.
 

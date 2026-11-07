@@ -75,11 +75,13 @@ Hazır olunca A3 algılanan görünümü, yakın tarafı ve bu görünümde akti
 ## Duyarlı davranış
 | Alan | Telefon dikey | Telefon yatay | Tablet yatay |
 |---|---|---|---|
-| A5 Aktif set | Kamera üstte, sayaç altta | Kamera solda, sayaç sağda | Kamera geniş, sayaç ve uyarı yanda |
+| A3 Kurulum, A5 Aktif set (ve aynı kamera ekranındaki geri sayım, dinlenme, duraklatma) | Kamera tam ekran; ipucu üstte, sayaç/uyarı/düğmeler altta yarı saydam panelde | Kamera tam ekran; panel sağda | Kamera tam ekran; panel sağda |
 | B* Üye | Tek sütun | Tek sütun | İki sütun |
 | C* Yönetim | Kart listesi | Kart listesi | Tablo + yan panel |
 
 ## Kabul kriterleri
+Tam ekran kamera görüntüyü **kırpmaz** (`contain`, siyah boşluk): poz modeli tüm kareyi görür, kırpılan bir bölge siluet ve kenar uyarılarını yanıltır. "Görüntü saklanmaz" ve "tıbbi tavsiye değildir" ibareleri kamera ekranında da görünür kalır (değişmez kural 5).
+
 - AC-8.1: A5 ekranı 360×640 telefon ve 1280×800 tablet görünümlerinde taşma olmadan çalışır (görsel test).
 - AC-8.2: A5'te sayaç, uyarı ve hareket adı 2 metre mesafeden okunabilir boyutta (min sayaç yüksekliği ekranın %25'i).
 - AC-8.3: Tüm A-ekranları kamera izni reddedilince açıklayıcı hata ve elle kayıt seçeneği sunar.

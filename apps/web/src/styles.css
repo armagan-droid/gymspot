@@ -159,12 +159,86 @@ main {
   opacity: 0.85;
 }
 
-/* phone portrait: camera on top, counter below; landscape/tablet: side by side (specs/08) */
+/* full-screen camera (specs/08 "Duyarlı davranış"): the picture is never
+   cropped (contain), so the overlay matches what the pose model sees */
+.camera-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  background: #000;
+  overflow: hidden;
+}
+.camera-screen .camera-stage {
+  position: absolute;
+  inset: 0;
+}
+.camera-screen .camera-preview {
+  width: 100%;
+  height: 100%;
+  max-height: none;
+}
+.overlay-panel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  max-height: 55%;
+  overflow-y: auto;
+  padding: 2.5rem 1rem calc(0.5rem + env(safe-area-inset-bottom));
+  /* see-through: the body and skeleton stay visible behind the text */
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.55) 2.5rem);
+  text-shadow: 0 1px 3px #000, 0 0 2px #000;
+}
+.overlay-panel h2 {
+  margin: 0.3rem 0 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  opacity: 0.85;
+}
+.overlay-panel ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.75rem;
+  margin: 0.2rem 0;
+  padding: 0;
+  list-style: none;
+}
+.overlay-panel h1 {
+  margin: 0.25rem 0;
+  font-size: clamp(1.3rem, 5vw, 2rem);
+}
+.overlay-panel p {
+  margin: 0.3rem 0;
+}
+.camera-screen .rep-counter {
+  margin: 0;
+  font-size: 25vh; /* AC-8.2: at least a quarter of the screen */
+  line-height: 1;
+}
+.legal-strip {
+  margin: 0.4rem 0 0;
+  font-size: 0.8rem;
+  opacity: 0.75;
+}
+/* landscape phone / tablet: panel on the right */
 @media (orientation: landscape) {
-  .active-set {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    align-items: start;
+  .overlay-panel {
+    left: auto;
+    top: 0;
+    width: min(38%, 26rem);
+    max-height: none;
+    padding-top: 0.75rem;
+    background: rgba(0, 0, 0, 0.45);
+  }
+  .camera-screen .rep-counter {
+    font-size: 30vh;
+  }
+  /* the picture uses the space left of the panel, nothing covers it */
+  .camera-screen .camera-stage {
+    right: min(38%, 26rem);
+  }
+  .setup-banner {
+    font-size: clamp(1.2rem, 7vh, 2.4rem);
   }
 }
 

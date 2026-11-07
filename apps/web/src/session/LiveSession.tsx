@@ -3,6 +3,7 @@ import type { RulePack } from "@gymspot/shared";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useServices } from "../services";
+import { LegalStrip } from "../components/Layouts";
 import { clearOverlay, paintOverlay } from "../pose/overlay";
 import { createCuePlayer } from "./audio";
 import type { SessionRunner } from "./runner";
@@ -115,7 +116,7 @@ export function LiveSession({ runner, packs, bindCommands, onState, autoStart }:
   }, [runner, services]);
 
   return (
-    <div className="live-session">
+    <div className="live-session camera-screen">
       <div className="camera-stage">
         <video ref={videoRef} muted playsInline autoPlay className="camera-preview" />
         <canvas ref={canvasRef} className="pose-overlay" aria-hidden="true" data-testid="pose-overlay" />
@@ -130,17 +131,20 @@ export function LiveSession({ runner, packs, bindCommands, onState, autoStart }:
           {t(skeleton ? "session.skeletonOn" : "session.skeletonOff")}
         </button>
       </div>
-      <SessionView
-        state={state}
-        packs={packs}
-        lastShow={lastShow}
-        muted={muted}
-        onAction={(k) => runner.act(k)}
-        onToggleMute={() => {
-          mutedRef.current = !mutedRef.current;
-          setMuted(mutedRef.current);
-        }}
-      />
+      <div className="overlay-panel">
+        <SessionView
+          state={state}
+          packs={packs}
+          lastShow={lastShow}
+          muted={muted}
+          onAction={(k) => runner.act(k)}
+          onToggleMute={() => {
+            mutedRef.current = !mutedRef.current;
+            setMuted(mutedRef.current);
+          }}
+        />
+        <LegalStrip />
+      </div>
     </div>
   );
 }

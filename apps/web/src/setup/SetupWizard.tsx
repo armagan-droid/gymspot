@@ -3,6 +3,7 @@ import type { RulePack } from "@gymspot/shared";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { type CameraFailure, type CameraResult, requestCamera as defaultRequestCamera } from "../camera";
+import { LegalStrip } from "../components/Layouts";
 import { paintOverlay } from "../pose/overlay";
 import type { PoseSource } from "../pose/source";
 import { createSetupVoice } from "./voice";
@@ -138,9 +139,7 @@ export function SetupWizard({ pack, consent, source, requestCamera = defaultRequ
 
   const active = new Set(assessment?.activeFaults ?? []);
   return (
-    <section data-screen="A3">
-      <h1>{t("screens.A3")}</h1>
-      <p>{pack.camera.setupHint[lang]}</p>
+    <section data-screen="A3" className="camera-screen">
       <div className="camera-stage">
         <video ref={videoRef} muted playsInline autoPlay className="camera-preview" />
         <canvas ref={canvasRef} className="pose-overlay" aria-hidden="true" data-testid="pose-overlay" />
@@ -156,34 +155,39 @@ export function SetupWizard({ pack, consent, source, requestCamera = defaultRequ
           </p>
         )}
       </div>
-      {assessment && (
-        <>
-          <p>
-            {t("setup.viewLabel")}: <span>{t(`setup.view.${assessment.view}`)}</span>
-          </p>
-          {assessment.hints.length > 1 && (
-            <ul className="hints">
-              {assessment.hints.slice(1).map((h) => (
-                <li key={h}>{t(h)}</li>
-              ))}
+      <div className="overlay-panel">
+        <h1>{t("screens.A3")}</h1>
+        <p>{pack.camera.setupHint[lang]}</p>
+        {assessment && (
+          <>
+            <p>
+              {t("setup.viewLabel")}: <span>{t(`setup.view.${assessment.view}`)}</span>
+            </p>
+            {assessment.hints.length > 1 && (
+              <ul className="hints">
+                {assessment.hints.slice(1).map((h) => (
+                  <li key={h}>{t(h)}</li>
+                ))}
+              </ul>
+            )}
+            <h2>{t("setup.activeChecks")}</h2>
+            <ul>
+              {pack.faults
+                .filter((f) => active.has(f.id))
+                .map((f) => (
+                  <li key={f.id}>{f.name[lang]}</li>
+                ))}
             </ul>
-          )}
-          <h2>{t("setup.activeChecks")}</h2>
-          <ul>
-            {pack.faults
-              .filter((f) => active.has(f.id))
-              .map((f) => (
-                <li key={f.id}>{f.name[lang]}</li>
-              ))}
-          </ul>
-        </>
-      )}
-      <button
-        disabled={!assessment?.ready}
-        onClick={() => assessment && onReady({ view: assessment.view, nearSide: assessment.nearSide })}
-      >
-        {t("setup.start")}
-      </button>
+          </>
+        )}
+        <button
+          disabled={!assessment?.ready}
+          onClick={() => assessment && onReady({ view: assessment.view, nearSide: assessment.nearSide })}
+        >
+          {t("setup.start")}
+        </button>
+        <LegalStrip />
+      </div>
     </section>
   );
 }

@@ -12,6 +12,16 @@ function Header({ area }: { area: "station" | "member" | "admin" }) {
 }
 
 /** Station/session screens (A*): disclaimer and "no video stored" are always visible (specs/05, 07). */
+/** Legal notes on full-screen camera views, where the page footer is covered (specs/08). */
+export function LegalStrip() {
+  const { t } = useTranslation();
+  return (
+    <p className="legal-strip" aria-hidden="true">
+      📷 {t("legal.noVideoStored")} · {t("legal.medicalDisclaimer")}
+    </p>
+  );
+}
+
 /** Camera screens: the station tablet, and the member's phone session (`area="member"`). */
 export function StationLayout({ area = "station" }: { area?: "station" | "member" }) {
   const { t } = useTranslation();

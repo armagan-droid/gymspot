@@ -21,6 +21,8 @@ export function ManualSession({ runner, packs, bindCommands, onState }: ManualSe
   const { t, i18n } = useTranslation();
   const services = useServices();
   const [state, setState] = useState(runner.state);
+  const rendered = useRef(state); // input can arrive before the effect subscribes
+  rendered.current = state;
   const [lastShow, setLastShow] = useState<ShowCommand | null>(null);
   const onStateRef = useRef(onState);
   onStateRef.current = onState;
@@ -31,7 +33,7 @@ export function ManualSession({ runner, packs, bindCommands, onState }: ManualSe
       runner.subscribe((s) => {
         setState(s);
         onStateRef.current?.(s);
-      }),
+      }, rendered.current),
     [runner],
   );
   useEffect(() => {

@@ -51,8 +51,10 @@ export class SessionRunner {
     return this._state;
   }
 
-  subscribe(fn: (s: ProgramState) => void): () => void {
+  /** `rendered`: the state the caller last showed; a change since then is delivered at once. */
+  subscribe(fn: (s: ProgramState) => void, rendered?: ProgramState): () => void {
     this.listeners.add(fn);
+    if (rendered !== undefined && rendered !== this._state) fn(this._state);
     return () => this.listeners.delete(fn);
   }
 

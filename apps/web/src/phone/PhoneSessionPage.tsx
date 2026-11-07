@@ -133,12 +133,14 @@ function OwnerSession({ loaded }: { loaded: Loaded }) {
     [loaded, program, workout, dayIndex, services, sync],
   );
   const [state, setState] = useState(runner.state);
+  const rendered = useRef(state); // a tap can land before the effect subscribes
+  rendered.current = state;
   useEffect(
     () =>
       runner.subscribe((s) => {
         setState(s);
         services.storage.setItem(SESSION_KEY, serializeProgram(s)); // AC-3.5
-      }),
+      }, rendered.current),
     [runner, services],
   );
   const bind = useCallback((h: typeof handlers.current) => void (handlers.current = h), []);

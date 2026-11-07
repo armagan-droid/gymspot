@@ -117,3 +117,22 @@ describe("SessionRunner (camera → engine → program)", () => {
     expect(seen).toEqual(["READY"]);
   });
 });
+
+describe("subscribe", () => {
+  test("a change made before subscribing is delivered at once (no stale screen)", () => {
+    const { runner } = makeRunner();
+    const rendered = runner.state;
+    runner.act("START"); // e.g. a click between render and the effect
+    const seen: string[] = [];
+    runner.subscribe((s) => seen.push(s.status), rendered);
+    expect(seen).toEqual([runner.state.status]);
+    expect(runner.state.status).not.toBe("IDLE");
+  });
+
+  test("nothing is delivered when the rendered state is current", () => {
+    const { runner } = makeRunner();
+    const seen: string[] = [];
+    runner.subscribe((s) => seen.push(s.status), runner.state);
+    expect(seen).toEqual([]);
+  });
+});

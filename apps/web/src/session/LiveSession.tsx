@@ -26,6 +26,8 @@ export function LiveSession({ runner, packs, bindCommands, onState }: LiveSessio
   const [muted, setMuted] = useState(false);
   const [lastShow, setLastShow] = useState<ShowCommand | null>(null);
   const [state, setState] = useState(runner.state);
+  const rendered = useRef(state); // input can arrive before the effect subscribes
+  rendered.current = state;
   const onStateRef = useRef(onState);
   onStateRef.current = onState;
 
@@ -39,7 +41,7 @@ export function LiveSession({ runner, packs, bindCommands, onState }: LiveSessio
       runner.subscribe((s) => {
         setState(s);
         onStateRef.current?.(s);
-      }),
+      }, rendered.current),
     [runner],
   );
 

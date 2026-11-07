@@ -40,5 +40,13 @@ Her adım tek spec'e dayanır ve testlerle biter. Sıra bağımlılığa göre. 
 - [x] T5.3 Pilot kalibrasyon araçları: etiketli kayıtlardan eşik ayarı, sayım doğruluğu ve yanlış alarm raporu (09 tanımları)
 - [x] T5.4 Dağıtım ve salon kurulum kılavuzu (tablet kiosk modu, stand/açı, bilgilendirme metni)
 
+## Faz 6 — Dövüş sporları (00 "Dövüş sporları")
+- [x] T6.1 `max` metrik fonksiyonu (04) + dövüş sporları için sentetik poz üreteci
+- [x] T6.2 İlk teknik paketleri (draft): teep ve diz vuruşu (muay thai), mae geri (karate), düz yumruk (jab/cross/zuki) — yandan görünüm _(eşikler sentetik; dojoda kalibrasyon kaydıyla doğrulanacak)_
+- [ ] T6.3 Kural paketleri API'den (`GET /exercises`, tenant + global) ve istemcide çevrimdışı önbellek; yeni hareket için yeniden dağıtım gerekmez (değişmez kural 3)
+- [ ] T6.4 `hold` tipi: duruş tutma (kiba dachi, zenkutsu dachi, gard) — önce 04'e tanım
+- [ ] T6.5 Kombinasyon/sekans (jab–cross–hook, kata parçaları) — önce 03/04'e tanım
+- [ ] T6.6 Hız metrikleri (vuruş "snap"i) — önce 04'e tanım, cihaz FPS ölçümüne (T2.2) bağlı
+
 ## Claude Code'a görev verme şablonu
 > "specs/<NN-...>.md içindeki <AC-x.y> kabul kriterlerini karşılayan <T..> görevini yap. Önce testleri yaz, sonra uygula. Spec dışı davranış ekleme; eksik/çelişen nokta varsa dur ve belirt."

@@ -1,0 +1,115 @@
+{
+  "id": "knee_strike",
+  "version": 1,
+  "status": "draft",
+  "name": {
+    "tr": "Diz vuruşu (Muay Thai)",
+    "en": "Knee strike (Muay Thai)"
+  },
+  "type": "reps",
+  "camera": {
+    "views": [
+      "side"
+    ],
+    "minVisibleLandmarks": [
+      "near_shoulder",
+      "near_wrist",
+      "near_hip",
+      "near_knee",
+      "near_ankle"
+    ],
+    "minVisibility": 0.6,
+    "posture": "standing",
+    "setupHint": {
+      "tr": "Kamerayı bel hizasına, yanına koy; 2–3 metre uzaklaş, gard al.",
+      "en": "Place the camera at waist height at your side, step back 2–3 meters and take your guard."
+    }
+  },
+  "metrics": {
+    "knee_height_l": {
+      "diffY": [
+        "left_knee",
+        "left_hip"
+      ]
+    },
+    "knee_height_r": {
+      "diffY": [
+        "right_knee",
+        "right_hip"
+      ]
+    },
+    "knee_height": {
+      "max": [
+        "knee_height_l",
+        "knee_height_r"
+      ]
+    },
+    "guard_near": {
+      "diffY": [
+        "near_wrist",
+        "near_shoulder"
+      ]
+    },
+    "torso_lean": {
+      "angleFromVertical": [
+        "near_hip",
+        "near_shoulder"
+      ]
+    }
+  },
+  "rep": {
+    "metric": "knee_height",
+    "start": {
+      "enter": -0.7,
+      "exit": -0.6
+    },
+    "target": {
+      "enter": 0.0,
+      "exit": -0.1
+    },
+    "attemptMinExcursion": 0.15,
+    "minDurationMs": 200,
+    "maxDurationMs": 3000
+  },
+  "readyPose": "guard_near > -0.3 for 1000ms",
+  "faults": [
+    {
+      "id": "guard_dropped",
+      "name": {
+        "tr": "Gardın düşmesi",
+        "en": "Guard dropped"
+      },
+      "severity": "minor",
+      "check": "during_rep: guard_near < -0.5",
+      "cue": {
+        "tr": "Gardını kaldır",
+        "en": "Keep your guard up"
+      },
+      "affectsValidity": false,
+      "cooldownMs": 4000,
+      "minConsecutiveReps": 1,
+      "holdMs": 200
+    },
+    {
+      "id": "excessive_lean",
+      "name": {
+        "tr": "Gövdenin aşırı yaslanması",
+        "en": "Excessive lean"
+      },
+      "severity": "minor",
+      "check": "at_turn: torso_lean > 40",
+      "cue": {
+        "tr": "Çok geriye yaslanma, kalçanı öne it",
+        "en": "Don't lean back too far, drive your hips forward"
+      },
+      "affectsValidity": false,
+      "cooldownMs": 4000,
+      "minConsecutiveReps": 2
+    }
+  ],
+  "smoothing": {
+    "method": "one_euro",
+    "minCutoff": 3.0,
+    "beta": 1.0
+  }
+}

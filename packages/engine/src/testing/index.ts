@@ -8,6 +8,7 @@ export {
   type SquatParams,
   pressBody,
   pressFrame,
+  fighterSequence,
   pressSequence,
   pushupBody,
   pushupFrame,
@@ -16,6 +17,7 @@ export {
   squatFrame,
   squatSequence,
 } from "./exercises";
+export { type FighterParams, fighterBody, fighterFrame } from "./martial";
 export { type PlayOptions, playSequence } from "./player";
 export { type Random, createRandom } from "./random";
 export { type ScalarSignalOptions, type TimelineOptions, type TimelinePoint, repTimeline, scalarSignal } from "./timeline";

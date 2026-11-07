@@ -34,6 +34,7 @@ export const MetricDefinitionSchema = z.union([
   z.strictObject({ angle: z.tuple([lm, lm, lm]) }),
   z.strictObject({ avg: z.tuple([metric, metric]) }),
   z.strictObject({ absDiff: z.tuple([metric, metric]) }),
+  z.strictObject({ max: z.tuple([metric, metric]) }),
   z.strictObject({ diffY: z.tuple([lm, lm]) }),
   z.strictObject({ angleFromVertical: z.tuple([lm, lm]) }),
   z.strictObject({ kneeInwardRatio: z.tuple([lm, lm, lm]) }),
@@ -45,6 +46,7 @@ export type MetricDefinition = z.infer<typeof MetricDefinitionSchema>;
 export function metricDependencies(def: MetricDefinition): string[] {
   if ("avg" in def) return [...def.avg];
   if ("absDiff" in def) return [...def.absDiff];
+  if ("max" in def) return [...def.max];
   return [];
 }
 

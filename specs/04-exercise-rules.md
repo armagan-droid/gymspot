@@ -144,6 +144,14 @@ Test fixture'ları ve kalibrasyon kayıtları (07) aynı formatı kullanır. Şe
 - `cooldownMs`, `minConsecutiveReps`, `holdMs`: opsiyonel, varsayılanları şemada.
 
 ## Hold tipi (MVP dışı)
+## Dövüş sporları teknikleri
+Teknikler (tekme, diz, yumruk) birer `reps` hareketidir: bir teknik = bir tekrar. Kurallar:
+- Taraf bağımsız teknikler tekrar metriğinde `max` ile iki tarafı birleştirir (ör. `kick_height = max(kick_height_l, kick_height_r)`); üye tekniği hangi taraftan yaparsa sayılır.
+- Hızlı teknikler için `minDurationMs` kısa (≈ 200–300 ms) ve `smoothing` daha çevik (`minCutoff`/`beta` yüksek) tutulur.
+- Hata ve hazır duruş ifadeleri yalnız ilgili eklemlerin hepsi görünürken değerlendirilir (T1.5). Yandan görünümde uzak taraf çoğu zaman görünmez; bu yüzden gard kontrolleri ve `readyPose` kameraya yakın eli (`near_`) kullanır. Tekrar metriği görünürlükle maskelenmez, `max` iki tarafı birlikte sayar.
+- `readyPose` gard duruşudur (eller yukarıda).
+- Paket adı disiplini içerir (ör. "Teep (Muay Thai)").
+
 `type: "hold"` şemada ayrılmıştır ama MVP'de kullanılmaz. Tanımı (tutuş koşulu, süre sayımı) bir hold hareketi eklenmeden önce bu spec'e yazılacaktır. Doğrulayıcı MVP'de `hold` paketlerini reddeder.
 
 ## MVP hareketleri (ilk sürüm)
@@ -163,6 +171,7 @@ Test fixture'ları ve kalibrasyon kayıtları (07) aynı formatı kullanır. Şe
 | `angle: [a, b, c]` | b noktasındaki a-b-c açısı (0–180°) | world (3B) |
 | `avg: [m1, m2]` | iki metriğin ortalaması | — |
 | `absDiff: [m1, m2]` | iki metriğin mutlak farkı | — |
+| `max: [m1, m2]` | iki metriğin büyüğü; biri hesaplanamıyorsa (NaN) diğeri. Sağ ya da sol taraftan yapılabilen teknikler (tekme, yumruk) için tekrar metriği | — |
 | `diffY: [a, b]` | a'nın b'ye göre yukarıda olma miktarı (pozitif = a yukarıda), gövde boyuna normalize | görüntü (2B) |
 | `angleFromVertical: [a, b]` | a→b doğrusunun dikeyden sapma açısı (0–180°) | görüntü (2B) |
 | `kneeInwardRatio: [hip, knee, ankle]` | dizin kalça–ayak bileği çizgisinden vücut orta hattına doğru sapması (pozitif = içe), bacak boyuna normalize | görüntü (2B) |

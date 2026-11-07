@@ -102,6 +102,11 @@ export function createMetricComputer(metrics: Record<string, MetricDefinition>):
     if ("angle" in def) return angle3(wld(def.angle[0]), wld(def.angle[1]), wld(def.angle[2]));
     if ("avg" in def) return (values[def.avg[0]]! + values[def.avg[1]]!) / 2;
     if ("absDiff" in def) return Math.abs(values[def.absDiff[0]]! - values[def.absDiff[1]]!);
+    if ("max" in def) {
+      // either-side techniques: the side that can't be computed doesn't count (04)
+      const [a, b] = [values[def.max[0]]!, values[def.max[1]]!];
+      return Number.isNaN(a) ? b : Number.isNaN(b) ? a : Math.max(a, b);
+    }
     if ("diffY" in def) return diffY(frame, img(def.diffY[0]), img(def.diffY[1]));
     if ("angleFromVertical" in def) return angleFromVertical(img(def.angleFromVertical[0]), img(def.angleFromVertical[1]));
     if ("kneeInwardRatio" in def) {

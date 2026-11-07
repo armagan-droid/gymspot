@@ -1,3 +1,4 @@
+import { readdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { type Kysely, sql } from "kysely";
 import { afterAll, beforeAll, beforeEach, describe, expect, inject, test } from "vitest";
@@ -8,6 +9,8 @@ import { T0, testApi } from "./helpers";
 
 let db: Kysely<Database>;
 const exercisesDir = fileURLToPath(new URL("../../../exercises", import.meta.url));
+/** Every pack in the repo, in file order (seeding sorts by file name). */
+const packIds = readdirSync(exercisesDir).filter((f) => f.endsWith(".json")).sort().map((f) => f.slice(0, -5));
 
 beforeAll(async () => {
   db = createDb(inject("databaseUrl"));
@@ -19,14 +22,11 @@ beforeEach(async () => {
 
 describe("seed-exercises (T5.4)", () => {
   test("loads every validated rule pack as a global exercise; idempotent", async () => {
-    expect(await seedExercises(db, exercisesDir)).toEqual(["pushup", "shoulder_press", "squat"]);
-    expect(await seedExercises(db, exercisesDir)).toEqual(["pushup", "shoulder_press", "squat"]);
+    expect(packIds).toEqual(expect.arrayContaining(["pushup", "shoulder_press", "squat", "teep", "straight_punch"]));
+    expect(await seedExercises(db, exercisesDir)).toEqual(packIds);
+    expect(await seedExercises(db, exercisesDir)).toEqual(packIds);
     const rows = (await sql<{ id: string; version: number; tenant_id: string | null; status: string }>`select id, version, tenant_id, status from exercises order by id`.execute(db)).rows;
-    expect(rows).toEqual([
-      { id: "pushup", version: 1, tenant_id: null, status: "draft" },
-      { id: "shoulder_press", version: 1, tenant_id: null, status: "draft" },
-      { id: "squat", version: 1, tenant_id: null, status: "draft" },
-    ]);
+    expect(rows).toEqual([...packIds].sort().map((id) => ({ id, version: 1, tenant_id: null, status: "draft" })));
   });
 });
 

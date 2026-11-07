@@ -11,8 +11,16 @@ Her istasyonda (veya üyenin kendi telefonunda) çalışan bir **program takipli
 4. Hedef tekrar/set tamamlanınca otomatik dinlenmeye, sonra sonraki sete/harekete geçer.
 5. Seans kaydı otomatik tutulur; üye, PT ve salon sahibi kendi görünümünü görür.
 
+## Dövüş sporları
+Aynı koç, **karate dojoları ve muay thai salonları** için teknik drillerini de yönetir: tekme, diz, yumruk gibi tekniklerin tekrarını sayar, gard ve denge hatalarını uyarır. Hareketler kural paketidir (04); yeni bir disiplin ya da teknik eklemek kod değişikliği gerektirmez.
+
+Kapsam (tek kamera, tek kişi):
+- Tek kişilik teknik drilleri (gölge çalışması): ön tekme, teep, diz vuruşu, düz yumruklar.
+- Kapsam dışı (şimdilik): partnerle çalışma ve sparring (iki kişi görünce sistem durur, 07), torba/ped çalışması (kapanma), dönen teknikler, vuruş hızı/sertlik puanlaması, kombinasyon ve kata takibi, duruş tutma. Bunlar motor genişletmesi gerektirir (10, Faz 6).
+- Çok hızlı tekniklerde (≤ 200 ms) kare hızı sınırı nedeniyle sayım doğruluğu pilotla ölçülür; hedef ölçütler aşağıdakiyle aynıdır.
+
 ## Ürün türü
-Çok kiracılı **SaaS**. Müşteri = spor salonu (tenant). Oyunlaştırma **yok**; ton ciddi, profesyonel, sakin.
+Çok kiracılı **SaaS**. Müşteri = spor salonu ya da dövüş sporları salonu (tenant). Oyunlaştırma **yok**; ton ciddi, profesyonel, sakin.
 
 ## Kullanıcılar (roller)
 | Rol | İhtiyaç |

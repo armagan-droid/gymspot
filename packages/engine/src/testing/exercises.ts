@@ -1,6 +1,7 @@
 import type { Frame, LandmarkSequence, RepLabel } from "@gymspot/shared";
 import { type Body, type BodyPoint, type CoreJoint, type FrameOptions, SEGMENT, completeBody, toFrame } from "./body";
 import { createRandom } from "./random";
+import { type FighterParams, fighterBody } from "./martial";
 import { repTimeline } from "./timeline";
 
 const rad = (deg: number) => (deg * Math.PI) / 180;
@@ -200,4 +201,18 @@ export function pressSequence(o: SequenceOptions<PressParams> & { view: "front" 
   // elbowAngleRight follows elbowAngle unless set explicitly.
   const reps = o.reps.map((r) => ({ ...r, elbowAngleRight: r.elbowAngleRight ?? r.elbowAngle }));
   return buildSequence<PressParams>("shoulder_press", o.view, { ...o, reps }, start, pressBody);
+}
+
+/** Martial-arts techniques; the kicking leg and punching arm are fixed for the whole sequence. */
+export function fighterSequence(
+  o: SequenceOptions<Omit<FighterParams, "kickSide" | "punchSide">> & {
+    exerciseId: string;
+    kickSide?: "left" | "right";
+    punchSide?: "left" | "right";
+    start?: Partial<Omit<FighterParams, "kickSide" | "punchSide">>;
+  },
+) {
+  const start = { hipFlex: 0, kneeAngle: 175, punchElbow: 35, guardDrop: 0, torsoLean: 0, ...o.start };
+  const sides = { kickSide: o.kickSide ?? "right", punchSide: o.punchSide ?? "right" } as const;
+  return buildSequence(o.exerciseId, "side", o, start, (p) => fighterBody({ ...p, ...sides }));
 }

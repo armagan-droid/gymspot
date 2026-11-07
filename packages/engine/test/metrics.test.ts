@@ -54,6 +54,23 @@ describe("metric functions", () => {
     expect(v.diff).toBeCloseTo(40, 1);
   });
 
+  test("max takes the larger metric, or the one that can be computed (04, either-side techniques)", () => {
+    const f = squatFrame({ kneeAngle: 120 }, { view: "front" });
+    const mc = createMetricComputer({
+      l: { angle: ["left_hip", "left_knee", "left_ankle"] },
+      r: { angle: ["right_hip", "right_knee", "right_ankle"] },
+      m: { max: ["l", "straight"] },
+      straight: { angleFromVertical: ["left_hip", "left_shoulder"] },
+      broken: { angleFromVertical: ["left_hip", "left_hip"] }, // NaN
+      either: { max: ["broken", "l"] },
+      none: { max: ["broken", "broken"] },
+    });
+    const v = mc.compute(f, "left");
+    expect(v.m).toBeCloseTo(Math.max(v.l!, v.straight!), 6);
+    expect(v.either).toBeCloseTo(v.l!, 6);
+    expect(v.none).toBeNaN();
+  });
+
   test("metrics may depend on metrics defined later", () => {
     const c = createMetricComputer({
       mean: { avg: ["l", "r"] },

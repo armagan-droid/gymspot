@@ -58,6 +58,14 @@ describe("metric references", () => {
     expectInvalid(p, "rep.metric", "hip_angle");
   });
 
+  test("max must reference defined metrics", () => {
+    const p = squat();
+    p.metrics.m = { max: ["knee_angle_near", "nope"] };
+    expectInvalid(p, "metrics.m", "nope");
+    p.metrics.m = { max: ["knee_angle_near", "torso_lean"] };
+    expect(parseRulePack(p).metrics.m).toEqual({ max: ["knee_angle_near", "torso_lean"] });
+  });
+
   test("avg must reference defined metrics", () => {
     const p = squat();
     p.metrics.knee_angle_avg = { avg: ["knee_angle_l", "knee_angle_x"] };

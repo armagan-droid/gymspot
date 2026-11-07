@@ -207,7 +207,8 @@ function OwnerSession({ loaded }: { loaded: Loaded }) {
     );
   }
   if (manual) return <ManualSession runner={runner} packs={packs} bindCommands={bind} />;
-  return <LiveSession runner={runner} packs={packs} bindCommands={bind} />;
+  // LiveSession only mounts right after A3 for the current block
+  return <LiveSession runner={runner} packs={packs} bindCommands={bind} autoStart />;
 }
 
 function PhoneSetup({ exerciseId, consent, onReady, onManualEntry }: { exerciseId: string; consent: boolean; onReady(s: ExerciseSetup): void; onManualEntry(): void }) {

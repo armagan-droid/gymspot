@@ -113,7 +113,7 @@ describe("AC-3.2: 3×10 squat + 3×8 push-up runs to SESSION_DONE", () => {
     expect(kinds.at(-1)).toBe("session");
 
     const speaks = d.log.filter((c) => c.type === "SPEAK").map((c) => c.key);
-    expect(speaks.filter((k) => k === "countdown.start")).toHaveLength(6);
+    expect(speaks.filter((k) => k === "countdown.3")).toHaveLength(6);
     expect(speaks.filter((k) => k === "set.go")).toHaveLength(6);
     expect(speaks.filter((k) => k === "rest.over")).toHaveLength(4);
     expect(speaks.at(-1)).toBe("session.done");
@@ -503,6 +503,28 @@ describe("AC-3.8: skip and undo", () => {
     d.act("SKIP_BLOCK");
     expect(d.status).toBe("SESSION_DONE");
     expect(d.records("session_block").map((r) => r.data)).toEqual([expect.objectContaining({ status: "skipped" })]);
+  });
+});
+
+describe("spoken countdown (rule 2)", () => {
+  test("three, two, one, go — one word per second", () => {
+    const d = started([squat()]);
+    const said = () => d.log.filter((c) => c.type === "SPEAK").map((c) => c.key);
+    d.act("START");
+    expect(d.status).toBe("COUNTDOWN");
+    expect(said().at(-1)).toBe("countdown.3");
+    for (let t = 0; t < 3000; t += 250) d.tick(250);
+    expect(said().filter((k) => k.startsWith("countdown.") || k === "set.go").slice(-4)).toEqual(["countdown.3", "countdown.2", "countdown.1", "set.go"]);
+    expect(d.status).toBe("SET_ACTIVE");
+  });
+
+  test("a coarse tick does not repeat numbers", () => {
+    const d = started([squat()]);
+    d.act("START");
+    d.tick(2100); // one tick from 3 s left to 0.9 s left: "2" is skipped, "1" is said once
+    d.tick(100);
+    const said = d.log.filter((c) => c.type === "SPEAK").map((c) => c.key).filter((k) => k.startsWith("countdown."));
+    expect(said).toEqual(["countdown.3", "countdown.1"]);
   });
 });
 

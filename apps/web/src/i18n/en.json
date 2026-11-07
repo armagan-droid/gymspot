@@ -46,7 +46,10 @@
     "C10": "Calibration recording"
   },
   "countdown": {
-    "start": "Get ready"
+    "start": "Get ready",
+    "3": "Three",
+    "2": "Two",
+    "1": "One"
   },
   "set": {
     "go": "Go"

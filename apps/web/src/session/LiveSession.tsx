@@ -20,9 +20,11 @@ export interface LiveSessionProps {
   /** The caller wires runner commands here (SPEAK/SHOW); PERSIST goes to the sync queue. */
   bindCommands(handlers: { speak(key: string): void; show(c: ShowCommand): void }): void;
   onState?(state: ProgramState): void;
+  /** Right after camera setup: go straight into the spoken countdown (specs/08 A3). */
+  autoStart?: boolean;
 }
 
-export function LiveSession({ runner, packs, bindCommands, onState }: LiveSessionProps) {
+export function LiveSession({ runner, packs, bindCommands, onState, autoStart }: LiveSessionProps) {
   const { t, i18n } = useTranslation();
   const services = useServices();
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -57,6 +59,11 @@ export function LiveSession({ runner, packs, bindCommands, onState }: LiveSessio
     [packs, runner],
   );
   useEffect(() => bindCommands({ speak, show }), [bindCommands, speak, show]);
+  // after bindCommands, so the first "three" is heard
+  const autoStartRef = useRef(autoStart);
+  useEffect(() => {
+    if (autoStartRef.current && runner.state.status === "READY") runner.act("START");
+  }, [runner]);
   useEffect(
     () =>
       runner.subscribe((s) => {

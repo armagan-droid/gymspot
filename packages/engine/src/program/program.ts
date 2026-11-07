@@ -45,6 +45,9 @@ export const PROGRAM_TIMING = {
  */
 export const PROGRAM_MESSAGE_KEYS = {
   countdown: "countdown.start",
+  countdown3: "countdown.3",
+  countdown2: "countdown.2",
+  countdown1: "countdown.1",
   setGo: "set.go",
   restOver: "rest.over",
   setDonePrompt: "prompt.set_done",
@@ -111,6 +114,8 @@ export interface ProgramState {
   set?: SetProgress;
   resumeTo?: ProgramStatus;
   countdownEndsAt?: number;
+  /** Last number spoken in the countdown (rule 2). */
+  countdownSaid?: number;
   restEndsAt?: number;
   restRemainingMs?: number;
   trackingLostAt?: number;
@@ -264,12 +269,14 @@ class Machine {
   private startCountdown(): void {
     this.s.status = "COUNTDOWN";
     this.s.countdownEndsAt = this.s.now + PROGRAM_TIMING.countdownMs;
-    this.speak(K.countdown);
+    this.s.countdownSaid = 3;
+    this.speak(K.countdown3);
   }
 
   private enterSetActive(): void {
     this.s.status = "SET_ACTIVE";
     this.s.countdownEndsAt = undefined;
+    this.s.countdownSaid = undefined;
     if (!this.s.set) {
       this.s.set = { id: this.deps.newId(), startedAt: this.s.now, attempts: [], counted: 0, lastActivityAt: this.s.now };
     }
@@ -561,9 +568,15 @@ class Machine {
     const s = this.s;
     const now = s.now;
     switch (s.status) {
-      case "COUNTDOWN":
-        if (now >= s.countdownEndsAt!) this.enterSetActive();
+      case "COUNTDOWN": {
+        if (now >= s.countdownEndsAt!) return this.enterSetActive();
+        const left = Math.ceil((s.countdownEndsAt! - now) / 1000);
+        if (left < (s.countdownSaid ?? 4)) {
+          s.countdownSaid = left;
+          this.speak(left >= 2 ? K.countdown2 : K.countdown1);
+        }
         return;
+      }
       case "SET_ACTIVE": {
         const b = this.blk;
         if (b.durationSec !== undefined && now - s.set!.startedAt >= b.durationSec * 1000) return this.endSet(true);

@@ -53,7 +53,7 @@ Yürütücüde BLOCK_DONE → IDLE ("Telefonundan devam et")
 
 ## Geçiş kuralları
 1. **Başlangıç:** Sahipte `IDLE` + `START` seansı başlatır (seans kaydı `active`) ve ilk bloğa geçer (`NEXT_BLOCK_READY` kuralı). Yürütücü `CHECKIN`'de başlar ve `HANDOFF_ACCEPTED { cursor }` ile imleçteki bloğun `READY` durumuna geçer.
-2. **READY → COUNTDOWN:** `START` veya `READY_POSE_HELD` (kural paketindeki `readyPose`). 3 sn sonra `SET_ACTIVE`. `COUNTDOWN`'da tekrar olayları ve uyarılar yok sayılır.
+2. **READY → COUNTDOWN:** `START` veya `READY_POSE_HELD` (kural paketindeki `readyPose`). 3 sn sonra `SET_ACTIVE`. Geri sayım sesli yapılır: girişte `countdown.3`, kalan süre 2 ve 1 saniyeye inince `countdown.2` ve `countdown.1`, sonra `set.go`. `COUNTDOWN`'da tekrar olayları ve uyarılar yok sayılır.
 3. **SET_ACTIVE:** `REP_COMPLETED` olayında sayaç 04'teki outcome tablosuna göre artar: strict modda yalnız `valid`, lenient modda `valid` + `faulty`. Tüm outcome'lar (`incomplete` dahil) `PERSIST_EVENT` ile kaydedilir. `FAULT_DETECTED` yalnız `SET_ACTIVE`'de seslendirilir (`SPEAK`/`SHOW cue.<exerciseId>.<faultId>`).
 4. **Set sonu:** sayaç hedefe ulaşınca veya `END_SET` ile set biter. Set kaydı yazılır ve set özeti gösterilir (05). Son setse `BLOCK_DONE`, değilse `REST`. Süreli blokta (`durationSec`) set süre dolunca biter.
 5. **Hareketsizlik:** `SET_ACTIVE`'de son `REP_STARTED`/`REP_COMPLETED`'den (yoksa set başlangıcından) 10 sn geçerse `SET_CONFIRM` ("Set bitti mi?"). `CONTINUE_SET` → `SET_ACTIVE` ve sayaç sıfırlanır. `END_SET` → set biter. `SET_CONFIRM`'de tekrar olayı gelirse işlenir ve `SET_ACTIVE`'e dönülür. 20. saniyede (toplam) set otomatik kapanır, yapılan tekrar kaydedilir ve set `below_target` olarak işaretlenir.

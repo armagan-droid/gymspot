@@ -46,7 +46,10 @@
     "C10": "Kalibrasyon kaydı"
   },
   "countdown": {
-    "start": "Hazır ol"
+    "start": "Hazır ol",
+    "3": "Üç",
+    "2": "İki",
+    "1": "Bir"
   },
   "set": {
     "go": "Başla"

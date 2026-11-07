@@ -55,6 +55,7 @@ Son 1 sn'lik karelerin en az %80'i aşağıdakilerin hepsini sağlıyorsa kurulu
 - **Hedef siluet:** önizlemenin ortasında, üyenin durması gereken yeri ve boyutu gösteren kesikli bir insan silueti (`camera.posture`: ayakta dikey, `horizontal` yatay). Üye kendi iskeletini siluetle hizalar.
 - **Sorunlu kenar:** zorunlu bir eklem görüntünün kenar payı dışındaysa ya da görünmüyorsa, bulunduğu taraf (üst/alt/sol/sağ) kırmızı bantla vurgulanır; görünmeyen zorunlu eklemler kırmızı noktadır.
 - **Büyük ipucu:** ilk ipucu önizlemenin üstünde büyük yazıyla gösterilir.
+- **Otomatik başlama:** kurulum 1,5 sn kesintisiz "Hazır" kalırsa dokunmaya gerek kalmadan blok başlar ve doğrudan sesli geri sayıma (03 kural 2) geçilir. "Başla" düğmesi beklemeden başlamak için kalır. Bloğun sonraki setleri dinlenmeden sonra hazır duruşla ya da "Hazırım" ile başlar.
 - **Telefonu çevir:** `horizontal` bir hareket dikey kamerayla çekiliyorsa ilk ipucu "Telefonu yan çevir" olur (yerdeki vücut dikey kadraja sığmaz). Yatay siluet, kişinin baktığı yöne göre aynalanır.
 - **Sesli ipucu:** ipucu sesli okunur (05 ses kaynağı sırası). Aynı ipucu 4 sn dolmadan tekrarlanmaz; ipucu kalmayınca "Hazır" bir kez söylenir. Ses kapalıysa yalnızca görsel.
 

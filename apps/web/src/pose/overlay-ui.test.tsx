@@ -1,3 +1,4 @@
+import type { ProgramCommand } from "@gymspot/engine";
 import { squatFrame } from "@gymspot/engine/testing";
 import { LANDMARK_NAMES } from "@gymspot/shared";
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
@@ -8,7 +9,7 @@ import { RULE_PACKS, rulePack } from "../rules";
 import { ServicesProvider } from "../services";
 import { LiveSession } from "../session/LiveSession";
 import { SessionRunner } from "../session/runner";
-import { SetupWizard } from "../setup/SetupWizard";
+import { AUTO_START_MS, SetupWizard } from "../setup/SetupWizard";
 import { testServices } from "../test-services";
 
 // specs/08: A3 guide frame + skeleton, A5 skeleton layer (on by default, switchable).
@@ -125,9 +126,71 @@ describe("A3 floor exercise in portrait", () => {
   });
 });
 
+describe("hands-free start (specs/08 A3, 03 rule 2)", () => {
+  test("setup starts by itself once 'ready' has lasted 1.5 s, not earlier", async () => {
+    let emit: ((c: (typeof person)[], t: number) => void) | undefined;
+    const onReady = vi.fn();
+    render(
+      <I18nextProvider i18n={createI18n("tr")}>
+        <SetupWizard
+          pack={rulePack("squat")}
+          consent
+          source={{ start: vi.fn(async (_v, cb) => void (emit = cb)), stop: vi.fn() }}
+          requestCamera={vi.fn(async () => ({ ok: true as const, stream: {} as MediaStream }))}
+          onReady={onReady}
+          onManualEntry={vi.fn()}
+        />
+      </I18nextProvider>,
+    );
+    await vi.waitFor(() => expect(emit).toBeDefined());
+    await act(async () => {
+      for (let t = 0; t < AUTO_START_MS; t += 100) emit!([person], t);
+    });
+    expect(onReady).not.toHaveBeenCalled();
+    await act(async () => {
+      for (let t = AUTO_START_MS; t < AUTO_START_MS + 500; t += 100) emit!([person], t);
+    });
+    expect(onReady).toHaveBeenCalledTimes(1);
+    expect(onReady).toHaveBeenCalledWith({ view: "front", nearSide: expect.any(String) });
+  });
+
+  test("the live session goes straight into the spoken countdown", async () => {
+    const t = testServices();
+    const spoken: string[] = [];
+    const runner = makeRunner(t, (c) => c.type === "SPEAK" && spoken.push(c.key));
+    runner.act("START"); // IDLE → READY (block 0)
+    expect(runner.state.status).toBe("READY");
+    render(
+      <ServicesProvider services={t.services}>
+        <I18nextProvider i18n={createI18n("tr")}>
+          <LiveSession runner={runner} packs={PACKS} bindCommands={() => undefined} autoStart />
+        </I18nextProvider>
+      </ServicesProvider>,
+    );
+    await vi.waitFor(() => expect(runner.state.status).toBe("COUNTDOWN"));
+    expect(await screen.findByText("Hazır ol")).toBeTruthy();
+    expect(spoken).toContain("countdown.3");
+  });
+
+  test("without autoStart the set waits for the ready pose or a tap", async () => {
+    const t = testServices();
+    const runner = makeRunner(t);
+    runner.act("START");
+    render(
+      <ServicesProvider services={t.services}>
+        <I18nextProvider i18n={createI18n("tr")}>
+          <LiveSession runner={runner} packs={PACKS} bindCommands={() => undefined} />
+        </I18nextProvider>
+      </ServicesProvider>,
+    );
+    expect(await screen.findByText("Hazır duruşa geç ya da Başla'ya dokun")).toBeTruthy();
+    expect(runner.state.status).toBe("READY");
+  });
+});
+
 const PACKS = Object.fromEntries(Object.entries(RULE_PACKS).map(([k, v]) => [k, v.pack]));
 
-function makeRunner(t: ReturnType<typeof testServices>) {
+function makeRunner(t: ReturnType<typeof testServices>, onCommand: (c: ProgramCommand) => unknown = () => undefined) {
   return new SessionRunner({
     packs: RULE_PACKS,
     program: {
@@ -142,7 +205,7 @@ function makeRunner(t: ReturnType<typeof testServices>) {
     setup: { view: "front", nearSide: "left" },
     now: t.services.now,
     newId: t.services.newId,
-    onCommand: () => undefined,
+    onCommand: (c) => void onCommand(c),
   });
 }
 

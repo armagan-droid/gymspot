@@ -229,6 +229,6 @@ function ExecutorSession({ checkin, setup, manual, safetyPause, onDone }: { chec
   return manual ? (
     <ManualSession runner={runner} packs={packs} bindCommands={bind} onState={onState} />
   ) : (
-    <LiveSession runner={runner} packs={packs} bindCommands={bind} onState={onState} />
+    <LiveSession runner={runner} packs={packs} bindCommands={bind} onState={onState} autoStart />
   );
 }

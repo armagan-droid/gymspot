@@ -11,6 +11,8 @@ import { createSetupVoice } from "./voice";
 // entry (AC-8.3), live checks over the last second, start only when ready (AC-8.5).
 
 const WINDOW_MS = 1000;
+/** "Ready" this long without a break starts the block hands-free (specs/08 A3). */
+export const AUTO_START_MS = 1500;
 
 export interface SetupWizardProps {
   pack: RulePack;
@@ -40,8 +42,8 @@ export function SetupWizard({ pack, consent, source, requestCamera = defaultRequ
   const [phase, setPhase] = useState<Phase>({ kind: "starting" });
   const [assessment, setAssessment] = useState<SetupAssessment | null>(null);
   // Latest callbacks without restarting the camera on every render.
-  const deps = useRef({ source, requestCamera, pack, speak });
-  deps.current = { source, requestCamera, pack, speak };
+  const deps = useRef({ source, requestCamera, pack, speak, onReady });
+  deps.current = { source, requestCamera, pack, speak, onReady };
 
   useEffect(() => {
     if (!consent) return;
@@ -51,6 +53,8 @@ export function SetupWizard({ pack, consent, source, requestCamera = defaultRequ
     const samples: (SetupSample & { t: number })[] = [];
     let track: PersonTrack | undefined;
     const voice = createSetupVoice((key) => deps.current.speak?.(key));
+    let readySince: number | null = null;
+    let started = false;
 
     void (async () => {
       const cam = await requestCamera();
@@ -86,6 +90,11 @@ export function SetupWizard({ pack, consent, source, requestCamera = defaultRequ
         const a = withRotateHint(assessSetup(samples, deps.current.pack), deps.current.pack, video);
         setAssessment(a);
         voice(a, now);
+        readySince = a.ready ? (readySince ?? now) : null;
+        if (!started && readySince !== null && now - readySince >= AUTO_START_MS) {
+          started = true;
+          deps.current.onReady({ view: a.view, nearSide: a.nearSide });
+        }
         if (canvasRef.current && video) {
           paintOverlay(canvasRef.current, video, sel.frame, {
             minVisibility: deps.current.pack.camera.minVisibility,

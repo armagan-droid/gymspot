@@ -1,5 +1,5 @@
 import type { LandmarkSequence } from "@gymspot/shared";
-import { ApiError, type CredentialStore, type SessionSummary, NetworkError } from "./client";
+import { ApiError, type CredentialStore, type ExerciseDto, type SessionSummary, NetworkError } from "./client";
 
 // Staff API for the admin panel (C1–C10). Separate from the device/member client.
 
@@ -55,6 +55,8 @@ export interface StaffApi {
   signOut(): Promise<void>;
   /** Role from the access token (UI gating only; the API enforces it). */
   role(): StaffRole | null;
+  /** Rule packs for this gym (T6.3). */
+  exercises(): Promise<ExerciseDto[]>;
   overview(): Promise<{ activeSessions: number; sessionsToday: number; stations: { id: string; name: string; devices: number; lastSeenAt: string | null }[] }>;
   stations(): Promise<StationRow[]>;
   createStation(name: string, exerciseIds: string[]): Promise<{ id: string }>;
@@ -143,6 +145,7 @@ export function createStaffApi({ baseUrl, store, fetchFn = fetch }: { baseUrl: s
       return creds ? decodeRole(creds.accessToken) : null;
     },
     overview: () => call("GET", "/admin/overview"),
+    exercises: () => call("GET", "/exercises"),
     stations: () => call("GET", "/stations"),
     createStation: (name, exerciseIds) => call("POST", "/stations", { name, exerciseIds }),
     pairingCode: (id) => call("POST", `/stations/${q(id)}/pairing-code`, {}),

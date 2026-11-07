@@ -87,8 +87,18 @@ export class ApiError extends Error {
 /** Network failure (offline, DNS, CORS): callers fall back to offline paths. */
 export class NetworkError extends Error {}
 
+/** A rule pack as served by GET /exercises (definition validated by the client). */
+export interface ExerciseDto {
+  id: string;
+  version: number;
+  status: string;
+  definition: unknown;
+}
+
 export interface GymApi {
   pairDevice(code: string): Promise<DeviceCredentials>;
+  /** Rule packs for this gym (T6.3), as the paired tablet or the signed-in member. */
+  exercises(as: "device" | "member"): Promise<ExerciseDto[]>;
   /** Tenant QR key for offline verification, plus the gym's safety pause setting. */
   stationConfig(): Promise<{ publicKey: string; safetyPause: boolean }>;
   redeemQr(qr: string): Promise<RedeemResult>;
@@ -188,6 +198,7 @@ export function createGymApi({ baseUrl, store, fetchFn = fetch }: { baseUrl: str
     ingestAsDevice: async (records) => ((await asDevice("POST", "/ingest", { records })) as { results: IngestResult[] }).results,
     heartbeat: async (body) => void (await asDevice("POST", "/devices/heartbeat", body)),
     reportError: async (event) => void (await raw("POST", "/client-errors", event)),
+    exercises: async (as) => (await (as === "device" ? asDevice : asMember)("GET", "/exercises")) as ExerciseDto[],
     memberProgram: async () => (await asMember("GET", "/me/program")) as MemberProgram,
     me: async () => (await asMember("GET", "/me")) as MemberProfile,
     requestMagicLink: async (tenantId, email) => void (await raw("POST", "/auth/member/magic-link", { tenantId, email })),

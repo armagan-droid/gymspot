@@ -2,7 +2,7 @@ import type { ExerciseSetup, ProgramCommand } from "@gymspot/engine";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { DeviceCredentials } from "../api/client";
-import { RULE_PACKS } from "../rules";
+import { RULE_PACKS, rulePacks } from "../rules";
 import { useServices } from "../services";
 import { createCuePlayer } from "../session/audio";
 import { LiveSession } from "../session/LiveSession";
@@ -25,7 +25,6 @@ type Phase =
   | { kind: "session"; checkin: CheckedIn; setup: ExerciseSetup }
   | { kind: "return" };
 
-const packs = Object.fromEntries(Object.entries(RULE_PACKS).map(([k, v]) => [k, v.pack]));
 
 export const HEARTBEAT_MS = 60_000;
 
@@ -114,9 +113,9 @@ function StationSetup({ exerciseId, onReady, onCancel }: { exerciseId: string; o
   const services = useServices();
   const { i18n } = useTranslation();
   const source = useMemo(() => services.createPoseSource(), [services]);
-  const speak = useMemo(() => createCuePlayer({ ...services.cueDeps(), packs, i18n }), [services, i18n]);
+  const speak = useMemo(() => createCuePlayer({ ...services.cueDeps(), packs: rulePacks(), i18n }), [services, i18n]);
   // consent was checked from the server-signed certificate (AC-7.4)
-  return <SetupWizard pack={packs[exerciseId]!} consent source={source} requestCamera={services.requestCamera} onReady={onReady} onManualEntry={onCancel} speak={speak} />;
+  return <SetupWizard pack={rulePacks()[exerciseId]!} consent source={source} requestCamera={services.requestCamera} onReady={onReady} onManualEntry={onCancel} speak={speak} />;
 }
 
 function PairScreen({ onPaired }: { onPaired(): void }) {
@@ -227,8 +226,8 @@ function ExecutorSession({ checkin, setup, manual, safetyPause, onDone }: { chec
   const bind = useCallback((h: typeof handlers.current) => void (handlers.current = h), []);
   const onState = (s: { status: string }) => s.status === "IDLE" && onDone();
   return manual ? (
-    <ManualSession runner={runner} packs={packs} bindCommands={bind} onState={onState} />
+    <ManualSession runner={runner} packs={rulePacks()} bindCommands={bind} onState={onState} />
   ) : (
-    <LiveSession runner={runner} packs={packs} bindCommands={bind} onState={onState} autoStart />
+    <LiveSession runner={runner} packs={rulePacks()} bindCommands={bind} onState={onState} autoStart />
   );
 }

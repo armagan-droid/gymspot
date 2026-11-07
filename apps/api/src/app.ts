@@ -11,6 +11,7 @@ import { ingestRoutes } from "./routes/ingest";
 import { meRoutes } from "./routes/me";
 import { opsRoutes } from "./routes/ops";
 import { memberRoutes } from "./routes/members";
+import { exerciseRoutes } from "./routes/exercises";
 import { stationRoutes } from "./routes/stations";
 import { templateRoutes } from "./routes/templates";
 import type { Database } from "./db/db";
@@ -52,6 +53,7 @@ export function buildApp({ db, config = configFromEnv(), blobStore = new FileBlo
   void app.register(templateRoutes(db, tokens));
   void app.register(meRoutes(db, config, tokens));
   void app.register(stationRoutes(db, tokens));
+  void app.register(exerciseRoutes(db, tokens));
   void app.register(ingestRoutes(db, tokens));
   void app.register(calibrationRoutes(db, config, tokens, blobStore));
   void app.register(adminRoutes(db, config, tokens));

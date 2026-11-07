@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router";
 import type { MemberProgram } from "../api/client";
-import { RULE_PACKS } from "../rules";
+import { RULE_PACKS, rulePacks } from "../rules";
 import { useServices } from "../services";
 import { createCuePlayer } from "../session/audio";
 import { LiveSession } from "../session/LiveSession";
@@ -18,7 +18,6 @@ import { ensureDelegation, phoneKeys } from "./phone-keys";
 // The member's phone owns the session (specs/03): runs blocks itself or hands
 // them to a station tablet by QR; state survives reloads (AC-3.5).
 
-const packs = Object.fromEntries(Object.entries(RULE_PACKS).map(([k, v]) => [k, v.pack]));
 const PROGRAM_KEY = "gymspot.member.program";
 const SESSION_KEY = "gymspot.member.session";
 const MANUAL_KEY = "gymspot.member.manualSession";
@@ -117,7 +116,7 @@ function OwnerSession({ loaded }: { loaded: Loaded }) {
             memberProgramId: program.memberProgramId,
             workoutDayIndex: dayIndex,
             deviceId: "phone",
-            faults: Object.fromEntries(Object.entries(packs).map(([id, p]) => [id, p.faults])),
+            faults: Object.fromEntries(Object.entries(rulePacks()).map(([id, p]) => [id, p.faults])),
           },
           setup: { view: "front", nearSide: "left" },
           engine: { safetyPause: program.safetyPause ?? true },
@@ -156,7 +155,7 @@ function OwnerSession({ loaded }: { loaded: Loaded }) {
         <ol>
           {workout.blocks.map((b, i) => (
             <li key={i}>
-              {packs[b.exerciseId]?.name[lang] ?? b.exerciseId} · {b.sets} × {b.reps ?? `${b.durationSec}s`}
+              {rulePacks()[b.exerciseId]?.name[lang] ?? b.exerciseId} · {b.sets} × {b.reps ?? `${b.durationSec}s`}
               {b.stationHint && ` · ${b.stationHint}`}
             </li>
           ))}
@@ -206,19 +205,19 @@ function OwnerSession({ loaded }: { loaded: Loaded }) {
       />
     );
   }
-  if (manual) return <ManualSession runner={runner} packs={packs} bindCommands={bind} />;
+  if (manual) return <ManualSession runner={runner} packs={rulePacks()} bindCommands={bind} />;
   // LiveSession only mounts right after A3 for the current block
-  return <LiveSession runner={runner} packs={packs} bindCommands={bind} autoStart />;
+  return <LiveSession runner={runner} packs={rulePacks()} bindCommands={bind} autoStart />;
 }
 
 function PhoneSetup({ exerciseId, consent, onReady, onManualEntry }: { exerciseId: string; consent: boolean; onReady(s: ExerciseSetup): void; onManualEntry(): void }) {
   const services = useServices();
   const { i18n } = useTranslation();
   const source = useMemo(() => services.createPoseSource(), [services]);
-  const speak = useMemo(() => createCuePlayer({ ...services.cueDeps(), packs, i18n }), [services, i18n]);
+  const speak = useMemo(() => createCuePlayer({ ...services.cueDeps(), packs: rulePacks(), i18n }), [services, i18n]);
   return (
     <SetupWizard
-      pack={packs[exerciseId]!}
+      pack={rulePacks()[exerciseId]!}
       consent={consent}
       source={source}
       requestCamera={services.requestCamera}

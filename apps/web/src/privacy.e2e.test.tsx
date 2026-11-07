@@ -116,6 +116,7 @@ describe("AC-7.1: no video or landmarks leave the client during a session", () =
       "GET /me": () => ({ id: MEMBER, displayName: "Ayşe", email: null, cameraConsent: true, consentVersion: "2026-11-v1" }),
       "POST /auth/member/qr-delegation": () => delegation,
       "POST /ingest": ingestOk,
+      "GET /exercises": () => [], // rule pack refresh (T6.3): a bodiless read
     });
     const t = testServices({ credentials: { member: { accessToken: "a", refreshToken: "r" } } });
     wire(t, server.fetchFn as unknown as typeof fetch);
@@ -133,7 +134,7 @@ describe("AC-7.1: no video or landmarks leave the client during a session", () =
     const sent = server.captured.filter((c) => c.path === "/ingest").flatMap((c) => (c.body as { records: { kind: string }[] }).records.map((r) => r.kind));
     expect(sent).toEqual(expect.arrayContaining(["session", "rep", "set", "session_block"]));
     assertClean(server.captured);
-    expect(new Set(server.captured.map((c) => `${c.method} ${c.path}`))).toEqual(new Set(["GET /me/program", "GET /me", "POST /auth/member/qr-delegation", "POST /ingest"]));
+    expect(new Set(server.captured.map((c) => `${c.method} ${c.path}`))).toEqual(new Set(["GET /exercises", "GET /me/program", "GET /me", "POST /auth/member/qr-delegation", "POST /ingest"]));
   }, 30_000);
 
   test("station tablet session", async () => {

@@ -144,6 +144,12 @@ Test fixture'ları ve kalibrasyon kayıtları (07) aynı formatı kullanır. Şe
 - `cooldownMs`, `minConsecutiveReps`, `holdMs`: opsiyonel, varsayılanları şemada.
 
 ## Hold tipi (MVP dışı)
+## Paketlerin dağıtımı
+- Kaynak `exercises/*.json`; `ops seed-exercises` doğrulayıp `exercises` tablosuna (genel, `tenant_id` boş) yazar. Salona özel paketler aynı tabloda `tenant_id` ile durur (RLS).
+- İstemci paketleri `GET /exercises`'tan alır (her hareketin en yeni sürümü; üye, istasyon cihazı ve personel). Derlemeyle gelen paketler yedektir; sunucudan gelen her paket yüklenirken doğrulanır, geçersizse atlanır, eski sürüm yenisinin yerine geçmez.
+- Son geçerli set cihazda önbelleklenir; çevrimdışı istasyon onunla çalışır. Eşitleme uygulama açılışında ve uygulama yeniden öne geldiğinde yapılır; yürüyen bir blok başladığı paketle biter, sonraki bloklar güncel paketi kullanır.
+- Böylece yeni hareket eklemek yeniden dağıtım gerektirmez (değişmez kural 3).
+
 ## Dövüş sporları teknikleri
 Teknikler (tekme, diz, yumruk) birer `reps` hareketidir: bir teknik = bir tekrar. Kurallar:
 - Taraf bağımsız teknikler tekrar metriğinde `max` ile iki tarafı birleştirir (ör. `kick_height = max(kick_height_l, kick_height_r)`); üye tekniği hangi taraftan yaparsa sayılır.

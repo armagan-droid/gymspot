@@ -1,7 +1,7 @@
 import type { ExerciseSetup, ProgramCommand } from "@gymspot/engine";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router";
-import { RULE_PACKS, rulePack } from "../rules";
+import { RULE_PACKS, rulePack, rulePacks } from "../rules";
 import { useServices } from "../services";
 import { LiveSession } from "../session/LiveSession";
 import { SessionRunner } from "../session/runner";
@@ -12,7 +12,6 @@ import { SetupWizard } from "../setup/SetupWizard";
 // engine, program and spoken cues (`/spike/session?exercise=squat`).
 // Records are only counted here; nothing leaves the device.
 
-const packs = Object.fromEntries(Object.entries(RULE_PACKS).map(([k, v]) => [k, v.pack]));
 
 export function SessionSpikePage() {
   const [params] = useSearchParams();
@@ -81,7 +80,7 @@ function SpikeSession({ exerciseId, setup }: { exerciseId: string; setup: Exerci
   const bind = useCallback((h: typeof handlers.current) => void (handlers.current = h), []);
   return (
     <main>
-      <LiveSession runner={runner} packs={packs} bindCommands={bind} />
+      <LiveSession runner={runner} packs={rulePacks()} bindCommands={bind} />
       <p>
         <small>records (not sent): {records}</small>
       </p>

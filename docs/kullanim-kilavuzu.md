@@ -1,4 +1,4 @@
-# AI Gym kullanım kılavuzu
+# GymSpot kullanım kılavuzu
 
 Bu kılavuz uygulamanın günlük kullanımını anlatır: salon personeli (yönetim paneli), üye (telefon) ve istasyon tableti. Tabletin fiziksel kurulumu, kamera konumu ve kiosk ayarları için bkz. [salon-kurulum.md](salon-kurulum.md).
 

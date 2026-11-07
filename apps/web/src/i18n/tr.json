@@ -1,8 +1,9 @@
 {
   "app": {
-    "name": "AI Gym",
+    "name": "GymSpot",
     "home": "Ana sayfa",
-    "notFound": "Sayfa bulunamadı"
+    "notFound": "Sayfa bulunamadı",
+    "tagline": "Salonun için akıllı istasyon koçu: tekrarı sayar, formunu anında düzeltir."
   },
   "areas": {
     "station": "İstasyon",
@@ -317,5 +318,10 @@
     "repsTimed": "Yapılan tekrar (süreli hareket)",
     "save": "Seti kaydet",
     "skip": "Bu hareketi atla"
+  },
+  "home": {
+    "station": "Salondaki sabit tablet. Üyenin telefonundan devralınan hareketi kamerayla yürütür.",
+    "member": "Programın, seansın, geçmişin ve ilerlemen.",
+    "admin": "İstasyonlar, üyeler, program şablonları ve salon ayarları."
   }
 }

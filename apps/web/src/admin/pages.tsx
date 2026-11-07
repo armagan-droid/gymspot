@@ -88,7 +88,7 @@ export function RequireStaff({ roles }: { roles?: StaffRole[] }) {
   if (roles && !roles.includes(role)) return <Navigate to={MANAGERS.includes(role) ? "/admin" : "/admin/members"} replace />;
   const isManager = MANAGERS.includes(role);
   return (
-    <>
+    <div className="admin-shell">
       <nav className="admin-nav">
         {isManager && (
           <NavLink to="/admin" end>
@@ -100,10 +100,12 @@ export function RequireStaff({ roles }: { roles?: StaffRole[] }) {
         <NavLink to="/admin/templates">{t("screens.C5")}</NavLink>
         {isManager && <NavLink to="/admin/calibration">{t("screens.C10")}</NavLink>}
         {role === "owner" && <NavLink to="/admin/settings">{t("screens.C8")}</NavLink>}
-        <button onClick={async () => (await staff.signOut(), navigate("/admin/login", { replace: true }))}>{t("member.settings.signOut")}</button>
+        <button className="nav-signout" onClick={async () => (await staff.signOut(), navigate("/admin/login", { replace: true }))}>{t("member.settings.signOut")}</button>
       </nav>
-      <Outlet />
-    </>
+      <div className="admin-content">
+        <Outlet />
+      </div>
+    </div>
   );
 }
 
@@ -118,8 +120,10 @@ export function AdminOverview() {
       <h1>{t("screens.C2")}</h1>
       {data && (
         <>
-          <p>{t("admin.overview.active", { count: data.activeSessions })}</p>
-          <p>{t("admin.overview.today", { count: data.sessionsToday })}</p>
+          <div className="stat-grid">
+            <p className="stat">{t("admin.overview.active", { count: data.activeSessions })}</p>
+            <p className="stat">{t("admin.overview.today", { count: data.sessionsToday })}</p>
+          </div>
           <h2>{t("screens.C3")}</h2>
           <ul>
             {data.stations.map((s) => (
@@ -468,6 +472,7 @@ export function AdminTemplateEdit() {
         {t("admin.templates.addBlock")}
       </button>
       <button
+        className="primary"
         disabled={!name.trim() || blocks.length === 0}
         onClick={async () => {
           try {

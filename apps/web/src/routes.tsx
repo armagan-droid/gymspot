@@ -1,7 +1,7 @@
 import { type ReactNode, Suspense, lazy } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, Route, Routes } from "react-router";
-import { AdminLayout, MemberLayout, StationLayout } from "./components/Layouts";
+import { AdminLayout, BrandMark, MemberLayout, StationLayout } from "./components/Layouts";
 import { SettingsPanel } from "./components/Settings";
 
 
@@ -53,11 +53,18 @@ function Home() {
   const { t } = useTranslation();
   return (
     <main className="home">
-      <h1>{t("app.name")}</h1>
-      <nav>
-        <Link to="/station">{t("areas.station")}</Link>
-        <Link to="/member">{t("areas.member")}</Link>
-        <Link to="/admin">{t("areas.admin")}</Link>
+      <div className="hero">
+        <BrandMark size={72} />
+        <h1>{t("app.name")}</h1>
+        <p className="tagline">{t("app.tagline")}</p>
+      </div>
+      <nav className="role-cards">
+        {(["member", "station", "admin"] as const).map((area) => (
+          <Link key={area} to={`/${area}`} className="role-card" aria-label={t(`areas.${area}`)}>
+            <strong>{t(`areas.${area}`)}</strong>
+            <span>{t(`home.${area}`)}</span>
+          </Link>
+        ))}
       </nav>
       <SettingsPanel />
     </main>

@@ -1,4 +1,4 @@
-# AI Gym
+# GymSpot
 
 Spor salonları için B2B SaaS: programa bağlı, kamerayla tekrar sayan ve formu anlık düzelten istasyon koçu. Telefon ve tablette çalışan PWA.
 

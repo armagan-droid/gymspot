@@ -1,8 +1,9 @@
 {
   "app": {
-    "name": "AI Gym",
+    "name": "GymSpot",
     "home": "Home",
-    "notFound": "Page not found"
+    "notFound": "Page not found",
+    "tagline": "Smart station coach for your gym: counts reps and corrects form in real time."
   },
   "areas": {
     "station": "Station",
@@ -317,5 +318,10 @@
     "repsTimed": "Reps done (timed exercise)",
     "save": "Save set",
     "skip": "Skip this exercise"
+  },
+  "home": {
+    "station": "The fixed tablet at a station. Runs the exercise handed over from the member's phone.",
+    "member": "Your program, sessions, history and progress.",
+    "admin": "Stations, members, program templates and gym settings."
   }
 }

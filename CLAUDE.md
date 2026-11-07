@@ -1,4 +1,4 @@
-# AI Gym — Proje Kuralları (Claude Code için)
+# GymSpot — Proje Kuralları (Claude Code için)
 
 Spor salonları için **B2B SaaS**: üyeyi programına göre yönlendiren, tekrarı sayan ve hareket formunu anlık düzelttiren istasyon koçu. Telefon ve tablette çalışan web uygulaması (PWA).
 

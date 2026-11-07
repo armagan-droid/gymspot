@@ -1,11 +1,27 @@
 import { useTranslation } from "react-i18next";
 import { Link, Outlet } from "react-router";
 
+/** GymSpot mark: a spot in a ring (same as public/icon.svg). */
+export function BrandMark({ size = 28 }: { size?: number }) {
+  return (
+    <svg className="brand-mark" width={size} height={size} viewBox="0 0 512 512" aria-hidden="true">
+      <rect width="512" height="512" rx="112" fill="#0b0d10" />
+      <circle cx="256" cy="256" r="150" fill="none" stroke="#c4f82a" strokeWidth="44" />
+      <circle cx="256" cy="256" r="58" fill="#c4f82a" />
+    </svg>
+  );
+}
+
 function Header({ area }: { area: "station" | "member" | "admin" }) {
   const { t } = useTranslation();
   return (
     <header className="app-header">
-      <Link to="/">{t("app.name")}</Link>
+      <Link to="/" className="brand" aria-label={t("app.name")}>
+        <BrandMark />
+        <span className="wordmark" aria-hidden="true">
+          Gym<span>Spot</span>
+        </span>
+      </Link>
       <span className="area">{t(`areas.${area}`)}</span>
     </header>
   );

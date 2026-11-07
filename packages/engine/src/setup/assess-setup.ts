@@ -27,6 +27,8 @@ export interface SetupAssessment {
   hints: SetupHint[];
   /** Fault ids evaluated in the detected view, in rule pack order. */
   activeFaults: string[];
+  /** Landmark indices that must be visible (for the A3 overlay). */
+  requiredLandmarks: number[];
 }
 
 export const SETUP_CHECKS = { passRatio: 0.8, edgeMargin: 0.02, minSpread: 0.45 } as const;
@@ -81,6 +83,8 @@ export function assessSetup(samples: readonly SetupSample[], pack: RulePack): Se
     const limit = samples.length * (1 - SETUP_CHECKS.passRatio);
     for (const h of HINT_ORDER) if ((failures.get(h) ?? 0) > limit || samples.length === 0) hints.push(h);
     if (samples.length === 0) hints.splice(0, hints.length, "setup.hint.show_full_body");
+    // mixed causes can fail the ratio while each stays under its own limit: name the most frequent
+    if (hints.length === 0) hints.push(HINT_ORDER.reduce((best, h) => ((failures.get(h) ?? 0) > (failures.get(best) ?? 0) ? h : best)));
   }
   if (frames.length > 0 && !viewOk) {
     if (view === "ambiguous") hints.push("setup.hint.adjust_angle");
@@ -93,5 +97,6 @@ export function assessSetup(samples: readonly SetupSample[], pack: RulePack): Se
     nearSide,
     hints,
     activeFaults: pack.faults.filter((f) => faultEnabledInView(f.views ?? views, view)).map((f) => f.id),
+    requiredLandmarks: required,
   };
 }

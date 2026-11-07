@@ -87,11 +87,15 @@ export class SessionRunner {
     this.send({ type: "TICK", now: this.o.now() });
   }
 
+  /** The person selected from the latest camera result (for the skeleton overlay). */
+  lastFrame: Frame | null = null;
+
   /** One camera result: zero or more people. `t` is the frame timestamp (ms). */
   pushCandidates(candidates: readonly Frame[], t: number): void {
     this.tick();
     const sel = selectPerson(candidates, this.track);
     this.track = sel.track;
+    this.lastFrame = sel.frame;
 
     this.lastPersonAt ??= t;
     if (sel.frame) {

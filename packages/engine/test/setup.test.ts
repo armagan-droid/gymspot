@@ -153,3 +153,22 @@ describe("assessSetup (specs/08 A3)", () => {
     expect(assessSetup([], pack("squat"))).toMatchObject({ ready: false, hints: ["setup.hint.show_full_body"] });
   });
 });
+
+describe("assessSetup: never stuck without a hint", () => {
+  test("mixed failures below each hint's own limit still name the most frequent one", () => {
+    const ok = squatFrame({ kneeAngle: 170 }, { view: "front" });
+    const hidden = setVisibility(ok, ["left_ankle", "right_ankle"], 0.1); // show_full_body
+    const edge = transform(ok, 1, 0, 0.5); // pushed off the bottom: step_back
+    // 30 samples: 21 pass (70 % < 80 %), 5 + 4 failures, each ≤ the 20 % limit (6)
+    const frames = [...Array<Frame>(21).fill(ok), ...Array<Frame>(5).fill(hidden), ...Array<Frame>(4).fill(edge)];
+    const a = assessSetup(second(frames), pack("squat"));
+    expect(a.ready).toBe(false);
+    expect(a.hints[0]).toBe("setup.hint.show_full_body");
+  });
+
+  test("lists the required landmark indices for the overlay", () => {
+    const a = assessSetup(second(oneSecond(() => squatFrame({ kneeAngle: 170 }, { view: "front" }))), pack("squat"));
+    expect(a.requiredLandmarks.length).toBe(pack("squat").camera.minVisibleLandmarks.length);
+    expect(a.requiredLandmarks.every((i) => i >= 0 && i < LANDMARK_NAMES.length)).toBe(true);
+  });
+});

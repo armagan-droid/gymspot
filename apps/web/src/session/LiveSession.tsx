@@ -3,6 +3,7 @@ import type { RulePack } from "@gymspot/shared";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useServices } from "../services";
+import { clearOverlay, paintOverlay } from "../pose/overlay";
 import { createCuePlayer } from "./audio";
 import type { SessionRunner } from "./runner";
 import { type ShowCommand, SessionView } from "./SessionView";
@@ -19,10 +20,14 @@ export interface LiveSessionProps {
 }
 
 export function LiveSession({ runner, packs, bindCommands, onState }: LiveSessionProps) {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const services = useServices();
   const videoRef = useRef<HTMLVideoElement>(null);
   const mutedRef = useRef(false);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  // skeleton layer: on by default, switchable (specs/08 A5)
+  const skeletonRef = useRef(true);
+  const [skeleton, setSkeleton] = useState(true);
   const [muted, setMuted] = useState(false);
   const [lastShow, setLastShow] = useState<ShowCommand | null>(null);
   const [state, setState] = useState(runner.state);
@@ -63,7 +68,15 @@ export function LiveSession({ runner, packs, bindCommands, onState }: LiveSessio
       lock = await (navigator as Navigator & { wakeLock?: { request(t: "screen"): Promise<{ release(): Promise<void> }> } }).wakeLock
         ?.request("screen")
         .catch(() => undefined);
-      await source.start(video, (candidates, t) => runner.pushCandidates(candidates, t));
+      await source.start(video, (candidates, t) => {
+        runner.pushCandidates(candidates, t);
+        const canvas = canvasRef.current;
+        if (!canvas || !video) return;
+        if (!skeletonRef.current) return clearOverlay(canvas);
+        const block = runner.state.config.workout.blocks[runner.state.cursor.blockIndex];
+        const pack = block && packs[block.exerciseId];
+        paintOverlay(canvas, video, runner.lastFrame, { minVisibility: pack?.camera.minVisibility ?? 0.5 });
+      });
     })();
     return () => {
       cancelled = true;
@@ -76,7 +89,20 @@ export function LiveSession({ runner, packs, bindCommands, onState }: LiveSessio
 
   return (
     <div className="live-session">
-      <video ref={videoRef} muted playsInline autoPlay className="camera-preview" />
+      <div className="camera-stage">
+        <video ref={videoRef} muted playsInline autoPlay className="camera-preview" />
+        <canvas ref={canvasRef} className="pose-overlay" aria-hidden="true" data-testid="pose-overlay" />
+        <button
+          className="skeleton-toggle"
+          aria-pressed={skeleton}
+          onClick={() => {
+            skeletonRef.current = !skeletonRef.current;
+            setSkeleton(skeletonRef.current);
+          }}
+        >
+          {t(skeleton ? "session.skeletonOn" : "session.skeletonOff")}
+        </button>
+      </div>
       <SessionView
         state={state}
         packs={packs}

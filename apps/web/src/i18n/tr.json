@@ -73,7 +73,9 @@
     "paused": "Duraklatıldı",
     "readyNow": "Hazırım",
     "soundOn": "Ses açık",
-    "soundOff": "Ses kapalı"
+    "soundOff": "Ses kapalı",
+    "skeletonOn": "İskelet açık",
+    "skeletonOff": "İskelet kapalı"
   },
   "summary": {
     "set": "{{counted}} tekrar · {{valid}} temiz"

@@ -1,8 +1,9 @@
-import { type ExerciseSetup, type PersonTrack, type SetupAssessment, type SetupSample, assessSetup, selectPerson } from "@gymspot/engine";
+import { type ExerciseSetup, type PersonTrack, SETUP_CHECKS, type SetupAssessment, type SetupSample, assessSetup, selectPerson } from "@gymspot/engine";
 import type { RulePack } from "@gymspot/shared";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { type CameraFailure, type CameraResult, requestCamera as defaultRequestCamera } from "../camera";
+import { paintOverlay } from "../pose/overlay";
 import type { PoseSource } from "../pose/source";
 
 // A3 camera setup (specs/08): consent gate (AC-7.4), camera errors with manual
@@ -25,6 +26,7 @@ type Phase = { kind: "starting" } | { kind: "error"; reason: CameraFailure } | {
 export function SetupWizard({ pack, consent, source, requestCamera = defaultRequestCamera, onReady, onManualEntry }: SetupWizardProps) {
   const { t, i18n } = useTranslation();
   const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const [phase, setPhase] = useState<Phase>({ kind: "starting" });
   const [assessment, setAssessment] = useState<SetupAssessment | null>(null);
   // Latest callbacks without restarting the camera on every render.
@@ -59,7 +61,15 @@ export function SetupWizard({ pack, consent, source, requestCamera = defaultRequ
         track = sel.track;
         samples.push({ frame: sel.frame, ambiguous: sel.ambiguous, t: now });
         while (samples.length > 0 && now - samples[0]!.t > WINDOW_MS) samples.shift();
-        setAssessment(assessSetup(samples, deps.current.pack));
+        const a = assessSetup(samples, deps.current.pack);
+        setAssessment(a);
+        if (canvasRef.current && video) {
+          paintOverlay(canvasRef.current, video, sel.frame, {
+            minVisibility: deps.current.pack.camera.minVisibility,
+            required: a.requiredLandmarks,
+            guide: { margin: SETUP_CHECKS.edgeMargin, ready: a.ready },
+          });
+        }
       });
     })();
 
@@ -97,7 +107,10 @@ export function SetupWizard({ pack, consent, source, requestCamera = defaultRequ
     <section data-screen="A3">
       <h1>{t("screens.A3")}</h1>
       <p>{pack.camera.setupHint[lang]}</p>
-      <video ref={videoRef} muted playsInline autoPlay className="camera-preview" />
+      <div className="camera-stage">
+        <video ref={videoRef} muted playsInline autoPlay className="camera-preview" />
+        <canvas ref={canvasRef} className="pose-overlay" aria-hidden="true" data-testid="pose-overlay" />
+      </div>
       {assessment && (
         <>
           <p className={assessment.ready ? "status-ready" : "status-wait"} role="status">

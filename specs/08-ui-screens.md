@@ -15,9 +15,9 @@ Rotalar: tablet için `/station` (eşleştirilmemişse A1, sonra A2 → A3 → a
 |---|---|---|---|
 | A1 | Cihaz eşleştirme | Tablet | Yönetici kodu ile cihazı istasyona bağla |
 | A2 | Bekleme / Check-in | Tablet | "Başlamak için telefonundaki QR'ı kameraya göster". Tablet, üye telefonundaki imzalı QR'ı okur (çevrimdışı da çalışır, 07) |
-| A3 | Kamera kurulum sihirbazı | Her ikisi | Kamera önizleme + çizgisel çerçeve, "tüm vücudun görünüyor" kontrolü, mesafe/açı ipucu, algılanan görünüm (önden/yandan) ve bu görünümde hangi form kontrollerinin aktif olduğu. Görünüm hareketin desteklediği listede değilse set başlamaz (04) |
+| A3 | Kamera kurulum sihirbazı | Her ikisi | Kamera önizleme + çizgisel çerçeve (önizlemenin üstünde algılanan iskelet ve kenar payını gösteren kılavuz çerçeve; çerçeve hazırken yeşil, değilken sarı; görünmeyen zorunlu eklemler kırmızı), "tüm vücudun görünüyor" kontrolü, mesafe/açı ipucu, algılanan görünüm (önden/yandan) ve bu görünümde hangi form kontrollerinin aktif olduğu. Görünüm hareketin desteklediği listede değilse set başlamaz (04) |
 | A4 | Antrenman özeti (başlamadan) | Her ikisi | Bugünün programı, ilk hareket, "Başla" |
-| A5 | **Aktif set** | Her ikisi | Kamera + iskelet katmanı (açılabilir), büyük tekrar sayacı (x / hedef), set sayısı, anlık uyarı bandı, yarım tekrar için kısa "sayılmadı" işareti, ses/duraklat/seti bitir düğmeleri |
+| A5 | **Aktif set** | Her ikisi | Kamera + iskelet katmanı (öntanımlı açık, düğmeyle kapatılabilir), büyük tekrar sayacı (x / hedef), set sayısı, anlık uyarı bandı, yarım tekrar için kısa "sayılmadı" işareti, ses/duraklat/seti bitir düğmeleri |
 | A6 | Dinlenme | Her ikisi | Geri sayım, sonraki set/hareket önizleme, "Hazırım", set özeti |
 | A7 | Sıradaki istasyona geç | Her ikisi | "Sıradaki: Squat Rafı 2". Telefonda handoff QR'ı, tablette "Telefonundan devam et" |
 | A8 | Seans sonu özeti | Her ikisi | Toplam set/tekrar, temiz tekrar oranı, en sık hata, "Çıkış" |
@@ -50,6 +50,7 @@ Rotalar: tablet için `/station` (eşleştirilmemişse A1, sonra A2 → A3 → a
 
 ## A3 kurulum kontrolleri
 Son 1 sn'lik karelerin en az %80'i aşağıdakilerin hepsini sağlıyorsa kurulum **hazırdır**:
+- **İpucu her zaman var:** kurulum hazır değilse en az bir ipucu gösterilir. Hiçbir sorun tek başına sınırı aşmıyor ama oran yine de tutmuyorsa (karışık nedenler) en sık görülen sorunun ipucu gösterilir.
 - **Tüm vücut görünüyor:** kural paketindeki `minVisibleLandmarks` noktalarının hepsi `minVisibility` üstünde ve görüntünün içinde (kenarlardan %2 pay). İpucu: `setup.hint.show_full_body`.
 - **Çok uzak değil:** görünen noktaları içine alan kutunun uzun kenarı (yatay veya dikey) görüntünün en az %45'i. Uzun kenar kullanılır, çünkü şınav gibi yatay hareketlerde vücut dikeyde kısa kalır. İpucu: `setup.hint.move_closer`.
 - **Çok yakın değil:** `minVisibleLandmarks` noktalarından biri kenar payının dışındaysa `setup.hint.step_back`.

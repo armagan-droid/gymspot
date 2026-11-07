@@ -73,7 +73,9 @@
     "paused": "Paused",
     "readyNow": "I'm ready",
     "soundOn": "Sound on",
-    "soundOff": "Sound off"
+    "soundOff": "Sound off",
+    "skeletonOn": "Skeleton on",
+    "skeletonOff": "Skeleton off"
   },
   "summary": {
     "set": "{{counted}} reps · {{valid}} clean"

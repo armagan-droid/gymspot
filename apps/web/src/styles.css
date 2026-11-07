@@ -118,6 +118,27 @@ main {
   background: #000;
 }
 
+/* skeleton / guide frame over the preview (specs/08 A3, A5) */
+.camera-stage {
+  position: relative;
+}
+.camera-stage .camera-preview {
+  display: block;
+}
+.pose-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.skeleton-toggle {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  opacity: 0.85;
+}
+
 /* phone portrait: camera on top, counter below; landscape/tablet: side by side (specs/08) */
 @media (orientation: landscape) {
   .active-set {

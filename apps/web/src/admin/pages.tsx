@@ -1,3 +1,4 @@
+import QRCode from "qrcode";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, NavLink, Navigate, Outlet, useNavigate, useParams, useSearchParams } from "react-router";
@@ -268,6 +269,7 @@ export function AdminMemberDetail() {
       <p>
         {data.member.email} · {t(data.member.cameraConsent ? "member.settings.consentOn" : "admin.members.noConsent")}
       </p>
+      {isManager && <LoginLinkPanel memberId={memberId} />}
       <h2>{t("admin.detail.topFaults")}</h2>
       <ul>
         {data.insights.topFaults.map((f) => (
@@ -332,6 +334,47 @@ export function AdminMemberDetail() {
       )}
       {done && <p role="status">{done}</p>}
     </section>
+  );
+}
+
+/** AC-7.7: a fresh sign-in link for the member, shown once (link, copy, QR). */
+function LoginLinkPanel({ memberId }: { memberId: string }) {
+  const { t } = useTranslation();
+  const { staff } = useServices();
+  const [issued, setIssued] = useState<{ link: string; expiresAt: string; qr: string } | null>(null);
+  const [copied, setCopied] = useState(false);
+  return (
+    <div className="login-link">
+      <button
+        onClick={async () => {
+          const r = await staff.memberLoginLink(memberId);
+          const svg = await QRCode.toString(r.link, { type: "svg", errorCorrectionLevel: "M", margin: 2 });
+          setCopied(false);
+          setIssued({ ...r, qr: `data:image/svg+xml;utf8,${encodeURIComponent(svg)}` });
+        }}
+      >
+        {t("admin.detail.loginLink")}
+      </button>
+      {issued && (
+        <>
+          <p className="disclaimer">{t("admin.detail.loginLinkHint")}</p>
+          <img className="login-link-qr" src={issued.qr} alt={t("admin.detail.loginLinkQr")} width={220} height={220} />
+          <label>
+            {t("admin.detail.loginLinkLabel")}
+            <input readOnly value={issued.link} onFocus={(e) => e.target.select()} />
+          </label>
+          <button
+            onClick={async () => {
+              await navigator.clipboard?.writeText(issued.link);
+              setCopied(true);
+            }}
+          >
+            {t(copied ? "admin.detail.copied" : "admin.detail.copy")}
+          </button>{" "}
+          <span>{t("admin.stations.expires", { at: new Date(issued.expiresAt).toLocaleTimeString() })}</span>
+        </>
+      )}
+    </div>
   );
 }
 

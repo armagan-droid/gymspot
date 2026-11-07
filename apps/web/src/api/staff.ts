@@ -65,6 +65,8 @@ export interface StaffApi {
   members(q?: string): Promise<MemberRow[]>;
   createMember(body: { displayName: string; email?: string; invite?: boolean }): Promise<MemberRow>;
   member(id: string): Promise<MemberRow>;
+  /** AC-7.7: a fresh single-use sign-in link (15 min), shown once to a manager. */
+  memberLoginLink(id: string): Promise<{ link: string; expiresAt: string }>;
   memberSessions(id: string): Promise<SessionSummary[]>;
   memberInsights(id: string): Promise<{ topFaults: { exerciseId: string; faultId: string; count: number }[]; weeklySessions: { week: string; sessions: number }[] }>;
   trainers(): Promise<{ id: string; email: string }[]>;
@@ -153,6 +155,7 @@ export function createStaffApi({ baseUrl, store, fetchFn = fetch }: { baseUrl: s
     members: (s) => call("GET", `/members${s ? `?q=${q(s)}` : ""}`),
     createMember: (body) => call("POST", "/members", body),
     member: (id) => call("GET", `/members/${q(id)}`),
+    memberLoginLink: (id) => call("POST", `/members/${q(id)}/login-link`),
     memberSessions: (id) => call("GET", `/members/${q(id)}/sessions`),
     memberInsights: (id) => call("GET", `/members/${q(id)}/insights`),
     trainers: () => call("GET", "/trainers"),

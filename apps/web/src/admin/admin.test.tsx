@@ -142,6 +142,34 @@ describe("C4–C6", () => {
     fireEvent.click(screen.getByRole("button", { name: "Antrenör ata" }));
     await vi.waitFor(() => expect(assignTrainer).toHaveBeenCalledWith("m1", "u2"));
   });
+
+  test("AC-7.7: a manager creates a sign-in link to copy or scan; trainers don't get the button", async () => {
+    const link = "https://app.test/member/login?token=aaaa.bbbb";
+    const memberLoginLink = vi.fn(async () => ({ link, expiresAt: "2026-11-06T10:15:00.000Z" }));
+    const writeText = vi.fn(async () => undefined);
+    Object.defineProperty(navigator, "clipboard", { configurable: true, value: { writeText } });
+    const detail = {
+      member: vi.fn(async () => member),
+      memberSessions: vi.fn(async () => []),
+      memberInsights: vi.fn(async () => ({ topFaults: [], weeklySessions: [] })),
+      templates: vi.fn(async () => []),
+      trainers: vi.fn(async () => []),
+      memberLoginLink,
+    };
+    renderAt("/admin/members/m1", as("manager", detail));
+    fireEvent.click(await screen.findByRole("button", { name: "Giriş bağlantısı oluştur" }));
+    expect(((await screen.findByLabelText("Giriş bağlantısı")) as HTMLInputElement).value).toBe(link);
+    expect(memberLoginLink).toHaveBeenCalledWith("m1");
+    expect(screen.getByRole("img", { name: "Giriş bağlantısı QR kodu" }).getAttribute("src")).toMatch(/^data:image\/svg\+xml/);
+    fireEvent.click(screen.getByRole("button", { name: "Kopyala" }));
+    await vi.waitFor(() => expect(writeText).toHaveBeenCalledWith(link));
+    expect(await screen.findByRole("button", { name: "Kopyalandı" })).toBeTruthy();
+    cleanup();
+
+    renderAt("/admin/members/m1", as("trainer", detail));
+    expect(await screen.findByRole("heading", { name: "Ayşe Yılmaz" })).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Giriş bağlantısı oluştur" })).toBeNull();
+  });
 });
 
 describe("C5 templates", () => {

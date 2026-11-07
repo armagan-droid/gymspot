@@ -253,7 +253,13 @@
       "programAssigned": "Program atandı.",
       "trainer": "Antrenör",
       "assignTrainer": "Antrenör ata",
-      "trainerAssigned": "Antrenör atandı."
+      "trainerAssigned": "Antrenör atandı.",
+      "loginLink": "Giriş bağlantısı oluştur",
+      "loginLinkHint": "Bağlantı 15 dakika geçerli ve tek kullanımlık. Yalnızca üyeye ver; en güvenlisi üyenin QR kodu kendi telefonuyla okutması.",
+      "loginLinkQr": "Giriş bağlantısı QR kodu",
+      "loginLinkLabel": "Giriş bağlantısı",
+      "copy": "Kopyala",
+      "copied": "Kopyalandı"
     },
     "templates": {
       "new": "Yeni şablon",

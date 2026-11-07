@@ -42,7 +42,7 @@ Rotalar: tablet için `/station` (eşleştirilmemişse A1, sonra A2 → A3 → a
 | C3 | İstasyonlar | Yönetici | Liste, cihaz durumu (heartbeat), eşleştirme, hareket ataması |
 | C4 | Üyeler | Yönetici/Antrenör | Arama, üye detayı, program atama |
 | C5 | Program şablonları | Antrenör | Şablon oluştur/düzenle (hareket, set, tekrar, dinlenme, mod) |
-| C6 | Üye detayı | Antrenör | Seans geçmişi, son 30 günün en sık hataları, haftalık seans sayısı (son 8 hafta), antrenör ataması, program atama |
+| C6 | Üye detayı | Antrenör | Seans geçmişi, son 30 günün en sık hataları, haftalık seans sayısı (son 8 hafta), antrenör ataması, program atama; yönetici/sahip için "Giriş bağlantısı oluştur" (bağlantı + kopyala + QR, 15 dk geçerli, 07) |
 | C7 | Analitik | Yönetici | İstasyon kullanımı (saat bazlı), aktif üye oranı, devamlılık |
 | C8 | Ayarlar | Sahip | Kullanıcılar (personel ekleme), strict/lenient varsayılanı (yeni şablon bloklarında öntanımlı), saklama süresi (ay, varsayılan 24), güvenlik duraklatması açık/kapalı (05; telefona programla, tablete tenant anahtarıyla iletilir), bilgilendirme metni şablonu, üye veri talepleri |
 | C9 | Faturalama | Sahip | Plan, istasyon sayısı, faturalar |

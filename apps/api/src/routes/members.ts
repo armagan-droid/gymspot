@@ -3,7 +3,7 @@ import { type Kysely, sql } from "kysely";
 import { z } from "zod";
 import { requireAuth } from "../auth/guard";
 import { createMagicLink } from "../auth/magic-link";
-import type { AccessTokens } from "../auth/tokens";
+import { type AccessTokens, MAGIC_LINK_TTL_MS } from "../auth/tokens";
 import type { AppConfig } from "../config";
 import { type Database, withTenant } from "../db/db";
 import { type Trx, auth, canSeeMember, isUniqueViolation, notFound, parse } from "./common";
@@ -87,6 +87,26 @@ export function memberRoutes(db: Kysely<Database>, config: AppConfig, tokens: Ac
         if (isUniqueViolation(e)) return reply.code(409).send({ error: "email_taken" });
         throw e;
       }
+    });
+
+    // AC-7.7: a fresh sign-in link shown once to a manager (e-mail not delivered, member at the desk)
+    app.post("/members/:id/login-link", { preHandler: managers }, async (req, reply) => {
+      const id = parse(uuid, (req.params as { id: string }).id, reply);
+      if (!id) return;
+      const ctx = auth(req);
+      const token = await withTenant(db, ctx.tid, async (trx) => {
+        const member = (await sql<{ id: string }>`select id from members where id = ${id} and status <> 'anonymized'`.execute(trx)).rows[0];
+        if (!member) return null;
+        const t = await createMagicLink(trx, ctx.tid, member.id, config.now());
+        await sql`insert into audit_log (tenant_id, actor, action, target)
+                  values (${ctx.tid}, ${`user:${ctx.sub}`}, 'member_login_link_created', ${`member:${member.id}`})`.execute(trx);
+        return t;
+      });
+      if (!token) return notFound(reply);
+      return reply.code(201).send({
+        link: `${config.appBaseUrl}/member/login?token=${encodeURIComponent(token)}`,
+        expiresAt: new Date(config.now() + MAGIC_LINK_TTL_MS).toISOString(),
+      });
     });
 
     app.get("/members", { preHandler: staff }, async (req, reply) => {

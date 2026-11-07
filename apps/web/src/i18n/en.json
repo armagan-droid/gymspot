@@ -253,7 +253,13 @@
       "programAssigned": "Program assigned.",
       "trainer": "Trainer",
       "assignTrainer": "Assign trainer",
-      "trainerAssigned": "Trainer assigned."
+      "trainerAssigned": "Trainer assigned.",
+      "loginLink": "Create sign-in link",
+      "loginLinkHint": "The link is valid for 15 minutes and works once. Give it only to the member; safest is to scan the QR code with their own phone.",
+      "loginLinkQr": "Sign-in link QR code",
+      "loginLinkLabel": "Sign-in link",
+      "copy": "Copy",
+      "copied": "Copied"
     },
     "templates": {
       "new": "New template",

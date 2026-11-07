@@ -451,6 +451,19 @@ main [data-screen="A1"] > form {
   font-weight: 800;
   letter-spacing: 0.12em;
 }
+.login-link {
+  margin: 1rem 0;
+  padding: 1rem 1.25rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.login-link-qr {
+  display: block;
+  margin: 0.75rem 0;
+  border-radius: 12px;
+  background: #fff;
+}
 .notice-template {
   margin: 0;
   padding: 1rem 1.25rem;

@@ -46,6 +46,7 @@ Eşik kalibrasyonu ve test fixture'ları (AC-4.3) gerçek landmark verisi gerekt
 - **Erişim token'ı:** JWT (HS256), 15 dk. İçerik: `sub`, `tid` (tenant), `kind` (`user` | `member` | `device`) ve personel için `role`.
 - **Yenileme token'ı:** `<tenantId>.<rastgele 32 bayt>`. Tenant öneki, aramanın RLS altında doğru tenant'ta yapılmasını sağlar. Yalnız SHA-256 özeti saklanır. Her kullanımda yenisiyle değiştirilir (eskisi iptal), ömrü 30 gündür.
 - **Magic link token'ı:** aynı biçim; tek kullanımlık, 15 dk. İstek her zaman `202` döner, böylece e-postanın kayıtlı olup olmadığı dışarıdan anlaşılmaz.
+- **Personelin ürettiği giriş bağlantısı:** e-posta ulaşmadığında ya da üye salondayken yönetici/sahip üye detayından (C6) yeni bir magic link üretebilir; bağlantı ve QR kodu yalnız o yanıtta bir kez gösterilir (token yalnız hash'li saklandığı için eski bağlantı gösterilemez). Aynı kurallar geçerlidir: tek kullanımlık, 15 dk. Antrenör üretemez, silinmiş/anonimleştirilmiş üye için üretilemez, her üretim `audit_log`'a (`member_login_link_created`) yazılır. Bağlantı üye adına giriş sağladığı için yalnız üyeye verilmelidir; QR ile üyenin kendi telefonunda okutulması önerilir.
 - **Personel giriş kilidi:** aynı tenant ve e-posta için 15 dk içinde 5 başarısız denemeden sonra 15 dk kilit (`429`). Başarılı ve başarısız girişler `audit_log`'a yazılır.
 - **Cihaz eşleştirme:** yönetici istasyon için 8 karakterlik, 10 dk geçerli, tek kullanımlık bir kod üretir. Kod tenant bilgisi taşımadığından, yalnız tenant kimliğini döndüren dar bir `SECURITY DEFINER` fonksiyonla çözülür. Tablet karşılığında uzun ömürlü bir cihaz token'ı alır (biçim yukarıdaki gibi). Bu token ile 15 dk'lık cihaz erişim token'ı istenir. Yönetici cihazı silerek token'ı iptal eder.
 
@@ -75,3 +76,4 @@ Eşik kalibrasyonu ve test fixture'ları (AC-4.3) gerçek landmark verisi gerekt
 - AC-7.4: Rıza yoksa veya geri çekildiyse kamera başlatılmaz (UI testi).
 - AC-7.5: Kalibrasyon kaydı personel rolü ve kalibrasyon rızası olmadan başlatılamaz; kayıtta görüntü verisi bulunmaz (test).
 - AC-7.6: Magic link ikinci kullanımda ve 15 dk sonra reddedilir.
+- AC-7.7: Personelin ürettiği giriş bağlantısı yalnız yönetici/sahip tarafından, yalnız kendi salonunun aktif üyesi için üretilir, denetim kaydına yazılır ve AC-7.6'ya uyar.

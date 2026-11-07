@@ -189,12 +189,22 @@ describe("faults", () => {
       delete f.minConsecutiveReps;
     }
     delete p.camera.minVisibility;
+    delete p.camera.posture;
     const parsed = parseRulePack(p);
     expect(parsed.camera.minVisibility).toBe(0.6);
+    expect(parsed.camera.posture).toBe("standing");
     for (const f of parsed.faults) {
       expect(f.cooldownMs).toBe(4000);
       expect(f.minConsecutiveReps).toBe(1);
     }
+  });
+
+  test("camera.posture accepts standing or horizontal only", () => {
+    const p = squat();
+    p.camera.posture = "horizontal";
+    expect(parseRulePack(p).camera.posture).toBe("horizontal");
+    p.camera.posture = "sitting";
+    expectInvalid(p, "camera.posture");
   });
 
   test("holdMs defaults to 150 for during_rep faults only", () => {

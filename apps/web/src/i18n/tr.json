@@ -101,7 +101,8 @@
       "move_closer": "Biraz yaklaş",
       "turn_side": "Yan dön, kamera seni yandan görsün",
       "face_camera": "Kameraya dön",
-      "adjust_angle": "Kameraya tam önden ya da tam yandan dur"
+      "adjust_angle": "Kameraya tam önden ya da tam yandan dur",
+      "rotate_phone": "Telefonu yan çevir"
     }
   },
   "camera": {

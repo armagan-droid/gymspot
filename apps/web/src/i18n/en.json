@@ -101,7 +101,8 @@
       "move_closer": "Come a little closer",
       "turn_side": "Turn sideways so the camera sees your side",
       "face_camera": "Face the camera",
-      "adjust_angle": "Stand facing the camera or fully sideways"
+      "adjust_angle": "Stand facing the camera or fully sideways",
+      "rotate_phone": "Turn the phone sideways"
     }
   },
   "camera": {

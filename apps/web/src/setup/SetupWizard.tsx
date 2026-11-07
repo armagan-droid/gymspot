@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { type CameraFailure, type CameraResult, requestCamera as defaultRequestCamera } from "../camera";
 import { paintOverlay } from "../pose/overlay";
 import type { PoseSource } from "../pose/source";
+import { createSetupVoice } from "./voice";
 
 // A3 camera setup (specs/08): consent gate (AC-7.4), camera errors with manual
 // entry (AC-8.3), live checks over the last second, start only when ready (AC-8.5).
@@ -19,19 +20,28 @@ export interface SetupWizardProps {
   requestCamera?: () => Promise<CameraResult>;
   onReady(setup: ExerciseSetup): void;
   onManualEntry(): void;
+  /** Speaks a message key (cue player); hints are read out (specs/08 A3). */
+  speak?(key: string): void;
 }
 
 type Phase = { kind: "starting" } | { kind: "error"; reason: CameraFailure } | { kind: "running" };
 
-export function SetupWizard({ pack, consent, source, requestCamera = defaultRequestCamera, onReady, onManualEntry }: SetupWizardProps) {
+/** A floor exercise filmed in portrait: ask to turn the phone first (specs/08 A3). */
+function withRotateHint(a: SetupAssessment, pack: RulePack, video: HTMLVideoElement | null): SetupAssessment {
+  const portrait = !!video && video.videoHeight > video.videoWidth;
+  if (a.ready || pack.camera.posture !== "horizontal" || !portrait) return a;
+  return { ...a, hints: ["setup.hint.rotate_phone" as SetupAssessment["hints"][number], ...a.hints] };
+}
+
+export function SetupWizard({ pack, consent, source, requestCamera = defaultRequestCamera, onReady, onManualEntry, speak }: SetupWizardProps) {
   const { t, i18n } = useTranslation();
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [phase, setPhase] = useState<Phase>({ kind: "starting" });
   const [assessment, setAssessment] = useState<SetupAssessment | null>(null);
   // Latest callbacks without restarting the camera on every render.
-  const deps = useRef({ source, requestCamera, pack });
-  deps.current = { source, requestCamera, pack };
+  const deps = useRef({ source, requestCamera, pack, speak });
+  deps.current = { source, requestCamera, pack, speak };
 
   useEffect(() => {
     if (!consent) return;
@@ -40,6 +50,7 @@ export function SetupWizard({ pack, consent, source, requestCamera = defaultRequ
     let stream: MediaStream | undefined;
     const samples: (SetupSample & { t: number })[] = [];
     let track: PersonTrack | undefined;
+    const voice = createSetupVoice((key) => deps.current.speak?.(key));
 
     void (async () => {
       const cam = await requestCamera();
@@ -56,18 +67,32 @@ export function SetupWizard({ pack, consent, source, requestCamera = defaultRequ
         }
       }
       setPhase({ kind: "running" });
+      // guidance before the pose model has loaded (it can take seconds on a phone)
+      const paintIdle = () =>
+        canvasRef.current &&
+        video &&
+        paintOverlay(canvasRef.current, video, null, {
+          minVisibility: 1,
+          guide: { margin: SETUP_CHECKS.edgeMargin, ready: false },
+          target: deps.current.pack.camera.posture,
+        });
+      video?.addEventListener?.("loadedmetadata", paintIdle);
+      paintIdle();
       await source.start(video, (candidates, now) => {
         const sel = selectPerson(candidates, track);
         track = sel.track;
         samples.push({ frame: sel.frame, ambiguous: sel.ambiguous, t: now });
         while (samples.length > 0 && now - samples[0]!.t > WINDOW_MS) samples.shift();
-        const a = assessSetup(samples, deps.current.pack);
+        const a = withRotateHint(assessSetup(samples, deps.current.pack), deps.current.pack, video);
         setAssessment(a);
+        voice(a, now);
         if (canvasRef.current && video) {
           paintOverlay(canvasRef.current, video, sel.frame, {
             minVisibility: deps.current.pack.camera.minVisibility,
             required: a.requiredLandmarks,
             guide: { margin: SETUP_CHECKS.edgeMargin, ready: a.ready },
+            target: deps.current.pack.camera.posture,
+            edges: a.edges,
           });
         }
       });
@@ -110,18 +135,26 @@ export function SetupWizard({ pack, consent, source, requestCamera = defaultRequ
       <div className="camera-stage">
         <video ref={videoRef} muted playsInline autoPlay className="camera-preview" />
         <canvas ref={canvasRef} className="pose-overlay" aria-hidden="true" data-testid="pose-overlay" />
+        {assessment && (
+          // large enough to read from the exercise spot (specs/08 A3 görsel yönlendirme)
+          <p className={`setup-banner ${assessment.ready ? "status-ready" : "status-wait"}`} role="status">
+            {t(assessment.ready ? "setup.ready" : (assessment.hints[0] ?? "setup.notReady"))}
+          </p>
+        )}
+        {!assessment && phase.kind === "running" && (
+          <p className="setup-banner status-wait" role="status">
+            {t("setup.notReady")}
+          </p>
+        )}
       </div>
       {assessment && (
         <>
-          <p className={assessment.ready ? "status-ready" : "status-wait"} role="status">
-            {t(assessment.ready ? "setup.ready" : "setup.notReady")}
-          </p>
           <p>
             {t("setup.viewLabel")}: <span>{t(`setup.view.${assessment.view}`)}</span>
           </p>
-          {assessment.hints.length > 0 && (
+          {assessment.hints.length > 1 && (
             <ul className="hints">
-              {assessment.hints.map((h) => (
+              {assessment.hints.slice(1).map((h) => (
                 <li key={h}>{t(h)}</li>
               ))}
             </ul>

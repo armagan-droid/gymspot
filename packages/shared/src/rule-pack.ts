@@ -97,6 +97,8 @@ export const RulePackSchema = z
       views: uniqueViews,
       minVisibleLandmarks: z.array(LandmarkRefSchema).min(1),
       minVisibility: z.number().min(0).max(1).default(DEFAULT_MIN_VISIBILITY),
+      /** Body orientation for the A3 target silhouette (specs/08). */
+      posture: z.enum(["standing", "horizontal"]).default("standing"),
       setupHint: LocalizedTextSchema,
     }),
     metrics: z.record(IdentifierSchema, MetricDefinitionSchema),

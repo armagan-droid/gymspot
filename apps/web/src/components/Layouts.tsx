@@ -12,11 +12,12 @@ function Header({ area }: { area: "station" | "member" | "admin" }) {
 }
 
 /** Station/session screens (A*): disclaimer and "no video stored" are always visible (specs/05, 07). */
-export function StationLayout() {
+/** Camera screens: the station tablet, and the member's phone session (`area="member"`). */
+export function StationLayout({ area = "station" }: { area?: "station" | "member" }) {
   const { t } = useTranslation();
   return (
     <div className="layout layout-station">
-      <Header area="station" />
+      <Header area={area} />
       <main>
         <Outlet />
       </main>

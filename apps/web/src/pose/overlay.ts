@@ -1,3 +1,4 @@
+import type { Edge } from "@gymspot/engine";
 import type { Frame } from "@gymspot/shared";
 
 // Skeleton and guide frame over the camera preview (specs/08 A3, A5).
@@ -20,6 +21,12 @@ export interface OverlayOptions {
   required?: readonly number[];
   /** A3 guide frame: inset by the edge margin, green when ready. */
   guide?: { margin: number; ready: boolean };
+  /** A3 target silhouette: where and how big the person should be. */
+  target?: "standing" | "horizontal";
+  /** A3 edges the body sticks out of (red bands). */
+  edges?: readonly Edge[];
+  /** A5 joints of the fault being cued (red). */
+  highlight?: readonly number[];
 }
 
 export interface OverlayShapes {
@@ -43,7 +50,45 @@ export function overlayShapes(frame: Frame | null, o: OverlayOptions): OverlaySh
   };
 }
 
-const COLORS = { line: "rgba(255,255,255,0.85)", ok: "#4ade80", missing: "#ef4444", ready: "#4ade80", wait: "#facc15" };
+const COLORS = {
+  line: "rgba(255,255,255,0.85)",
+  ok: "#4ade80",
+  missing: "#ef4444",
+  ready: "#4ade80",
+  wait: "#facc15",
+  target: "rgba(255,255,255,0.55)",
+  band: "rgba(239,68,68,0.45)",
+};
+
+type Poly = readonly (readonly [number, number])[];
+interface Silhouette {
+  lines: readonly Poly[];
+  head: { x: number; y: number; r: number };
+}
+/** Target silhouettes in a unit-width box (x right, y down). */
+const SILHOUETTES: Record<"standing" | "horizontal", Silhouette> = {
+  // front-facing figure, 1 tall
+  standing: {
+    lines: [
+      [[0.5, 0.13], [0.5, 0.52]],
+      [[0.36, 0.19], [0.64, 0.19]],
+      [[0.36, 0.19], [0.3, 0.36], [0.28, 0.52]],
+      [[0.64, 0.19], [0.7, 0.36], [0.72, 0.52]],
+      [[0.42, 0.52], [0.58, 0.52]],
+      [[0.42, 0.52], [0.4, 0.76], [0.39, 1]],
+      [[0.58, 0.52], [0.6, 0.76], [0.61, 1]],
+    ],
+    head: { x: 0.5, y: 0.065, r: 0.065 },
+  },
+  // side view plank, floor at y = 0.33
+  horizontal: {
+    lines: [
+      [[0.15, 0.12], [0.55, 0.17], [0.75, 0.205], [0.95, 0.24], [0.98, 0.33]],
+      [[0.15, 0.12], [0.15, 0.22], [0.16, 0.33]],
+    ],
+    head: { x: 0.07, y: 0.09, r: 0.045 },
+  },
+};
 
 /** Paints the overlay onto a canvas laid over a `object-fit: contain` video. */
 export function paintOverlay(canvas: HTMLCanvasElement, video: HTMLVideoElement, frame: Frame | null, o: OverlayOptions): void {
@@ -69,6 +114,17 @@ export function paintOverlay(canvas: HTMLCanvasElement, video: HTMLVideoElement,
   const oy = (ch - h) / 2;
   const at = (p: { x: number; y: number }) => [ox + p.x * w, oy + p.y * h] as const;
 
+  if (o.edges?.length) {
+    const t = Math.max(20, 0.1 * Math.min(w, h));
+    ctx.fillStyle = COLORS.band;
+    for (const e of o.edges) {
+      if (e === "top") ctx.fillRect(ox, oy, w, t);
+      if (e === "bottom") ctx.fillRect(ox, oy + h - t, w, t);
+      if (e === "left") ctx.fillRect(ox, oy, t, h);
+      if (e === "right") ctx.fillRect(ox + w - t, oy, t, h);
+    }
+  }
+  if (o.target) paintTarget(ctx, o.target, ox, oy, w, h, o.target === "horizontal" && frame !== null && facesRight(frame));
   if (o.guide) {
     const m = o.guide.margin;
     ctx.setLineDash([10, 6]);
@@ -94,6 +150,62 @@ export function paintOverlay(canvas: HTMLCanvasElement, video: HTMLVideoElement,
     ctx.fillStyle = p.state === "missing" ? COLORS.missing : COLORS.ok;
     ctx.fill();
   }
+  if (frame && o.highlight?.length) {
+    const hi = new Set(o.highlight);
+    ctx.strokeStyle = COLORS.missing;
+    ctx.lineWidth = 7;
+    for (const [a, b] of POSE_CONNECTIONS) {
+      if (!hi.has(a) || !hi.has(b)) continue;
+      ctx.beginPath();
+      ctx.moveTo(...at(frame.image[a]!));
+      ctx.lineTo(...at(frame.image[b]!));
+      ctx.stroke();
+    }
+    for (const i of hi) {
+      const [x, y] = at(frame.image[i]!);
+      ctx.beginPath();
+      ctx.arc(x, y, 12, 0, Math.PI * 2);
+      ctx.fillStyle = COLORS.missing;
+      ctx.fill();
+    }
+  }
+}
+
+/** Head to the right of the hips (someone lying the other way round). */
+function facesRight(frame: Frame): boolean {
+  const img = frame.image;
+  return img[0]!.x > (img[23]!.x + img[24]!.x) / 2;
+}
+
+/** Dashed figure: 80 % of the picture height (standing) or 85 % of its width lying on the floor (horizontal). */
+function paintTarget(
+  ctx: CanvasRenderingContext2D,
+  posture: "standing" | "horizontal",
+  ox: number,
+  oy: number,
+  w: number,
+  h: number,
+  mirror: boolean,
+): void {
+  const sil = SILHOUETTES[posture];
+  const size = posture === "standing" ? 0.8 * h : Math.min(0.85 * w, (0.85 * h) / 0.33);
+  const left = ox + (w - size) / 2;
+  const top = posture === "standing" ? oy + 0.1 * h : oy + 0.92 * h - 0.33 * size;
+  const at = (x: number, y: number) => [left + (mirror ? 1 - x : x) * size, top + y * size] as const;
+  ctx.save();
+  ctx.setLineDash([12, 8]);
+  ctx.lineWidth = Math.max(3, size * 0.015);
+  ctx.lineCap = "round";
+  ctx.strokeStyle = COLORS.target;
+  for (const line of sil.lines) {
+    ctx.beginPath();
+    line.forEach(([x, y], i) => (i === 0 ? ctx.moveTo(...at(x, y)) : ctx.lineTo(...at(x, y))));
+    ctx.stroke();
+  }
+  ctx.beginPath();
+  ctx.arc(...at(sil.head.x, sil.head.y), sil.head.r * size, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.restore();
 }
 
 /** Clears the canvas (e.g. when the skeleton is switched off). */

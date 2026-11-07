@@ -1,6 +1,6 @@
-import type { ProgramState } from "@gymspot/engine";
+import { type ProgramState, chooseNearSide, faultLandmarks } from "@gymspot/engine";
 import type { RulePack } from "@gymspot/shared";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useServices } from "../services";
 import { clearOverlay, paintOverlay } from "../pose/overlay";
@@ -10,6 +10,9 @@ import { type ShowCommand, SessionView } from "./SessionView";
 
 // Camera + pose source feeding a SessionRunner, with the session screens on top.
 // The runner's commands reach this component through `bindCommands`.
+
+/** How long the joints of a cued fault stay red (specs/08 A5). */
+export const FAULT_HIGHLIGHT_MS = 2500;
 
 export interface LiveSessionProps {
   runner: SessionRunner;
@@ -40,7 +43,20 @@ export function LiveSession({ runner, packs, bindCommands, onState }: LiveSessio
     () => createCuePlayer({ ...services.cueDeps(), packs, i18n, muted: () => mutedRef.current }),
     [services, packs, i18n],
   );
-  useEffect(() => bindCommands({ speak, show: setLastShow }), [bindCommands, speak]);
+  // A5: joints of the cued fault turn red for a moment (specs/08)
+  const highlight = useRef<{ joints: number[]; until: number }>({ joints: [], until: 0 });
+  const show = useCallback(
+    (c: ShowCommand) => {
+      setLastShow(c);
+      const [kind, exerciseId = "", faultId = ""] = c.key.split(".");
+      const pack = packs[exerciseId];
+      if (kind !== "cue" || !pack) return;
+      const near = runner.lastFrame ? chooseNearSide([runner.lastFrame]) : "left";
+      highlight.current = { joints: faultLandmarks(pack, faultId, near), until: performance.now() + FAULT_HIGHLIGHT_MS };
+    },
+    [packs, runner],
+  );
+  useEffect(() => bindCommands({ speak, show }), [bindCommands, speak, show]);
   useEffect(
     () =>
       runner.subscribe((s) => {
@@ -75,7 +91,11 @@ export function LiveSession({ runner, packs, bindCommands, onState }: LiveSessio
         if (!skeletonRef.current) return clearOverlay(canvas);
         const block = runner.state.config.workout.blocks[runner.state.cursor.blockIndex];
         const pack = block && packs[block.exerciseId];
-        paintOverlay(canvas, video, runner.lastFrame, { minVisibility: pack?.camera.minVisibility ?? 0.5 });
+        const hi = highlight.current;
+        paintOverlay(canvas, video, runner.lastFrame, {
+          minVisibility: pack?.camera.minVisibility ?? 0.5,
+          highlight: performance.now() < hi.until ? hi.joints : undefined,
+        });
       });
     })();
     return () => {

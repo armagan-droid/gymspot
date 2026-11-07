@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import type { DeviceCredentials } from "../api/client";
 import { RULE_PACKS } from "../rules";
 import { useServices } from "../services";
+import { createCuePlayer } from "../session/audio";
 import { LiveSession } from "../session/LiveSession";
 import { ManualSession } from "../session/ManualSession";
 import { SessionRunner } from "../session/runner";
@@ -111,9 +112,11 @@ export function StationApp({ returnDelayMs = 5000 }: { returnDelayMs?: number })
 
 function StationSetup({ exerciseId, onReady, onCancel }: { exerciseId: string; onReady(s: ExerciseSetup): void; onCancel(): void }) {
   const services = useServices();
+  const { i18n } = useTranslation();
   const source = useMemo(() => services.createPoseSource(), [services]);
+  const speak = useMemo(() => createCuePlayer({ ...services.cueDeps(), packs, i18n }), [services, i18n]);
   // consent was checked from the server-signed certificate (AC-7.4)
-  return <SetupWizard pack={packs[exerciseId]!} consent source={source} requestCamera={services.requestCamera} onReady={onReady} onManualEntry={onCancel} />;
+  return <SetupWizard pack={packs[exerciseId]!} consent source={source} requestCamera={services.requestCamera} onReady={onReady} onManualEntry={onCancel} speak={speak} />;
 }
 
 function PairScreen({ onPaired }: { onPaired(): void }) {

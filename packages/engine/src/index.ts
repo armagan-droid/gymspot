@@ -12,11 +12,13 @@ export {
 } from "./calibration/evaluate";
 export { type ExerciseEngineOptions, type ExerciseSetup, ExerciseEngine, faultEnabledInView } from "./exercise/exercise-engine";
 export {
+  type Edge,
   type SetupAssessment,
   type SetupHint,
   type SetupSample,
   SETUP_CHECKS,
   assessSetup,
+  faultLandmarks,
 } from "./setup/assess-setup";
 export { PERSON_SELECTION, type PersonSelection, type PersonTrack, personScore, selectPerson } from "./setup/select-person";
 export { FREQUENT_FAULT_STREAK, type SetSummary, summarizeSet } from "./exercise/summary";

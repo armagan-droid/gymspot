@@ -8,6 +8,7 @@
     "views": ["side"],
     "minVisibleLandmarks": ["near_shoulder", "near_elbow", "near_wrist", "near_hip", "near_knee", "near_ankle"],
     "minVisibility": 0.6,
+    "posture": "horizontal",
     "setupHint": {
       "tr": "Kamerayı yere yakın, yan tarafına koy; baştan ayağa tüm vücudun görünsün.",
       "en": "Place the camera low, at your side, so you are fully visible from head to feet."

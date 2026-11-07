@@ -6,6 +6,7 @@ import { Link } from "react-router";
 import type { MemberProgram } from "../api/client";
 import { RULE_PACKS } from "../rules";
 import { useServices } from "../services";
+import { createCuePlayer } from "../session/audio";
 import { LiveSession } from "../session/LiveSession";
 import { ManualSession } from "../session/ManualSession";
 import { SessionRunner } from "../session/runner";
@@ -211,8 +212,18 @@ function OwnerSession({ loaded }: { loaded: Loaded }) {
 
 function PhoneSetup({ exerciseId, consent, onReady, onManualEntry }: { exerciseId: string; consent: boolean; onReady(s: ExerciseSetup): void; onManualEntry(): void }) {
   const services = useServices();
+  const { i18n } = useTranslation();
   const source = useMemo(() => services.createPoseSource(), [services]);
+  const speak = useMemo(() => createCuePlayer({ ...services.cueDeps(), packs, i18n }), [services, i18n]);
   return (
-    <SetupWizard pack={packs[exerciseId]!} consent={consent} source={source} requestCamera={services.requestCamera} onReady={onReady} onManualEntry={onManualEntry} />
+    <SetupWizard
+      pack={packs[exerciseId]!}
+      consent={consent}
+      source={source}
+      requestCamera={services.requestCamera}
+      onReady={onReady}
+      onManualEntry={onManualEntry}
+      speak={speak}
+    />
   );
 }

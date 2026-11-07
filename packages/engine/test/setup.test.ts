@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { type Frame, LANDMARK_NAMES, type LandmarkName } from "@gymspot/shared";
 import { describe, expect, test } from "vitest";
-import { assessSetup, loadRulePack, selectPerson } from "../src/index";
+import { assessSetup, faultLandmarks, loadRulePack, selectPerson } from "../src/index";
 import { pressFrame, pushupFrame, squatFrame } from "../src/testing/index";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -170,5 +170,33 @@ describe("assessSetup: never stuck without a hint", () => {
     const a = assessSetup(second(oneSecond(() => squatFrame({ kneeAngle: 170 }, { view: "front" }))), pack("squat"));
     expect(a.requiredLandmarks.length).toBe(pack("squat").camera.minVisibleLandmarks.length);
     expect(a.requiredLandmarks.every((i) => i >= 0 && i < LANDMARK_NAMES.length)).toBe(true);
+  });
+});
+
+describe("faultLandmarks (A5 highlight)", () => {
+  const at = (n: LandmarkName) => LANDMARK_NAMES.indexOf(n);
+  test("follows the check's metrics down to landmarks, both sides when the check uses both", () => {
+    expect(faultLandmarks(pack("squat"), "knee_valgus", "left").sort((a, b) => a - b)).toEqual(
+      [at("left_hip"), at("left_knee"), at("left_ankle"), at("right_hip"), at("right_knee"), at("right_ankle")].sort((a, b) => a - b),
+    );
+  });
+  test("near_/far_ references resolve with the near side", () => {
+    expect(faultLandmarks(pack("pushup"), "hip_sag", "right")).toEqual(expect.arrayContaining([at("right_hip")]));
+    expect(faultLandmarks(pack("pushup"), "hip_sag", "right")).not.toContain(at("left_hip"));
+  });
+  test("an unknown fault has no landmarks", () => {
+    expect(faultLandmarks(pack("squat"), "nope", "left")).toEqual([]);
+  });
+});
+
+describe("assessSetup: problem edges (A3 guidance)", () => {
+  const ok = squatFrame({ kneeAngle: 170 }, { view: "front" });
+  test("feet below the picture → bottom edge", () => {
+    const a = assessSetup(second(oneSecond(() => transform(ok, 1, 0, 0.3))), pack("squat"));
+    expect(a.edges).toContain("bottom");
+    expect(a.edges).not.toContain("top");
+  });
+  test("a well placed person has no problem edges", () => {
+    expect(assessSetup(second(oneSecond(() => ok)), pack("squat")).edges).toEqual([]);
   });
 });

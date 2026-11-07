@@ -14,6 +14,7 @@ Her hareket `exercises/<id>.json` dosyasıdır. Şema `packages/shared`'te Zod i
     "views": ["front", "side"],      // desteklenen görünümler; ilki önerilen
     "minVisibleLandmarks": ["near_hip", "near_knee", "near_ankle", "near_shoulder"],
     "minVisibility": 0.6,            // opsiyonel, varsayılan 0.6 (MediaPipe visibility)
+    "posture": "standing",           // opsiyonel: "standing" (varsayılan) | "horizontal" (şınav gibi yerde); A3 hedef silueti
     "setupHint": { "tr": "...", "en": "..." }
   },
   "metrics": {                        // türetilmiş ölçümler (her karede hesaplanır)

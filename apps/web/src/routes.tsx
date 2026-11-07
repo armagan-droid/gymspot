@@ -78,7 +78,7 @@ export function AppRoutes() {
         <Route path="/station" element={suspended(<StationApp />)} />
         <Route path="/station/pair" element={suspended(<StationApp />)} />
       </Route>
-      <Route element={<StationLayout />}>
+      <Route element={<StationLayout area="member" />}>
         <Route path="/member/session" element={suspended(<PhoneSessionPage />)} />
       </Route>
       {/* B1–B6 member area (T4.2) */}

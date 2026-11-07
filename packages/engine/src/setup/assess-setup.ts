@@ -1,5 +1,7 @@
-import { type Frame, LANDMARK_NAMES, type RulePack, type View } from "@gymspot/shared";
+import { type Frame, LANDMARK_NAMES, type LandmarkRef, type RulePack, type View, metricDependencies } from "@gymspot/shared";
 import { faultEnabledInView } from "../exercise/exercise-engine";
+import { collectMetrics } from "../expr/collect";
+import { parseCheck } from "../expr/parse";
 import { type Side, chooseNearSide, resolveLandmark } from "../metrics/compute";
 import { detectView, dominantView } from "../metrics/view";
 
@@ -29,7 +31,11 @@ export interface SetupAssessment {
   activeFaults: string[];
   /** Landmark indices that must be visible (for the A3 overlay). */
   requiredLandmarks: number[];
+  /** Picture edges where required landmarks are outside the margin (A3 guidance). */
+  edges: Edge[];
 }
+
+export type Edge = "top" | "bottom" | "left" | "right";
 
 export const SETUP_CHECKS = { passRatio: 0.8, edgeMargin: 0.02, minSpread: 0.45 } as const;
 
@@ -98,5 +104,37 @@ export function assessSetup(samples: readonly SetupSample[], pack: RulePack): Se
     hints,
     activeFaults: pack.faults.filter((f) => faultEnabledInView(f.views ?? views, view)).map((f) => f.id),
     requiredLandmarks: required,
+    edges: problemEdges(frames.at(-1), required, m),
   };
+}
+
+/** Edges that required landmarks of the latest frame stick out of. */
+function problemEdges(frame: Frame | undefined, required: readonly number[], m: number): Edge[] {
+  if (!frame) return [];
+  const out = new Set<Edge>();
+  for (const i of required) {
+    const p = frame.image[i]!;
+    if (p.y > 1 - m) out.add("bottom");
+    if (p.y < m) out.add("top");
+    if (p.x < m) out.add("left");
+    if (p.x > 1 - m) out.add("right");
+  }
+  return (["top", "bottom", "left", "right"] as const).filter((e) => out.has(e));
+}
+
+/** Landmark indices a fault's check depends on, through its metrics (A5 highlight). */
+export function faultLandmarks(pack: RulePack, faultId: string, nearSide: Side): number[] {
+  const fault = pack.faults.find((f) => f.id === faultId);
+  if (!fault) return [];
+  const out = new Set<number>();
+  const visit = (name: string, seen: Set<string>) => {
+    const def = pack.metrics[name];
+    if (!def || seen.has(name)) return;
+    seen.add(name);
+    const deps = metricDependencies(def);
+    if (deps.length > 0) return deps.forEach((d) => visit(d, seen));
+    for (const ref of Object.values(def)[0] as readonly LandmarkRef[]) out.add(LANDMARK_NAMES.indexOf(resolveLandmark(ref, nearSide)));
+  };
+  for (const name of collectMetrics(parseCheck(fault.check).expr)) visit(name, new Set());
+  return [...out];
 }

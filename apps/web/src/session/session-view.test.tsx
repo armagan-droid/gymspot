@@ -109,8 +109,25 @@ describe("other session states", () => {
 
   test("paused after a safety stop shows the warning and resume", () => {
     const { onAction } = show(stateAfter([...toActive, { type: "SAFETY_PAUSE", faultId: "knee_valgus" }]), { type: "SHOW", key: "safety.stop" });
-    expect(screen.getByRole("alert").textContent).toBe("Dur, formunu kontrol et");
+    const alert = screen.getByRole("alert");
+    expect(alert.className).toContain("alert-danger");
+    expect(alert.textContent).toContain("Dur, formunu kontrol et");
+    expect(alert.textContent).toContain("Dizlerini dışarı aç"); // the fault's own fix
+    expect(alert.textContent).toContain("Başlangıç duruşuna geç");
     fireEvent.click(screen.getByRole("button", { name: "Devam et" }));
     expect(onAction).toHaveBeenCalledWith("RESUME");
+  });
+
+  test("form fixed: the countdown carries a green confirmation", () => {
+    const paused = [...toActive, { type: "SAFETY_PAUSE", faultId: "knee_valgus" } as ProgramInput];
+    show(stateAfter([...paused, { type: "READY_POSE_HELD" }]), { type: "SHOW", key: "safety.resumed" });
+    const ok = screen.getByRole("status");
+    expect(ok.className).toContain("alert-ok");
+    expect(ok.textContent).toBe("Form düzeldi");
+  });
+
+  test("a countdown without that confirmation has no green box", () => {
+    show(stateAfter([ua("START"), ua("START")]));
+    expect(document.querySelector(".alert-ok")).toBeNull();
   });
 });

@@ -33,6 +33,8 @@ export function SessionView({ state, packs, lastShow, muted, onAction, onToggleM
     return packs[ex]?.faults.find((f) => f.id === fault)?.cue[lang] ?? null;
   })();
 
+  const safetyCue = (state.safetyFaultId && pack?.faults.find((f) => f.id === state.safetyFaultId)?.cue[lang]) || null;
+
   switch (state.status) {
     case "READY":
       return (
@@ -46,6 +48,11 @@ export function SessionView({ state, packs, lastShow, muted, onAction, onToggleM
     case "COUNTDOWN":
       return (
         <section data-screen="A5" className="countdown">
+          {lastShow?.key === "safety.resumed" && (
+            <p className="alert alert-ok" role="status">
+              {t("safety.resumed")}
+            </p>
+          )}
           <h1>{exerciseName}</h1>
           <p className="rep-counter" aria-live="assertive">
             {secondsLeft(state.countdownEndsAt, state.now)}
@@ -104,8 +111,14 @@ export function SessionView({ state, packs, lastShow, muted, onAction, onToggleM
       return (
         <section data-screen="A5" className="paused">
           <h1>{t("session.paused")}</h1>
-          {lastShow?.key === "safety.stop" && <p role="alert">{t("safety.stop")}</p>}
-          {state.pausedByTracking && <p role="alert">{t("tracking.lost")}</p>}
+          {state.pauseReason === "safety" && (
+            <div className="alert alert-danger" role="alert">
+              <strong>{t("safety.stop")}</strong>
+              {safetyCue && <p>{safetyCue}</p>}
+              <p>{t("safety.hint")}</p>
+            </div>
+          )}
+          {state.pauseReason === "tracking" && <p role="alert">{t("tracking.lost")}</p>}
           <button onClick={() => onAction("RESUME")}>{t("session.resume")}</button>
         </section>
       );

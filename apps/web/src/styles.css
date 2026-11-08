@@ -695,3 +695,42 @@ main [data-screen="A1"] > form {
   padding: 0.5rem 1rem;
   display: inline-block;
 }
+
+/* ------------------------------------------- safety pause: red stop, green go */
+
+.alert {
+  margin: 0 0 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+}
+.alert p {
+  margin: 0.35rem 0 0;
+  font-weight: 500;
+}
+.alert strong {
+  font-size: 1.25rem;
+}
+.alert-danger {
+  background: var(--danger);
+  color: #fff;
+}
+.alert-ok {
+  background: var(--ok);
+  color: #04130a;
+  font-size: 1.25rem;
+}
+.camera-stage.stage-danger::after,
+.camera-stage.stage-ok::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  box-shadow: inset 0 0 0 0.5rem var(--alert-edge), inset 0 0 3rem var(--alert-edge);
+}
+.camera-stage.stage-danger {
+  --alert-edge: var(--danger);
+}
+.camera-stage.stage-ok {
+  --alert-edge: var(--ok);
+}

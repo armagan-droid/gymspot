@@ -35,7 +35,7 @@ Böylece JSON ile eklenen yeni bir hareket, ses dosyası üretilmeden de çalı�
 Ekranda ≤ 5 sn: "10 tekrar · 8 temiz · en sık hata: diz içe kaçma". `incomplete` denemeler sayıya katılmaz ama 0'dan fazlaysa "2 yarım tekrar" olarak gösterilir. Üyenin seans geçmişine yazılır.
 
 ## Güvenlik
-- `major` bir hata art arda 2 denemede **tespit edilirse** (uyarı verilip verilmediğinden ve `minConsecutiveReps`'ten bağımsız): "Dur, formunu kontrol et" uyarısı verilir ve set `PAUSED` olur. Salon ayarıyla (C8) kapatılabilir.
+- `major` bir hata art arda 2 denemede **tespit edilirse** (uyarı verilip verilmediğinden ve `minConsecutiveReps`'ten bağımsız): "Dur, formunu kontrol et" uyarısı verilir ve set `PAUSED` olur. Ekranda kırmızı uyarı kutusu, kamera çevresinde kırmızı çerçeve ve hatanın eklemleri kırmızı vurgulanır; hatanın düzeltme ipucu (`cue`) ve "başlangıç duruşuna geç" yönergesi gösterilir. Üye hazır duruşu (`readyPose`) tutunca set yeşil "Form düzeldi" uyarısı ve yeşil çerçeveyle geri sayıma girer (03, kural 11). Salon ayarıyla (C8) kapatılabilir.
 - Ekranda her zaman küçük ibare: "Bu sistem tıbbi tavsiye değildir. Ağrı hissedersen dur."
 
 ## Kabul kriterleri

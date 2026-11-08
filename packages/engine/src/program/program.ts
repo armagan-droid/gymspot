@@ -53,6 +53,7 @@ export const PROGRAM_MESSAGE_KEYS = {
   setDonePrompt: "prompt.set_done",
   resumePrompt: "prompt.resume",
   trackingLost: "tracking.lost",
+  safetyResumed: "safety.resumed",
   safetyStop: "safety.stop",
   sessionDone: "session.done",
   setSummary: "summary.set",
@@ -114,8 +115,13 @@ export interface ProgramState {
   block?: { id: string; setsDone: number };
   set?: SetProgress;
   resumeTo?: ProgramStatus;
-  /** Set when tracking loss paused the session: it resumes on its own when tracking returns (rule 10). */
-  pausedByTracking?: boolean;
+  /**
+   * Why the session paused on its own; both resume without a tap (rules 10, 11):
+   * tracking when the person is back in frame, safety when the ready pose is held again.
+   */
+  pauseReason?: "tracking" | "safety";
+  /** The major fault behind a safety pause, for the red highlight (specs/08 A5). */
+  safetyFaultId?: string;
   countdownEndsAt?: number;
   /** Last number spoken in the countdown (rule 2). */
   countdownSaid?: number;
@@ -269,11 +275,31 @@ class Machine {
     this.speak(K.sessionDone);
   }
 
-  private startCountdown(): void {
+  /** `announce` replaces the spoken "three" (and is shown); "two", "one" follow as usual. */
+  private startCountdown(announce?: string): void {
     this.s.status = "COUNTDOWN";
     this.s.countdownEndsAt = this.s.now + PROGRAM_TIMING.countdownMs;
     this.s.countdownSaid = 3;
-    this.speak(K.countdown3);
+    this.speak(announce ?? K.countdown3);
+    if (announce) this.show(announce);
+  }
+
+  private resume(announce?: string): void {
+    const s = this.s;
+    const to = s.resumeTo!;
+    s.resumeTo = undefined;
+    s.pauseReason = undefined;
+    s.safetyFaultId = undefined;
+    if (s.trackingLostAt !== undefined) s.trackingLostAt = s.now; // fresh grace period
+    if (to === "SET_ACTIVE" || to === "SET_CONFIRM" || to === "COUNTDOWN") {
+      this.startCountdown(announce);
+    } else if (to === "REST") {
+      s.status = "REST";
+      s.restEndsAt = s.now + (s.restRemainingMs ?? 0);
+      s.restRemainingMs = undefined;
+    } else {
+      s.status = to;
+    }
   }
 
   private enterSetActive(): void {
@@ -351,7 +377,7 @@ class Machine {
 
   private pauseForTracking(): void {
     this.pause();
-    this.s.pausedByTracking = true;
+    this.s.pauseReason = "tracking";
     this.speak(K.trackingLost);
     this.show(K.trackingLost);
   }
@@ -440,7 +466,10 @@ class Machine {
     }
     if (input.type === "TRACKING_RESTORED") {
       s.trackingLostAt = undefined;
-      if (s.status === "PAUSED" && s.pausedByTracking) return this.onAction("RESUME");
+      if (s.status === "PAUSED" && s.pauseReason === "tracking") {
+        this.resume();
+        return true;
+      }
       if (s.status === "PAUSED") this.show(K.resumePrompt);
       return true;
     }
@@ -480,6 +509,8 @@ class Machine {
           this.speak(K.safetyStop);
           this.show(K.safetyStop);
           this.pause();
+          s.pauseReason = "safety";
+          s.safetyFaultId = input.faultId;
           return true;
         }
         return false;
@@ -495,6 +526,11 @@ class Machine {
         this.handoffReturned();
         return true;
       case "PAUSED":
+        if (input.type === "READY_POSE_HELD" && s.pauseReason === "safety") {
+          // back in a correct start position: the form is fixed, carry on (rule 11)
+          this.resume(K.safetyResumed);
+          return true;
+        }
         if (input.type !== "HANDOFF_RETURNED" || s.resumeTo !== "TRANSFER") return false;
         this.handoffReturned();
         return true;
@@ -534,25 +570,10 @@ class Machine {
         if (st === "IDLE" || st === "PAUSED") return false;
         this.pause();
         return true;
-      case "RESUME": {
+      case "RESUME":
         if (st !== "PAUSED") return false;
-        const to = s.resumeTo!;
-        s.resumeTo = undefined;
-        s.pausedByTracking = undefined;
-        if (s.trackingLostAt !== undefined) s.trackingLostAt = s.now; // fresh grace period
-        if (to === "SET_ACTIVE" || to === "SET_CONFIRM") {
-          this.startCountdown();
-        } else if (to === "REST") {
-          s.status = "REST";
-          s.restEndsAt = s.now + (s.restRemainingMs ?? 0);
-          s.restRemainingMs = undefined;
-        } else if (to === "COUNTDOWN") {
-          this.startCountdown();
-        } else {
-          s.status = to;
-        }
+        this.resume();
         return true;
-      }
       case "END_SET":
         if (st !== "SET_ACTIVE" && st !== "SET_CONFIRM") return false;
         this.endSet();

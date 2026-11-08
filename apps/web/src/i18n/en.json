@@ -63,7 +63,9 @@
     "resume": "Tap to continue"
   },
   "safety": {
-    "stop": "Stop, check your form"
+    "stop": "Stop, check your form",
+    "hint": "Get into the start position; the set carries on once your form is fixed.",
+    "resumed": "Form fixed"
   },
   "tracking": {
     "lost": "I can't see you, step back into the frame"

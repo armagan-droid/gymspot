@@ -63,7 +63,9 @@
     "resume": "Devam etmek için dokun"
   },
   "safety": {
-    "stop": "Dur, formunu kontrol et"
+    "stop": "Dur, formunu kontrol et",
+    "hint": "Başlangıç duruşuna geç; form düzelince set kendiliğinden devam eder.",
+    "resumed": "Form düzeldi"
   },
   "tracking": {
     "lost": "Seni göremiyorum, kadraja geri gel"

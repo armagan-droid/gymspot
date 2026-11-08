@@ -250,7 +250,7 @@ describe("AC-3.4: inactivity and tracking timers (fake clock)", () => {
     d.send({ type: "TRACKING_LOST" });
     d.tick(6_000);
     d.send({ type: "TRACKING_RESTORED" });
-    expect(d.status).toBe("PAUSED");
+    expect(d.status).toBe("PAUSED"); // the safety pause waits for the ready pose instead
   });
 
   test("tracking loss during REST does not pause", () => {
@@ -367,6 +367,26 @@ describe("AC-3.6: pause / resume", () => {
     expect(d.status).toBe("PAUSED");
     expect(d.state.resumeTo).toBe("SET_ACTIVE");
     expect(cmds).toContainEqual({ type: "SPEAK", key: "safety.stop" });
+    expect(d.state).toMatchObject({ pauseReason: "safety", safetyFaultId: "knee_valgus" });
+  });
+
+  test("safety pause resumes on its own once the ready pose is held again (form fixed)", () => {
+    const d = started([squat()]);
+    d.beginSet();
+    d.rep();
+    d.send({ type: "SAFETY_PAUSE", faultId: "knee_valgus" });
+    const cmds = d.send({ type: "READY_POSE_HELD" });
+    // the confirmation takes the place of "three"; two, one, go follow
+    expect(cmds).toContainEqual({ type: "SPEAK", key: "safety.resumed" });
+    expect(cmds).toContainEqual({ type: "SHOW", key: "safety.resumed" });
+    expect(cmds).not.toContainEqual({ type: "SPEAK", key: "countdown.3" });
+    expect(d.status).toBe("COUNTDOWN");
+    expect(d.state.pauseReason).toBeUndefined();
+    expect(d.state.safetyFaultId).toBeUndefined();
+    expect(d.tick(1_000)).toContainEqual({ type: "SPEAK", key: "countdown.2" });
+    d.tick(PROGRAM_TIMING.countdownMs);
+    expect(d.status).toBe("SET_ACTIVE");
+    expect(d.state.set!.counted).toBe(1);
   });
 });
 
@@ -769,6 +789,7 @@ describe("AC-3.1: transition table", () => {
     ["PAUSED", ua("START")],
     ["PAUSED", ua("SKIP_BLOCK")],
     ["PAUSED", ua("UNDO_SKIP")],
+    ["PAUSED", { type: "READY_POSE_HELD" }], // a manual pause waits for RESUME
     ["SESSION_DONE", ua("START")],
     ["SESSION_DONE", ua("ABORT")],
     ["SESSION_DONE", ua("PAUSE")],

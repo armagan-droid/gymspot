@@ -69,6 +69,8 @@ export function LiveSession({ runner, packs, bindCommands, onState, autoStart }:
     () =>
       runner.subscribe((s) => {
         setState(s);
+        // the green "form fixed" belongs to that one countdown only
+        if (s.status !== "COUNTDOWN") setLastShow((c) => (c?.key === "safety.resumed" ? null : c));
         onStateRef.current?.(s);
       }, rendered.current),
     [runner],
@@ -100,9 +102,15 @@ export function LiveSession({ runner, packs, bindCommands, onState, autoStart }:
         const block = runner.state.config.workout.blocks[runner.state.cursor.blockIndex];
         const pack = block && packs[block.exerciseId];
         const hi = highlight.current;
+        const st = runner.state;
+        // a safety pause keeps the joints of its fault red until the form is fixed (specs/08 A5)
+        const safety =
+          pack && st.status === "PAUSED" && st.pauseReason === "safety" && st.safetyFaultId && runner.lastFrame
+            ? faultLandmarks(pack, st.safetyFaultId, chooseNearSide([runner.lastFrame]))
+            : undefined;
         paintOverlay(canvas, video, runner.lastFrame, {
           minVisibility: pack?.camera.minVisibility ?? 0.5,
-          highlight: performance.now() < hi.until ? hi.joints : undefined,
+          highlight: safety ?? (performance.now() < hi.until ? hi.joints : undefined),
         });
       });
     })();
@@ -115,9 +123,17 @@ export function LiveSession({ runner, packs, bindCommands, onState, autoStart }:
     };
   }, [runner, services]);
 
+  // red frame while the form is off, green while the set restarts (specs/08 A5)
+  const stageAlert =
+    state.status === "PAUSED" && state.pauseReason === "safety"
+      ? "stage-danger"
+      : state.status === "COUNTDOWN" && lastShow?.key === "safety.resumed"
+        ? "stage-ok"
+        : "";
+
   return (
     <div className="live-session camera-screen">
-      <div className="camera-stage">
+      <div className={`camera-stage${stageAlert ? ` ${stageAlert}` : ""}`}>
         <video ref={videoRef} muted playsInline autoPlay className="camera-preview" />
         <canvas ref={canvasRef} className="pose-overlay" aria-hidden="true" data-testid="pose-overlay" />
         <button

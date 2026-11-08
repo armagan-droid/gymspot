@@ -1,5 +1,5 @@
-import type { Edge } from "@gymspot/engine";
-import type { Frame } from "@gymspot/shared";
+import { type Edge, type ExerciseSetup, SETUP_CHECKS, problemEdges, resolveLandmark } from "@gymspot/engine";
+import { type Frame, LANDMARK_NAMES, type RulePack } from "@gymspot/shared";
 
 // Skeleton and guide frame over the camera preview (specs/08 A3, A5).
 // Drawn on a local canvas only; nothing is stored or sent (specs/07).
@@ -27,6 +27,23 @@ export interface OverlayOptions {
   edges?: readonly Edge[];
   /** A5 joints of the fault being cued (red). */
   highlight?: readonly number[];
+}
+
+/**
+ * A5 tracking loss: the A3 setup guide comes back (target silhouette, guide
+ * frame, red bands at the edges the body sticks out of) so the member sees
+ * where to stand (specs/08).
+ */
+export function trackingGuide(pack: RulePack, setup: ExerciseSetup, frame: Frame | null): OverlayOptions {
+  const m = SETUP_CHECKS.edgeMargin;
+  const required = pack.camera.minVisibleLandmarks.map((r) => LANDMARK_NAMES.indexOf(resolveLandmark(r, setup.nearSide)));
+  return {
+    minVisibility: pack.camera.minVisibility,
+    required,
+    guide: { margin: m, ready: false },
+    target: pack.camera.posture,
+    edges: problemEdges(frame ?? undefined, required, m),
+  };
 }
 
 export interface OverlayShapes {

@@ -62,6 +62,10 @@ export class SessionRunner {
     return () => this.listeners.delete(fn);
   }
 
+  get setup(): ExerciseSetup {
+    return this.o.setup;
+  }
+
   /** Setup for the following sets (from A3). */
   setSetup(setup: ExerciseSetup): void {
     this.o.setup = setup;

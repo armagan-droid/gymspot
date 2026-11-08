@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useServices } from "../services";
 import { LegalStrip } from "../components/Layouts";
-import { clearOverlay, paintOverlay } from "../pose/overlay";
+import { clearOverlay, paintOverlay, trackingGuide } from "../pose/overlay";
 import { createCuePlayer } from "./audio";
 import type { SessionRunner } from "./runner";
 import { type ShowCommand, SessionView } from "./SessionView";
@@ -98,9 +98,11 @@ export function LiveSession({ runner, packs, bindCommands, onState, autoStart }:
         runner.pushCandidates(candidates, t);
         const canvas = canvasRef.current;
         if (!canvas || !video) return;
-        if (!skeletonRef.current) return clearOverlay(canvas);
         const block = runner.state.config.workout.blocks[runner.state.cursor.blockIndex];
         const pack = block && packs[block.exerciseId];
+        // out of view: the setup drawing comes back, even with the skeleton off (specs/08 A5)
+        if (pack && runner.trackingProblem) return paintOverlay(canvas, video, runner.lastFrame, trackingGuide(pack, runner.setup, runner.lastFrame));
+        if (!skeletonRef.current) return clearOverlay(canvas);
         const hi = highlight.current;
         const st = runner.state;
         // a safety pause keeps the joints of its fault red until the form is fixed (specs/08 A5)

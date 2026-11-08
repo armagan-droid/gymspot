@@ -90,6 +90,8 @@ Menü: **Genel bakış · İstasyonlar · Üyeler · Program şablonları · Kal
 
 "Dur, formunu kontrol et" uyarısı güvenlik duraklatmasıdır: hareketi bırakın, formunuzu düzeltip devam edin.
 
+"Seni göremiyorum, kadraja geri gel" denirse kamera sizi 5 saniyeden uzun görememiştir. Kadraja dönünce set 3-2-1 sayımıyla kendiliğinden devam eder, sayaç korunur.
+
 ### 3.3 İstasyona devretme (QR)
 
 Sıradaki hareket bir istasyonda yapılacaksa telefon **Sıradaki istasyona geç** ekranını ve bir **Devir QR kodu** gösterir.

@@ -65,6 +65,9 @@
   "safety": {
     "stop": "Dur, formunu kontrol et"
   },
+  "tracking": {
+    "lost": "Seni göremiyorum, kadraja geri gel"
+  },
   "session": {
     "done": "Seans tamamlandı",
     "setLabel": "Set {{current}} / {{total}}",

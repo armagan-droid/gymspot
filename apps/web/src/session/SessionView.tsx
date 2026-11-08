@@ -105,6 +105,7 @@ export function SessionView({ state, packs, lastShow, muted, onAction, onToggleM
         <section data-screen="A5" className="paused">
           <h1>{t("session.paused")}</h1>
           {lastShow?.key === "safety.stop" && <p role="alert">{t("safety.stop")}</p>}
+          {state.pausedByTracking && <p role="alert">{t("tracking.lost")}</p>}
           <button onClick={() => onAction("RESUME")}>{t("session.resume")}</button>
         </section>
       );

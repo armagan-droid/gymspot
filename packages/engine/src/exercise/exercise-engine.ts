@@ -119,7 +119,8 @@ export class ExerciseEngine {
     const events: EngineEvent[] = [];
     const visibleAll = (idx: number[]) => idx.every((i) => frame.image[i]!.visibility >= this.minVisibility);
 
-    this.trackTracking(t, visibleAll(this.trackingLandmarks), events);
+    // tracking loss means the person is out of view, not a blurry frame: half the setup threshold (specs/04)
+    this.trackTracking(t, this.trackingLandmarks.every((i) => frame.image[i]!.visibility >= this.minVisibility / 2), events);
 
     const values = this.smooth(this.computer.compute(frame, this.near), t);
     const visible = this.faults.map((f) => visibleAll(f.landmarks));

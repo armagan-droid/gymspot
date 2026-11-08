@@ -238,6 +238,14 @@ describe("tracking and ready pose", () => {
     expect(ev.map((e) => e.type)).toEqual(["TRACKING_LOST", "TRACKING_RESTORED"]);
   });
 
+  test("during a set, flicker just under minVisibility is not a loss (only below half of it)", () => {
+    // motion blur on a phone camera: ankles hover around 0.4–0.5 for seconds
+    const frames = squatFrames("front", [{}, {}], { leadInMs: 4000 }).map((f) => (f.t >= 1000 ? setVisibility(f, ALL_LEGS, 0.4) : f));
+    const ev = run(frames, front);
+    expect(ev.filter((e) => e.type.startsWith("TRACKING"))).toEqual([]);
+    expect(of(ev, "REP_COMPLETED")).toHaveLength(2);
+  });
+
   test("a dip shorter than 1 s is ignored", () => {
     const frames = squatFrames("front", [], { leadInMs: 4000 }).map((f) =>
       f.t >= 1000 && f.t < 1600 ? setVisibility(f, ALL_LEGS, 0.1) : f,

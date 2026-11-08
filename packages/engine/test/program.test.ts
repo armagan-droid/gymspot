@@ -217,8 +217,40 @@ describe("AC-3.4: inactivity and tracking timers (fake clock)", () => {
     d.tick(5_000);
     expect(d.status).toBe("PAUSED");
     expect(d.state.resumeTo).toBe("SET_ACTIVE");
+    expect(d.log).toContainEqual({ type: "SPEAK", key: "tracking.lost" });
+    expect(d.log).toContainEqual({ type: "SHOW", key: "tracking.lost" });
+    // back in frame: resumes on its own through the 3-2-1 countdown, the set count is kept
+    expect(d.send({ type: "TRACKING_RESTORED" })).toContainEqual({ type: "SPEAK", key: "countdown.3" });
+    expect(d.status).toBe("COUNTDOWN");
+    d.tick(PROGRAM_TIMING.countdownMs);
+    expect(d.status).toBe("SET_ACTIVE");
+    expect(d.state.set!.counted).toBe(1);
+  });
+
+  test("tracking loss in READY resumes to READY when the person is back", () => {
+    const d = started([squat()]);
+    d.send({ type: "TRACKING_LOST" });
+    d.tick(5_000);
+    expect(d.status).toBe("PAUSED");
+    d.send({ type: "TRACKING_RESTORED" });
+    expect(d.status).toBe("READY");
+  });
+
+  test("a manual or safety pause does not resume on its own", () => {
+    const d = started([squat()]);
+    d.beginSet();
+    d.act("PAUSE");
+    d.send({ type: "TRACKING_LOST" });
+    d.tick(6_000);
     expect(d.send({ type: "TRACKING_RESTORED" })).toContainEqual({ type: "SHOW", key: "prompt.resume" });
-    expect(d.status).toBe("PAUSED"); // no automatic resume
+    expect(d.status).toBe("PAUSED");
+    d.act("RESUME");
+    d.tick(PROGRAM_TIMING.countdownMs);
+    d.send({ type: "SAFETY_PAUSE", faultId: "knee_valgus" });
+    d.send({ type: "TRACKING_LOST" });
+    d.tick(6_000);
+    d.send({ type: "TRACKING_RESTORED" });
+    expect(d.status).toBe("PAUSED");
   });
 
   test("tracking loss during REST does not pause", () => {

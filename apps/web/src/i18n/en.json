@@ -65,6 +65,9 @@
   "safety": {
     "stop": "Stop, check your form"
   },
+  "tracking": {
+    "lost": "I can't see you, step back into the frame"
+  },
   "session": {
     "done": "Session complete",
     "setLabel": "Set {{current}} / {{total}}",

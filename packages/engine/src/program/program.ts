@@ -52,6 +52,7 @@ export const PROGRAM_MESSAGE_KEYS = {
   restOver: "rest.over",
   setDonePrompt: "prompt.set_done",
   resumePrompt: "prompt.resume",
+  trackingLost: "tracking.lost",
   safetyStop: "safety.stop",
   sessionDone: "session.done",
   setSummary: "summary.set",
@@ -113,6 +114,8 @@ export interface ProgramState {
   block?: { id: string; setsDone: number };
   set?: SetProgress;
   resumeTo?: ProgramStatus;
+  /** Set when tracking loss paused the session: it resumes on its own when tracking returns (rule 10). */
+  pausedByTracking?: boolean;
   countdownEndsAt?: number;
   /** Last number spoken in the countdown (rule 2). */
   countdownSaid?: number;
@@ -346,6 +349,13 @@ class Machine {
     this.s.status = "PAUSED";
   }
 
+  private pauseForTracking(): void {
+    this.pause();
+    this.s.pausedByTracking = true;
+    this.speak(K.trackingLost);
+    this.show(K.trackingLost);
+  }
+
   private skip(): void {
     this.flushPendingSkip();
     const setsDone = this.s.block!.setsDone;
@@ -430,6 +440,7 @@ class Machine {
     }
     if (input.type === "TRACKING_RESTORED") {
       s.trackingLostAt = undefined;
+      if (s.status === "PAUSED" && s.pausedByTracking) return this.onAction("RESUME");
       if (s.status === "PAUSED") this.show(K.resumePrompt);
       return true;
     }
@@ -527,6 +538,7 @@ class Machine {
         if (st !== "PAUSED") return false;
         const to = s.resumeTo!;
         s.resumeTo = undefined;
+        s.pausedByTracking = undefined;
         if (s.trackingLostAt !== undefined) s.trackingLostAt = s.now; // fresh grace period
         if (to === "SET_ACTIVE" || to === "SET_CONFIRM") {
           this.startCountdown();
@@ -580,7 +592,7 @@ class Machine {
       case "SET_ACTIVE": {
         const b = this.blk;
         if (b.durationSec !== undefined && now - s.set!.startedAt >= b.durationSec * 1000) return this.endSet(true);
-        if (this.trackingTimedOut()) return this.pause();
+        if (this.trackingTimedOut()) return this.pauseForTracking();
         if (now - s.set!.lastActivityAt >= PROGRAM_TIMING.inactivityPromptMs) {
           s.status = "SET_CONFIRM";
           this.speak(K.setDonePrompt);
@@ -592,7 +604,7 @@ class Machine {
         if (now - s.set!.lastActivityAt >= PROGRAM_TIMING.inactivityCloseMs) this.endSet();
         return;
       case "READY":
-        if (this.trackingTimedOut()) this.pause();
+        if (this.trackingTimedOut()) this.pauseForTracking();
         return;
       case "REST":
         if (now >= s.restEndsAt!) {

@@ -246,6 +246,23 @@ describe("tracking and ready pose", () => {
     expect(of(ev, "REP_COMPLETED")).toHaveLength(2);
   });
 
+  test("turning around is not a loss: the other side of the body counts", () => {
+    // set up facing right (left side near), then turned: the left side hides behind the body
+    const LEFT: LandmarkName[] = ["left_hip", "left_knee", "left_ankle", "left_shoulder"];
+    const RIGHT: LandmarkName[] = ["right_hip", "right_knee", "right_ankle", "right_shoulder"];
+    const frames = squatFrames("side", [], { leadInMs: 4000 }).map((f) => setVisibility(setVisibility(f, LEFT, 0.05), RIGHT, 0.95));
+    const engine = new ExerciseEngine(squat, side);
+    expect(run(frames, side, engine).filter((e) => e.type.startsWith("TRACKING"))).toEqual([]);
+    expect(engine.missingLandmarks).toEqual([]);
+  });
+
+  test("missingLandmarks names what is out of view", () => {
+    const frames = squatFrames("front", [], { leadInMs: 2000 }).map((f) => setVisibility(f, ["left_ankle", "right_ankle"], 0.05));
+    const engine = new ExerciseEngine(squat, front);
+    expect(run(frames, front, engine).map((e) => e.type)).toContain("TRACKING_LOST");
+    expect(engine.missingLandmarks.map((i) => LANDMARK_NAMES[i])).toEqual(["left_ankle"]);
+  });
+
   test("a dip shorter than 1 s is ignored", () => {
     const frames = squatFrames("front", [], { leadInMs: 4000 }).map((f) =>
       f.t >= 1000 && f.t < 1600 ? setVisibility(f, ALL_LEGS, 0.1) : f,

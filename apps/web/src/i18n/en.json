@@ -68,7 +68,18 @@
     "resumed": "Form fixed"
   },
   "tracking": {
-    "lost": "I can't see you, step back into the frame"
+    "lost": "I can't see you, step back into the frame",
+    "ambiguous": "I see more than one person; keep only yourself in the frame",
+    "body": "Not visible: {{parts}}. Step back a little or adjust the camera",
+    "part": {
+      "nose": "head",
+      "shoulder": "shoulder",
+      "elbow": "elbow",
+      "wrist": "wrist",
+      "hip": "hip",
+      "knee": "knee",
+      "ankle": "ankle"
+    }
   },
   "session": {
     "done": "Session complete",

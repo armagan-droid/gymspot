@@ -24,6 +24,11 @@ export interface ExerciseEngineOptions {
 }
 
 const INDEX = new Map(LANDMARK_NAMES.map((n, i) => [n, i]));
+/** Index of the same landmark on the other side of the body (itself for the nose). */
+const MIRROR = LANDMARK_NAMES.map((n) => {
+  const other = n.startsWith("left_") ? `right_${n.slice(5)}` : n.startsWith("right_") ? `left_${n.slice(6)}` : n;
+  return INDEX.get(other as LandmarkName)!;
+});
 
 /** Whether a fault with these views is evaluated in the set's view (specs/04): ambiguous → only faults valid in every view. */
 export function faultEnabledInView(views: readonly ("front" | "side")[], view: View): boolean {
@@ -72,6 +77,12 @@ export class ExerciseEngine {
   private readyFired = false;
   private lowSince: number | undefined;
   private trackingLost = false;
+  private missing: number[] = [];
+
+  /** Tracking landmarks not seen in the latest frame (why tracking is lost, specs/08 A5). */
+  get missingLandmarks(): readonly number[] {
+    return this.missing;
+  }
 
   constructor(
     private readonly loaded: LoadedRulePack,
@@ -119,8 +130,11 @@ export class ExerciseEngine {
     const events: EngineEvent[] = [];
     const visibleAll = (idx: number[]) => idx.every((i) => frame.image[i]!.visibility >= this.minVisibility);
 
-    // tracking loss means the person is out of view, not a blurry frame: half the setup threshold (specs/04)
-    this.trackTracking(t, this.trackingLandmarks.every((i) => frame.image[i]!.visibility >= this.minVisibility / 2), events);
+    // tracking loss means the person is out of view, not a blurry frame or a turn (specs/04):
+    // half the setup threshold, and either side of the body counts
+    const seen = (i: number) => Math.max(frame.image[i]!.visibility, frame.image[MIRROR[i]!]!.visibility) >= this.minVisibility / 2;
+    this.missing = this.trackingLandmarks.filter((i) => !seen(i));
+    this.trackTracking(t, this.missing.length === 0, events);
 
     const values = this.smooth(this.computer.compute(frame, this.near), t);
     const visible = this.faults.map((f) => visibleAll(f.landmarks));

@@ -734,3 +734,6 @@ main [data-screen="A1"] > form {
 .camera-stage.stage-ok {
   --alert-edge: var(--ok);
 }
+.cue-band.cue-warning {
+  color: #facc15;
+}

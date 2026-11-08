@@ -1,6 +1,7 @@
 import type { ProgramCommand, ProgramState } from "@gymspot/engine";
 import type { RulePack, UserActionKind } from "@gymspot/shared";
 import { useTranslation } from "react-i18next";
+import type { TrackingProblem } from "./runner";
 
 // Session screens driven by the program state (specs/08): READY, countdown,
 // A5 active set (+ "set done?"), A6 rest, paused. A4/A7/A8 in full come with T4.1.
@@ -15,11 +16,15 @@ export interface SessionViewProps {
   muted: boolean;
   onAction(kind: UserActionKind): void;
   onToggleMute(): void;
+  /** Why tracking is lost right now, if it is. */
+  trackingProblem?: TrackingProblem | null;
 }
+
+const PARTS = ["nose", "shoulder", "elbow", "wrist", "hip", "knee", "ankle"] as const;
 
 const secondsLeft = (until: number | undefined, now: number) => Math.max(0, Math.ceil(((until ?? now) - now) / 1000));
 
-export function SessionView({ state, packs, lastShow, muted, onAction, onToggleMute }: SessionViewProps) {
+export function SessionView({ state, packs, lastShow, muted, onAction, onToggleMute, trackingProblem }: SessionViewProps) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language === "en" ? "en" : "tr";
   const block = state.config.workout.blocks[state.cursor.blockIndex];
@@ -32,6 +37,16 @@ export function SessionView({ state, packs, lastShow, muted, onAction, onToggleM
     const [, ex = "", fault = ""] = lastShow.key.split(".");
     return packs[ex]?.faults.find((f) => f.id === fault)?.cue[lang] ?? null;
   })();
+
+  const trackingText = (() => {
+    const p = trackingProblem;
+    if (!p || p.cause === "absent") return t("tracking.lost");
+    if (p.cause === "ambiguous") return t("tracking.ambiguous");
+    const parts = [...new Set(p.landmarks.map((n) => n.replace(/^(left|right)_/, "")))].filter((n) => (PARTS as readonly string[]).includes(n));
+    return parts.length ? t("tracking.body", { parts: parts.map((n) => t(`tracking.part.${n}`)).join(", ") }) : t("tracking.lost");
+  })();
+  // during the grace period before the pause, the warning is already on screen
+  const losing = state.trackingLostAt !== undefined && trackingProblem != null;
 
   const safetyCue = (state.safetyFaultId && pack?.faults.find((f) => f.id === state.safetyFaultId)?.cue[lang]) || null;
 
@@ -71,8 +86,8 @@ export function SessionView({ state, packs, lastShow, muted, onAction, onToggleM
             {target !== undefined && <span className="rep-target"> / {target}</span>}
           </p>
           <p>{setLabel}</p>
-          <p className="cue-band" role="status" aria-live="assertive">
-            {cueText ?? " "}
+          <p className={`cue-band${losing ? " cue-warning" : ""}`} role="status" aria-live="assertive">
+            {losing ? trackingText : (cueText ?? " ")}
           </p>
           {state.status === "SET_CONFIRM" && (
             <div role="dialog" aria-label={t("prompt.set_done")}>
@@ -118,7 +133,7 @@ export function SessionView({ state, packs, lastShow, muted, onAction, onToggleM
               <p>{t("safety.hint")}</p>
             </div>
           )}
-          {state.pauseReason === "tracking" && <p role="alert">{t("tracking.lost")}</p>}
+          {state.pauseReason === "tracking" && <p role="alert">{trackingText}</p>}
           <button onClick={() => onAction("RESUME")}>{t("session.resume")}</button>
         </section>
       );

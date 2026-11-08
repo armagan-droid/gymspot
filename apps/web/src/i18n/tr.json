@@ -68,7 +68,18 @@
     "resumed": "Form düzeldi"
   },
   "tracking": {
-    "lost": "Seni göremiyorum, kadraja geri gel"
+    "lost": "Seni göremiyorum, kadraja geri gel",
+    "ambiguous": "Kadrajda birden fazla kişi görüyorum; kadrajda yalnız sen kal",
+    "body": "Görünmüyor: {{parts}}. Biraz uzaklaş ya da kamerayı ayarla",
+    "part": {
+      "nose": "baş",
+      "shoulder": "omuz",
+      "elbow": "dirsek",
+      "wrist": "el bileği",
+      "hip": "kalça",
+      "knee": "diz",
+      "ankle": "ayak bileği"
+    }
   },
   "session": {
     "done": "Seans tamamlandı",

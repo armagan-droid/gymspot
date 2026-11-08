@@ -152,6 +152,7 @@ export function LiveSession({ runner, packs, bindCommands, onState, autoStart }:
           state={state}
           packs={packs}
           lastShow={lastShow}
+          trackingProblem={runner.trackingProblem}
           muted={muted}
           onAction={(k) => runner.act(k)}
           onToggleMute={() => {

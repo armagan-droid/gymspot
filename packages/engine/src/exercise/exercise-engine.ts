@@ -24,6 +24,9 @@ export interface ExerciseEngineOptions {
 }
 
 const INDEX = new Map(LANDMARK_NAMES.map((n, i) => [n, i]));
+/** Turning detection (specs/04): the other side must be this much more visible for this long. */
+export const SIDE_SWITCH = { margin: 0.3, afterMs: 1000 } as const;
+
 /** Index of the same landmark on the other side of the body (itself for the nose). */
 const MIRROR = LANDMARK_NAMES.map((n) => {
   const other = n.startsWith("left_") ? `right_${n.slice(5)}` : n.startsWith("right_") ? `left_${n.slice(6)}` : n;
@@ -59,15 +62,17 @@ interface Attempt {
 
 export class ExerciseEngine {
   private readonly computer: MetricComputer;
-  private readonly smooth: ReturnType<typeof createMetricSmoother>;
+  private smooth: ReturnType<typeof createMetricSmoother>;
   private readonly counter: RepCounter;
-  private readonly faults: FaultRuntime[];
-  private readonly readyPose: { expr: Expr; durationMs: number; landmarks: number[] };
-  private readonly trackingLandmarks: number[];
+  private faults: FaultRuntime[] = [];
+  private readyPose!: { expr: Expr; durationMs: number; landmarks: number[] };
+  private trackingLandmarks: number[] = [];
   private readonly minVisibility: number;
   private readonly safetyPause: boolean;
   private readonly trackingLostAfterMs: number;
-  private readonly near: Side;
+  private near: Side;
+  private readonly view: View;
+  private otherSideSince: number | undefined;
 
   private cuesEnabled = true;
   private attempt: Attempt | undefined;
@@ -78,6 +83,56 @@ export class ExerciseEngine {
   private lowSince: number | undefined;
   private trackingLost = false;
   private missing: number[] = [];
+
+  /** The body side the metrics use; follows the member when they turn in a side view (specs/04). */
+  get nearSide(): Side {
+    return this.near;
+  }
+
+  /** Resolves every near/far landmark for `side`. */
+  private bindSide(side: Side): void {
+    const { pack } = this.loaded;
+    this.near = side;
+    const landmarksOf = (expr: Expr) => {
+      const set = new Set<LandmarkName>();
+      for (const m of collectMetrics(expr)) for (const l of this.computer.landmarksOf(m, side)) set.add(l);
+      return [...set].map((l) => INDEX.get(l)!);
+    };
+    this.faults = this.loaded.faults.map((fault) => {
+      const enabled = faultEnabledInView(fault.views ?? pack.camera.views, this.view);
+      return { fault, landmarks: landmarksOf(fault.expr), enabled };
+    });
+    this.readyPose = { ...this.loaded.readyPose, landmarks: landmarksOf(this.loaded.readyPose.expr) };
+    this.trackingLandmarks = pack.camera.minVisibleLandmarks.map((r) => INDEX.get(resolveLandmark(r, side))!);
+  }
+
+  /**
+   * Side view: when the other side of the body has been clearly better seen for
+   * a while (the member turned around), switch to it between attempts.
+   */
+  private followTurn(frame: Frame, t: number): void {
+    if (this.view !== "side" || this.counter.state === "IN_REP") {
+      this.otherSideSince = undefined;
+      return;
+    }
+    const mean = (idx: number[]) => idx.reduce((a, i) => a + frame.image[i]!.visibility, 0) / idx.length;
+    const here = mean(this.trackingLandmarks);
+    const there = mean(this.trackingLandmarks.map((i) => MIRROR[i]!));
+    if (there - here < SIDE_SWITCH.margin) {
+      this.otherSideSince = undefined;
+      return;
+    }
+    this.otherSideSince ??= t;
+    if (t - this.otherSideSince < SIDE_SWITCH.afterMs) return;
+    this.otherSideSince = undefined;
+    this.bindSide(this.near === "left" ? "right" : "left");
+    this.smooth = createMetricSmoother(this.computer.order, this.loaded.pack.smoothing); // the old side's history does not apply
+  }
+
+  /** The landmarks that must stay in view (camera.minVisibleLandmarks on the current side). */
+  get trackedLandmarks(): readonly number[] {
+    return this.trackingLandmarks;
+  }
 
   /** Tracking landmarks not seen in the latest frame (why tracking is lost, specs/08 A5). */
   get missingLandmarks(): readonly number[] {
@@ -91,6 +146,7 @@ export class ExerciseEngine {
   ) {
     const { pack } = loaded;
     this.near = setup.nearSide;
+    this.view = setup.view;
     this.computer = createMetricComputer(pack.metrics);
     this.smooth = createMetricSmoother(this.computer.order, pack.smoothing);
     this.counter = new RepCounter(pack.rep);
@@ -98,17 +154,7 @@ export class ExerciseEngine {
     this.safetyPause = options.safetyPause ?? true;
     this.trackingLostAfterMs = options.trackingLostAfterMs ?? 1000;
 
-    const landmarksOf = (expr: Expr) => {
-      const set = new Set<LandmarkName>();
-      for (const m of collectMetrics(expr)) for (const l of this.computer.landmarksOf(m, setup.nearSide)) set.add(l);
-      return [...set].map((l) => INDEX.get(l)!);
-    };
-    this.faults = loaded.faults.map((fault) => {
-      const enabled = faultEnabledInView(fault.views ?? pack.camera.views, setup.view);
-      return { fault, landmarks: landmarksOf(fault.expr), enabled };
-    });
-    this.readyPose = { ...loaded.readyPose, landmarks: landmarksOf(loaded.readyPose.expr) };
-    this.trackingLandmarks = pack.camera.minVisibleLandmarks.map((r) => INDEX.get(resolveLandmark(r, setup.nearSide))!);
+    this.bindSide(setup.nearSide);
     this.streak = this.faults.map(() => 0);
     this.lastCueAt = this.faults.map(() => -Infinity);
   }
@@ -135,6 +181,7 @@ export class ExerciseEngine {
     const seen = (i: number) => Math.max(frame.image[i]!.visibility, frame.image[MIRROR[i]!]!.visibility) >= this.minVisibility / 2;
     this.missing = this.trackingLandmarks.filter((i) => !seen(i));
     this.trackTracking(t, this.missing.length === 0, events);
+    this.followTurn(frame, t);
 
     const values = this.smooth(this.computer.compute(frame, this.near), t);
     const visible = this.faults.map((f) => visibleAll(f.landmarks));

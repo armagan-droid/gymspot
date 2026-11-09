@@ -138,6 +138,7 @@ Eşleştirilmiş tablet her zaman "Başlamak için telefonundaki QR'ı kameraya 
 | Panelde "E-posta veya şifre hatalı" | Salon kimliğinin doğru olduğundan emin olun; şifre büyük/küçük harfe duyarlıdır. |
 | "Çok fazla hatalı deneme" | 15 dakika bekleyin. |
 | Tablet eşleşmiyor | Kodun süresi 10 dakikadır; panelden yeni kod üretin. |
+| Set sık sık "Seni göremiyorum" ya da "Görünmüyor: …" diyor | Kamera ekranında sol üstteki **Tanı** düğmesine dokunun. Panel kare hızını ve her eklemin ne kadar net göründüğünü gösterir (yeşil iyi, sarı zayıf, kırmızı görünmüyor). Kırmızı eklem kadraj dışındaysa uzaklaşın; kare hızı 15'in altındaysa ışığı artırın. Daha isabetli algılama için panelden **Tam** modeli deneyin (daha yavaştır). |
 | Üyeye davet e-postası gitmedi | Üyenin e-postasını kontrol edin; üye girişte **Giriş bağlantısı gönder** ile yeni bağlantı isteyebilir. |
 | "Atanmış bir programın yok" | Panelde üyeye program atayın. |
 | Kamera kurulumu "Hazır" olmuyor | Tüm vücut görünmeli, kamerada tek kişi olmalı, hareket için doğru açıda (önden/yandan) durulmalı. |

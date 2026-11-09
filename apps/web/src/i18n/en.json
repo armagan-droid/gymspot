@@ -345,5 +345,26 @@
     "station": "The fixed tablet at a station. Runs the exercise handed over from the member's phone.",
     "member": "Your program, sessions, history and progress.",
     "admin": "Stations, members, program templates and gym settings."
+  },
+  "diagnostics": {
+    "title": "Diagnostics",
+    "toggle": "Diagnostics",
+    "fps": "Frames/s",
+    "model": "Model",
+    "side": "Side facing the camera",
+    "left": "left",
+    "right": "right",
+    "tracking": "Tracking",
+    "ok": "ok",
+    "problem": {
+      "absent": "nobody",
+      "ambiguous": "more than one person",
+      "body": "a body part is hidden"
+    },
+    "modelChoice": "Pose model",
+    "models": {
+      "lite": "Lite (fast)",
+      "full": "Full (more accurate, slower)"
+    }
   }
 }

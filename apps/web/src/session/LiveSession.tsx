@@ -4,7 +4,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useServices } from "../services";
 import { LegalStrip } from "../components/Layouts";
+import type { PoseModelVariant } from "../pose/mediapipe";
 import { clearOverlay, paintOverlay, trackingGuide } from "../pose/overlay";
+import { diagnosticsOn, poseModel, setDiagnosticsOn, setPoseModel } from "../pose/prefs";
+import type { PoseSource } from "../pose/source";
+import { DiagnosticsPanel, snapshotOf } from "./DiagnosticsPanel";
 import { createCuePlayer } from "./audio";
 import type { SessionRunner } from "./runner";
 import { type ShowCommand, SessionView } from "./SessionView";
@@ -35,6 +39,16 @@ export function LiveSession({ runner, packs, bindCommands, onState, autoStart }:
   const skeletonRef = useRef(true);
   const [skeleton, setSkeleton] = useState(true);
   const [muted, setMuted] = useState(false);
+  // A5 diagnostics and pose model choice, remembered on this device (specs/08)
+  const [diag, setDiag] = useState(diagnosticsOn);
+  const [model, setModel] = useState<PoseModelVariant>(poseModel);
+  const sourceRef = useRef<PoseSource | null>(null);
+  const frameTimes = useRef<number[]>([]);
+  const readDiagnostics = useCallback(() => {
+    const ts = frameTimes.current;
+    const fps = ts.length > 1 ? ((ts.length - 1) * 1000) / (ts.at(-1)! - ts[0]!) : 0;
+    return snapshotOf(runner, fps, sourceRef.current?.stats?.());
+  }, [runner]);
   const [lastShow, setLastShow] = useState<ShowCommand | null>(null);
   const [state, setState] = useState(runner.state);
   const rendered = useRef(state); // input can arrive before the effect subscribes
@@ -81,6 +95,7 @@ export function LiveSession({ runner, packs, bindCommands, onState, autoStart }:
     let lock: { release(): Promise<void> } | undefined;
     let cancelled = false;
     const source = services.createPoseSource();
+    sourceRef.current = source;
     const timer = setInterval(() => runner.tick(), 250); // timers run without frames too
     void (async () => {
       const cam = await services.requestCamera();
@@ -96,6 +111,9 @@ export function LiveSession({ runner, packs, bindCommands, onState, autoStart }:
         .catch(() => undefined);
       await source.start(video, (candidates, t) => {
         runner.pushCandidates(candidates, t);
+        const ts = frameTimes.current;
+        ts.push(t);
+        while (ts.length > 1 && t - ts[0]! > 1000) ts.shift();
         const canvas = canvasRef.current;
         if (!canvas || !video) return;
         const block = runner.state.config.workout.blocks[runner.state.cursor.blockIndex];
@@ -123,7 +141,10 @@ export function LiveSession({ runner, packs, bindCommands, onState, autoStart }:
       stream?.getTracks?.().forEach((tr) => tr.stop());
       void lock?.release();
     };
-  }, [runner, services]);
+  }, [runner, services, model]); // a new model restarts the camera pipeline
+
+  const currentBlock = state.config.workout.blocks[state.cursor.blockIndex];
+  const currentPack = currentBlock ? packs[currentBlock.exerciseId] : undefined;
 
   // red frame while the form is off, green while the set restarts (specs/08 A5)
   const stageAlert =
@@ -148,6 +169,27 @@ export function LiveSession({ runner, packs, bindCommands, onState, autoStart }:
         >
           {t(skeleton ? "session.skeletonOn" : "session.skeletonOff")}
         </button>
+        <button
+          className="diagnostics-toggle"
+          aria-pressed={diag}
+          onClick={() => {
+            setDiagnosticsOn(!diag);
+            setDiag(!diag);
+          }}
+        >
+          {t("diagnostics.toggle")}
+        </button>
+        {diag && (
+          <DiagnosticsPanel
+            read={readDiagnostics}
+            model={model}
+            minVisibility={currentPack?.camera.minVisibility ?? 0.6}
+            onModel={(m) => {
+              setPoseModel(m);
+              setModel(m);
+            }}
+          />
+        )}
       </div>
       <div className="overlay-panel">
         <SessionView

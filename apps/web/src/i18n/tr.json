@@ -345,5 +345,26 @@
     "station": "Salondaki sabit tablet. Üyenin telefonundan devralınan hareketi kamerayla yürütür.",
     "member": "Programın, seansın, geçmişin ve ilerlemen.",
     "admin": "İstasyonlar, üyeler, program şablonları ve salon ayarları."
+  },
+  "diagnostics": {
+    "title": "Tanı",
+    "toggle": "Tanı",
+    "fps": "Kare/sn",
+    "model": "Model",
+    "side": "Kameraya bakan taraf",
+    "left": "sol",
+    "right": "sağ",
+    "tracking": "Takip",
+    "ok": "tamam",
+    "problem": {
+      "absent": "kimse yok",
+      "ambiguous": "birden fazla kişi",
+      "body": "bir bölge görünmüyor"
+    },
+    "modelChoice": "Poz modeli",
+    "models": {
+      "lite": "Hafif (hızlı)",
+      "full": "Tam (daha isabetli, daha yavaş)"
+    }
   }
 }

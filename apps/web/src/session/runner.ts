@@ -131,6 +131,17 @@ export class SessionRunner {
     }
   }
 
+  /** Diagnostics (specs/08 A5): the side in use and how well each required landmark is seen. */
+  get diagnostics(): { nearSide: string; landmarks: { name: LandmarkName; visibility: number | null }[] } | null {
+    const engine = this.engine;
+    if (!engine) return null;
+    const frame = this.lastFrame;
+    return {
+      nearSide: engine.nearSide,
+      landmarks: engine.trackedLandmarks.map((i) => ({ name: LANDMARK_NAMES[i]!, visibility: frame ? frame.image[i]!.visibility : null })),
+    };
+  }
+
   /** Null while tracking is fine. */
   get trackingProblem(): TrackingProblem | null {
     if (this.lostByAbsence) return { cause: this.ambiguous ? "ambiguous" : "absent" };

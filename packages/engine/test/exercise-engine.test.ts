@@ -114,9 +114,11 @@ describe("AC-4.6: view and visibility gating", () => {
     const frames = squatFrames("side", [{ torsoLean: 70 }, { torsoLean: 70 }], { facing: "left" });
     const right = run(frames, { view: "side", nearSide: "right" });
     expect(of(right, "REP_COMPLETED").flatMap((r) => r.faults)).toContain("excessive_forward_lean");
-    // the far (left) side has low visibility, so a wrong near side suppresses the fault
-    const wrong = run(frames, { view: "side", nearSide: "left" });
-    expect(of(wrong, "REP_COMPLETED").flatMap((r) => r.faults)).not.toContain("excessive_forward_lean");
+    // a wrong near side from the setup corrects itself before the first rep (the left side is barely seen)
+    const engine = new ExerciseEngine(squat, { view: "side", nearSide: "left" });
+    const wrong = run(frames, { view: "side", nearSide: "left" }, engine);
+    expect(engine.nearSide).toBe("right");
+    expect(of(wrong, "REP_COMPLETED").flatMap((r) => r.faults)).toContain("excessive_forward_lean");
   });
 
   test("in an ambiguous view only faults valid for both views are evaluated", () => {
@@ -254,6 +256,24 @@ describe("tracking and ready pose", () => {
     const engine = new ExerciseEngine(squat, side);
     expect(run(frames, side, engine).filter((e) => e.type.startsWith("TRACKING"))).toEqual([]);
     expect(engine.missingLandmarks).toEqual([]);
+  });
+
+  test("side view follows a turn: the better seen side takes over after 1 s", () => {
+    const LEFT: LandmarkName[] = ["left_hip", "left_knee", "left_ankle", "left_shoulder"];
+    const RIGHT: LandmarkName[] = ["right_hip", "right_knee", "right_ankle", "right_shoulder"];
+    const turned = (f: Frame) => setVisibility(setVisibility(f, LEFT, 0.2), RIGHT, 0.95);
+    const engine = new ExerciseEngine(squat, side);
+    run(squatFrames("side", [], { leadInMs: 2000 }).filter((f) => f.t < 800).map(turned), side, engine);
+    expect(engine.nearSide).toBe("left"); // not long enough
+    const ev = run(squatFrames("side", [{}, {}], { leadInMs: 2000 }).map((f) => turned({ ...f, t: f.t + 10_000 })), side, engine);
+    expect(engine.nearSide).toBe("right");
+    expect(of(ev, "REP_COMPLETED")).toHaveLength(2);
+  });
+
+  test("a front view never switches sides", () => {
+    const engine = new ExerciseEngine(squat, front);
+    run(squatFrames("front", [], { leadInMs: 3000 }).map((f) => setVisibility(f, ["left_hip", "left_knee", "left_ankle", "left_shoulder"], 0.1)), front, engine);
+    expect(engine.nearSide).toBe("left");
   });
 
   test("missingLandmarks names what is out of view", () => {

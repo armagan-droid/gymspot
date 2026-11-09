@@ -260,3 +260,50 @@ describe("A5 skeleton layer", () => {
     expect(ctx.arcRadii.filter((r) => r === 12)).toHaveLength(6); // both hips, knees, ankles
   });
 });
+
+describe("A5 diagnostics panel (specs/08)", () => {
+  afterEach(() => localStorage.clear());
+
+  test("off by default; shows frame rate and each required landmark; remembered", async () => {
+    const t = testServices();
+    const runner = makeRunner(t);
+    const view = () =>
+      render(
+        <ServicesProvider services={t.services}>
+          <I18nextProvider i18n={createI18n("tr")}>
+            <LiveSession runner={runner} packs={PACKS} bindCommands={() => undefined} />
+          </I18nextProvider>
+        </ServicesProvider>,
+      );
+    view();
+    expect(screen.queryByRole("complementary", { name: "Tanı" })).toBeNull();
+    fireEvent.click(await screen.findByRole("button", { name: "Tanı" }));
+    await vi.waitFor(() => expect(t.pose.emit).toBeDefined());
+    const hidden = { ...person, image: person.image.map((p, i) => (i === LANDMARK_NAMES.indexOf("left_ankle") ? { ...p, visibility: 0.1 } : p)) };
+    for (let ms = 0; ms <= 1000; ms += 50) await act(async () => t.pose.emit!([{ ...hidden, t: ms }], ms));
+    const panel = screen.getByRole("complementary", { name: "Tanı" });
+    await vi.waitFor(() => expect(Number(screen.getByTestId("diag-fps").textContent)).toBe(20));
+    expect(panel.textContent).toContain("sol ayak bileği");
+    expect(panel.querySelector(".vis-bad")!.textContent).toContain("sol ayak bileği");
+    expect(panel.querySelectorAll(".vis-good").length).toBeGreaterThan(0);
+    cleanup();
+    view(); // the choice is kept on this device
+    expect(screen.getByRole("complementary", { name: "Tanı" })).toBeTruthy();
+  });
+
+  test("choosing the full model is remembered and restarts the camera with it", async () => {
+    const t = testServices();
+    render(
+      <ServicesProvider services={t.services}>
+        <I18nextProvider i18n={createI18n("tr")}>
+          <LiveSession runner={makeRunner(t)} packs={PACKS} bindCommands={() => undefined} />
+        </I18nextProvider>
+      </ServicesProvider>,
+    );
+    fireEvent.click(await screen.findByRole("button", { name: "Tanı" }));
+    const before = vi.mocked(t.services.requestCamera).mock.calls.length;
+    fireEvent.change(screen.getByRole("combobox", { name: "Poz modeli" }), { target: { value: "full" } });
+    expect(localStorage.getItem("gymspot.poseModel")).toBe("full");
+    await vi.waitFor(() => expect(vi.mocked(t.services.requestCamera).mock.calls.length).toBeGreaterThan(before));
+  });
+});

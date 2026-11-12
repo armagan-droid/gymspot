@@ -85,6 +85,31 @@ describe("SessionRunner (camera → engine → program)", () => {
     expect(runner.state.status).toBe("SET_ACTIVE");
   });
 
+  test("trackingProblem tells why: nobody, two people, or a body part out of view", () => {
+    const { runner, feed, advance } = makeRunner(10);
+    runner.act("START");
+    const frames = squats([{ kneeAngle: 90 }]);
+    feed(frames);
+    expect(runner.trackingProblem).toBeNull();
+    let t = frames.at(-1)!.t;
+    const push = (c: Frame[], ms: number) => {
+      for (const end = t + ms; t < end; t += 33) {
+        advance(33);
+        runner.pushCandidates(c.map((f) => ({ ...f, t })), t);
+      }
+    };
+    push([], 1500);
+    expect(runner.trackingProblem).toEqual({ cause: "absent" });
+    const f = frames[0]!;
+    const twin = { ...f, image: f.image.map((p) => ({ ...p, x: p.x + 0.3 })) }; // same size, as central
+    const mirrored = { ...f, image: f.image.map((p) => ({ ...p, x: p.x - 0.3 })) };
+    push([twin, mirrored], 1500);
+    expect(runner.trackingProblem).toEqual({ cause: "ambiguous" });
+    const noFeet = { ...f, image: f.image.map((p, i) => (i === 27 || i === 28 ? { ...p, visibility: 0 } : p)) }; // ankles
+    push([noFeet], 1500);
+    expect(runner.trackingProblem).toEqual({ cause: "body", landmarks: ["left_ankle"] });
+  });
+
   test("tick() advances timers without frames (rest countdown)", () => {
     const { runner, feed, advance } = makeRunner(1, 2);
     runner.act("START");

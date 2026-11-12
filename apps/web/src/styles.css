@@ -695,3 +695,109 @@ main [data-screen="A1"] > form {
   padding: 0.5rem 1rem;
   display: inline-block;
 }
+
+/* ------------------------------------------- safety pause: red stop, green go */
+
+.alert {
+  margin: 0 0 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+}
+.alert p {
+  margin: 0.35rem 0 0;
+  font-weight: 500;
+}
+.alert strong {
+  font-size: 1.25rem;
+}
+.alert-danger {
+  background: var(--danger);
+  color: #fff;
+}
+.alert-ok {
+  background: var(--ok);
+  color: #04130a;
+  font-size: 1.25rem;
+}
+.camera-stage.stage-danger::after,
+.camera-stage.stage-ok::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  box-shadow: inset 0 0 0 0.5rem var(--alert-edge), inset 0 0 3rem var(--alert-edge);
+}
+.camera-stage.stage-danger {
+  --alert-edge: var(--danger);
+}
+.camera-stage.stage-ok {
+  --alert-edge: var(--ok);
+}
+.cue-band.cue-warning {
+  color: #facc15;
+}
+
+/* ------------------------------------------------ A5 diagnostics (specs/08) */
+
+.diagnostics-toggle {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  opacity: 0.85;
+}
+.diagnostics {
+  position: absolute;
+  top: 3.25rem;
+  left: 0.5rem;
+  max-width: min(18rem, calc(100% - 1rem));
+  max-height: calc(100% - 4rem);
+  overflow: auto;
+  padding: 0.6rem 0.75rem;
+  border-radius: 0.75rem;
+  background: rgb(0 0 0 / 0.72);
+  color: #fff;
+  font-size: 0.8rem;
+  line-height: 1.35;
+}
+.diagnostics dl {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.1rem 0.6rem;
+  margin: 0 0 0.4rem;
+}
+.diagnostics dt {
+  opacity: 0.7;
+}
+.diagnostics dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+.diagnostics ul {
+  list-style: none;
+  margin: 0 0 0.5rem;
+  padding: 0;
+}
+.diagnostics li {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-variant-numeric: tabular-nums;
+}
+.diagnostics .vis-good {
+  color: #4ade80;
+}
+.diagnostics .vis-weak {
+  color: #facc15;
+}
+.diagnostics .vis-bad {
+  color: #ff5a5f;
+}
+.diagnostics label {
+  display: grid;
+  gap: 0.2rem;
+  color: #fff;
+}
+.diagnostics select {
+  font-size: 0.8rem;
+}

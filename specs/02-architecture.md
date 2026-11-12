@@ -74,7 +74,7 @@ Hangi metriğin hangi koordinatı kullandığı 04'teki metrik tablosundadır.
 - **Ses otomatik çalma:** tarayıcılar ses için kullanıcı etkileşimi ister. Ses bağlamı "Başla"/check-in dokunuşunda açılır ve seans boyunca açık tutulur.
 - **iOS Safari:** ana ekrana eklenmiş PWA'da `getUserMedia` ve WebGL davranışı sürüme göre değişir; desteklenen minimum iOS sürümü spike sonucuyla belirlenir.
 - **Tablet kiosk:** istasyon tableti için işletim sistemi kiosk/sabitleme modu kurulum kılavuzunda (T5.4) anlatılır.
-- **Model varyantı:** MediaPipe Pose lite/full/heavy arasından FPS–doğruluk dengesine göre seçim yapılır. `worldLandmarks` doğruluğu yan/ön görünümde ölçülür (04 metrik koordinatları).
+- **Model varyantı:** MediaPipe Pose lite/full/heavy arasından FPS–doğruluk dengesine göre seçim yapılır. Ölçüm tamamlanana kadar varsayılan `lite`; cihazda A5 tanı panelinden `full` seçilebilir (cihazda saklanır, kamera yeniden başlar). `worldLandmarks` doğruluğu yan/ön görünümde ölçülür (04 metrik koordinatları).
 
 ## T2.2 Spike — poz tahmini ölçümü
 **Durum:** ölçüm aracı hazır, cihaz ölçümleri bekleniyor.

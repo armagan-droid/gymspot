@@ -3,6 +3,7 @@ import { type CredentialStore, type GymApi, createGymApi, localCredentialStore }
 import { type StaffApi, createStaffApi } from "./api/staff";
 import { type CameraResult, requestCamera } from "./camera";
 import { createMediaPipeSource } from "./pose/mediapipe";
+import { poseModel } from "./pose/prefs";
 import type { PoseSource } from "./pose/source";
 import { type CuePlayerDeps, browserCueDeps } from "./session/audio";
 import { type QrScanner, createJsQrScanner } from "./station/scanner";
@@ -44,7 +45,7 @@ export function browserServices(): AppServices {
     store,
     storage: localStorage,
     requestCamera,
-    createPoseSource: () => createMediaPipeSource("lite"),
+    createPoseSource: () => createMediaPipeSource(poseModel()),
     createScanner: createJsQrScanner,
     createSync: (as) => {
       const send = as === "device" ? api.ingestAsDevice : api.ingestAsMember;

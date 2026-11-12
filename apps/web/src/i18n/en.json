@@ -63,7 +63,23 @@
     "resume": "Tap to continue"
   },
   "safety": {
-    "stop": "Stop, check your form"
+    "stop": "Stop, check your form",
+    "hint": "Get into the start position; the set carries on once your form is fixed.",
+    "resumed": "Form fixed"
+  },
+  "tracking": {
+    "lost": "I can't see you, step back into the frame",
+    "ambiguous": "I see more than one person; keep only yourself in the frame",
+    "body": "Not visible: {{parts}}. Step back a little or adjust the camera",
+    "part": {
+      "nose": "head",
+      "shoulder": "shoulder",
+      "elbow": "elbow",
+      "wrist": "wrist",
+      "hip": "hip",
+      "knee": "knee",
+      "ankle": "ankle"
+    }
   },
   "session": {
     "done": "Session complete",
@@ -329,5 +345,26 @@
     "station": "The fixed tablet at a station. Runs the exercise handed over from the member's phone.",
     "member": "Your program, sessions, history and progress.",
     "admin": "Stations, members, program templates and gym settings."
+  },
+  "diagnostics": {
+    "title": "Diagnostics",
+    "toggle": "Diagnostics",
+    "fps": "Frames/s",
+    "model": "Model",
+    "side": "Side facing the camera",
+    "left": "left",
+    "right": "right",
+    "tracking": "Tracking",
+    "ok": "ok",
+    "problem": {
+      "absent": "nobody",
+      "ambiguous": "more than one person",
+      "body": "a body part is hidden"
+    },
+    "modelChoice": "Pose model",
+    "models": {
+      "lite": "Lite (fast)",
+      "full": "Full (more accurate, slower)"
+    }
   }
 }

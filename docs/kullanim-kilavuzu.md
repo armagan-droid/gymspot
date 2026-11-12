@@ -88,7 +88,9 @@ Menü: **Genel bakış · İstasyonlar · Üyeler · Program şablonları · Kal
 4. **Dinlenme**: geri sayım biter ya da **Hazırım**'a dokunursunuz; sonraki set başlar.
 5. Tüm bloklar bitince **Seans tamamlandı** ekranı gelir.
 
-"Dur, formunu kontrol et" uyarısı güvenlik duraklatmasıdır: hareketi bırakın, formunuzu düzeltip devam edin.
+"Dur, formunu kontrol et" uyarısı güvenlik duraklatmasıdır: ekran kırmızı çerçeve alır, hatalı eklemler kırmızı görünür ve nasıl düzelteceğiniz yazar. Hareketi bırakıp başlangıç duruşuna geçin; form düzelince yeşil "Form düzeldi" uyarısıyla set 2-1 sayımıyla kendiliğinden devam eder. **Devam et**'e dokunarak da dönebilirsiniz.
+
+"Seni göremiyorum, kadraja geri gel" denirse kamera sizi 5 saniyeden uzun görememiştir. Kadraja dönünce set 3-2-1 sayımıyla kendiliğinden devam eder, sayaç korunur.
 
 ### 3.3 İstasyona devretme (QR)
 
@@ -136,6 +138,7 @@ Eşleştirilmiş tablet her zaman "Başlamak için telefonundaki QR'ı kameraya 
 | Panelde "E-posta veya şifre hatalı" | Salon kimliğinin doğru olduğundan emin olun; şifre büyük/küçük harfe duyarlıdır. |
 | "Çok fazla hatalı deneme" | 15 dakika bekleyin. |
 | Tablet eşleşmiyor | Kodun süresi 10 dakikadır; panelden yeni kod üretin. |
+| Set sık sık "Seni göremiyorum" ya da "Görünmüyor: …" diyor | Kamera ekranında sol üstteki **Tanı** düğmesine dokunun. Panel kare hızını ve her eklemin ne kadar net göründüğünü gösterir (yeşil iyi, sarı zayıf, kırmızı görünmüyor). Kırmızı eklem kadraj dışındaysa uzaklaşın; kare hızı 15'in altındaysa ışığı artırın. Daha isabetli algılama için panelden **Tam** modeli deneyin (daha yavaştır). |
 | Üyeye davet e-postası gitmedi | Üyenin e-postasını kontrol edin; üye girişte **Giriş bağlantısı gönder** ile yeni bağlantı isteyebilir. |
 | "Atanmış bir programın yok" | Panelde üyeye program atayın. |
 | Kamera kurulumu "Hazır" olmuyor | Tüm vücut görünmeli, kamerada tek kişi olmalı, hareket için doğru açıda (önden/yandan) durulmalı. |

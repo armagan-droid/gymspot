@@ -19,6 +19,7 @@ export {
   SETUP_CHECKS,
   assessSetup,
   faultLandmarks,
+  problemEdges,
 } from "./setup/assess-setup";
 export { PERSON_SELECTION, type PersonSelection, type PersonTrack, personScore, selectPerson } from "./setup/select-person";
 export { FREQUENT_FAULT_STREAK, type SetSummary, summarizeSet } from "./exercise/summary";

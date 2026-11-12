@@ -11,7 +11,7 @@ import {
   selectPerson,
   step,
 } from "@gymspot/engine";
-import type { Frame, ProgramInput, SessionCursor, UserActionKind } from "@gymspot/shared";
+import { type Frame, LANDMARK_NAMES, type LandmarkName, type ProgramInput, type SessionCursor, type UserActionKind } from "@gymspot/shared";
 
 // Wires camera candidates → person selection → ExerciseEngine → program state
 // machine, and forwards program commands. No DOM; driven by the UI or tests.
@@ -29,6 +29,9 @@ export interface SessionRunnerOptions {
   absenceLostAfterMs?: number;
 }
 
+/** Why tracking is lost, for the screen (specs/08 A5). */
+export type TrackingProblem = { cause: "absent" } | { cause: "ambiguous" } | { cause: "body"; landmarks: LandmarkName[] };
+
 export class SessionRunner {
   private _state: ProgramState;
   private engine: ExerciseEngine | undefined;
@@ -38,6 +41,7 @@ export class SessionRunner {
   private lostByAbsence = false;
   private lostByEngine = false;
   private lostSent = false;
+  private ambiguous = false;
   private readonly listeners = new Set<(s: ProgramState) => void>();
 
   constructor(
@@ -56,6 +60,10 @@ export class SessionRunner {
     this.listeners.add(fn);
     if (rendered !== undefined && rendered !== this._state) fn(this._state);
     return () => this.listeners.delete(fn);
+  }
+
+  get setup(): ExerciseSetup {
+    return this.o.setup;
   }
 
   /** Setup for the following sets (from A3). */
@@ -96,6 +104,7 @@ export class SessionRunner {
     const sel = selectPerson(candidates, this.track);
     this.track = sel.track;
     this.lastFrame = sel.frame;
+    this.ambiguous = sel.ambiguous;
 
     this.lastPersonAt ??= t;
     if (sel.frame) {
@@ -120,6 +129,24 @@ export class SessionRunner {
         this.send(e);
       }
     }
+  }
+
+  /** Diagnostics (specs/08 A5): the side in use and how well each required landmark is seen. */
+  get diagnostics(): { nearSide: string; landmarks: { name: LandmarkName; visibility: number | null }[] } | null {
+    const engine = this.engine;
+    if (!engine) return null;
+    const frame = this.lastFrame;
+    return {
+      nearSide: engine.nearSide,
+      landmarks: engine.trackedLandmarks.map((i) => ({ name: LANDMARK_NAMES[i]!, visibility: frame ? frame.image[i]!.visibility : null })),
+    };
+  }
+
+  /** Null while tracking is fine. */
+  get trackingProblem(): TrackingProblem | null {
+    if (this.lostByAbsence) return { cause: this.ambiguous ? "ambiguous" : "absent" };
+    if (this.lostByEngine) return { cause: "body", landmarks: (this.engine?.missingLandmarks ?? []).map((i) => LANDMARK_NAMES[i]!) };
+    return null;
   }
 
   private currentEngine(): ExerciseEngine | undefined {

@@ -109,7 +109,7 @@ export function assessSetup(samples: readonly SetupSample[], pack: RulePack): Se
 }
 
 /** Edges that required landmarks of the latest frame stick out of. */
-function problemEdges(frame: Frame | undefined, required: readonly number[], m: number): Edge[] {
+export function problemEdges(frame: Frame | undefined, required: readonly number[], m: number): Edge[] {
   if (!frame) return [];
   const out = new Set<Edge>();
   for (const i of required) {

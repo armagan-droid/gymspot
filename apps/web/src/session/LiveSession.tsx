@@ -4,7 +4,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useServices } from "../services";
 import { LegalStrip } from "../components/Layouts";
-import { clearOverlay, paintOverlay } from "../pose/overlay";
+import type { PoseModelVariant } from "../pose/mediapipe";
+import { clearOverlay, paintOverlay, trackingGuide } from "../pose/overlay";
+import { diagnosticsOn, poseModel, setDiagnosticsOn, setPoseModel } from "../pose/prefs";
+import type { PoseSource } from "../pose/source";
+import { DiagnosticsPanel, snapshotOf } from "./DiagnosticsPanel";
 import { createCuePlayer } from "./audio";
 import type { SessionRunner } from "./runner";
 import { type ShowCommand, SessionView } from "./SessionView";
@@ -35,6 +39,16 @@ export function LiveSession({ runner, packs, bindCommands, onState, autoStart }:
   const skeletonRef = useRef(true);
   const [skeleton, setSkeleton] = useState(true);
   const [muted, setMuted] = useState(false);
+  // A5 diagnostics and pose model choice, remembered on this device (specs/08)
+  const [diag, setDiag] = useState(diagnosticsOn);
+  const [model, setModel] = useState<PoseModelVariant>(poseModel);
+  const sourceRef = useRef<PoseSource | null>(null);
+  const frameTimes = useRef<number[]>([]);
+  const readDiagnostics = useCallback(() => {
+    const ts = frameTimes.current;
+    const fps = ts.length > 1 ? ((ts.length - 1) * 1000) / (ts.at(-1)! - ts[0]!) : 0;
+    return snapshotOf(runner, fps, sourceRef.current?.stats?.());
+  }, [runner]);
   const [lastShow, setLastShow] = useState<ShowCommand | null>(null);
   const [state, setState] = useState(runner.state);
   const rendered = useRef(state); // input can arrive before the effect subscribes
@@ -69,6 +83,8 @@ export function LiveSession({ runner, packs, bindCommands, onState, autoStart }:
     () =>
       runner.subscribe((s) => {
         setState(s);
+        // the green "form fixed" belongs to that one countdown only
+        if (s.status !== "COUNTDOWN") setLastShow((c) => (c?.key === "safety.resumed" ? null : c));
         onStateRef.current?.(s);
       }, rendered.current),
     [runner],
@@ -79,6 +95,7 @@ export function LiveSession({ runner, packs, bindCommands, onState, autoStart }:
     let lock: { release(): Promise<void> } | undefined;
     let cancelled = false;
     const source = services.createPoseSource();
+    sourceRef.current = source;
     const timer = setInterval(() => runner.tick(), 250); // timers run without frames too
     void (async () => {
       const cam = await services.requestCamera();
@@ -94,15 +111,26 @@ export function LiveSession({ runner, packs, bindCommands, onState, autoStart }:
         .catch(() => undefined);
       await source.start(video, (candidates, t) => {
         runner.pushCandidates(candidates, t);
+        const ts = frameTimes.current;
+        ts.push(t);
+        while (ts.length > 1 && t - ts[0]! > 1000) ts.shift();
         const canvas = canvasRef.current;
         if (!canvas || !video) return;
-        if (!skeletonRef.current) return clearOverlay(canvas);
         const block = runner.state.config.workout.blocks[runner.state.cursor.blockIndex];
         const pack = block && packs[block.exerciseId];
+        // out of view: the setup drawing comes back, even with the skeleton off (specs/08 A5)
+        if (pack && runner.trackingProblem) return paintOverlay(canvas, video, runner.lastFrame, trackingGuide(pack, runner.setup, runner.lastFrame));
+        if (!skeletonRef.current) return clearOverlay(canvas);
         const hi = highlight.current;
+        const st = runner.state;
+        // a safety pause keeps the joints of its fault red until the form is fixed (specs/08 A5)
+        const safety =
+          pack && st.status === "PAUSED" && st.pauseReason === "safety" && st.safetyFaultId && runner.lastFrame
+            ? faultLandmarks(pack, st.safetyFaultId, chooseNearSide([runner.lastFrame]))
+            : undefined;
         paintOverlay(canvas, video, runner.lastFrame, {
           minVisibility: pack?.camera.minVisibility ?? 0.5,
-          highlight: performance.now() < hi.until ? hi.joints : undefined,
+          highlight: safety ?? (performance.now() < hi.until ? hi.joints : undefined),
         });
       });
     })();
@@ -113,11 +141,22 @@ export function LiveSession({ runner, packs, bindCommands, onState, autoStart }:
       stream?.getTracks?.().forEach((tr) => tr.stop());
       void lock?.release();
     };
-  }, [runner, services]);
+  }, [runner, services, model]); // a new model restarts the camera pipeline
+
+  const currentBlock = state.config.workout.blocks[state.cursor.blockIndex];
+  const currentPack = currentBlock ? packs[currentBlock.exerciseId] : undefined;
+
+  // red frame while the form is off, green while the set restarts (specs/08 A5)
+  const stageAlert =
+    state.status === "PAUSED" && state.pauseReason === "safety"
+      ? "stage-danger"
+      : state.status === "COUNTDOWN" && lastShow?.key === "safety.resumed"
+        ? "stage-ok"
+        : "";
 
   return (
     <div className="live-session camera-screen">
-      <div className="camera-stage">
+      <div className={`camera-stage${stageAlert ? ` ${stageAlert}` : ""}`}>
         <video ref={videoRef} muted playsInline autoPlay className="camera-preview" />
         <canvas ref={canvasRef} className="pose-overlay" aria-hidden="true" data-testid="pose-overlay" />
         <button
@@ -130,12 +169,34 @@ export function LiveSession({ runner, packs, bindCommands, onState, autoStart }:
         >
           {t(skeleton ? "session.skeletonOn" : "session.skeletonOff")}
         </button>
+        <button
+          className="diagnostics-toggle"
+          aria-pressed={diag}
+          onClick={() => {
+            setDiagnosticsOn(!diag);
+            setDiag(!diag);
+          }}
+        >
+          {t("diagnostics.toggle")}
+        </button>
+        {diag && (
+          <DiagnosticsPanel
+            read={readDiagnostics}
+            model={model}
+            minVisibility={currentPack?.camera.minVisibility ?? 0.6}
+            onModel={(m) => {
+              setPoseModel(m);
+              setModel(m);
+            }}
+          />
+        )}
       </div>
       <div className="overlay-panel">
         <SessionView
           state={state}
           packs={packs}
           lastShow={lastShow}
+          trackingProblem={runner.trackingProblem}
           muted={muted}
           onAction={(k) => runner.act(k)}
           onToggleMute={() => {

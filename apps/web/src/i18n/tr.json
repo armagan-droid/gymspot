@@ -63,7 +63,23 @@
     "resume": "Devam etmek için dokun"
   },
   "safety": {
-    "stop": "Dur, formunu kontrol et"
+    "stop": "Dur, formunu kontrol et",
+    "hint": "Başlangıç duruşuna geç; form düzelince set kendiliğinden devam eder.",
+    "resumed": "Form düzeldi"
+  },
+  "tracking": {
+    "lost": "Seni göremiyorum, kadraja geri gel",
+    "ambiguous": "Kadrajda birden fazla kişi görüyorum; kadrajda yalnız sen kal",
+    "body": "Görünmüyor: {{parts}}. Biraz uzaklaş ya da kamerayı ayarla",
+    "part": {
+      "nose": "baş",
+      "shoulder": "omuz",
+      "elbow": "dirsek",
+      "wrist": "el bileği",
+      "hip": "kalça",
+      "knee": "diz",
+      "ankle": "ayak bileği"
+    }
   },
   "session": {
     "done": "Seans tamamlandı",
@@ -329,5 +345,26 @@
     "station": "Salondaki sabit tablet. Üyenin telefonundan devralınan hareketi kamerayla yürütür.",
     "member": "Programın, seansın, geçmişin ve ilerlemen.",
     "admin": "İstasyonlar, üyeler, program şablonları ve salon ayarları."
+  },
+  "diagnostics": {
+    "title": "Tanı",
+    "toggle": "Tanı",
+    "fps": "Kare/sn",
+    "model": "Model",
+    "side": "Kameraya bakan taraf",
+    "left": "sol",
+    "right": "sağ",
+    "tracking": "Takip",
+    "ok": "tamam",
+    "problem": {
+      "absent": "kimse yok",
+      "ambiguous": "birden fazla kişi",
+      "body": "bir bölge görünmüyor"
+    },
+    "modelChoice": "Poz modeli",
+    "models": {
+      "lite": "Hafif (hızlı)",
+      "full": "Tam (daha isabetli, daha yavaş)"
+    }
   }
 }

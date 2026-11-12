@@ -20,6 +20,8 @@ type VideoWithFrameCallback = HTMLVideoElement & {
 export function createMediaPipeSource(variant: PoseModelVariant = "lite"): PoseSource {
   let landmarker: PoseLandmarker | undefined;
   let stopped = false;
+  let usedDelegate: string | undefined;
+  let inferenceMs: number | undefined;
 
   return {
     async start(video, onResult) {
@@ -34,6 +36,7 @@ export function createMediaPipeSource(variant: PoseModelVariant = "lite"): PoseS
             runningMode: "VIDEO",
             numPoses: 2,
           });
+          usedDelegate = delegate;
           break;
         } catch (e) {
           if (delegate === "CPU") throw e;
@@ -47,6 +50,7 @@ export function createMediaPipeSource(variant: PoseModelVariant = "lite"): PoseS
           last = video.currentTime;
           const t = performance.now();
           const result = landmarker.detectForVideo(video, t);
+          inferenceMs = performance.now() - t;
           const candidates = result.landmarks.flatMap((_, i) => poseResultToFrame(result, t, i) ?? []) as Frame[];
           onResult(candidates, t);
         }
@@ -55,6 +59,7 @@ export function createMediaPipeSource(variant: PoseModelVariant = "lite"): PoseS
       };
       loop();
     },
+    stats: () => ({ model: variant, delegate: usedDelegate, inferenceMs }),
     stop() {
       stopped = true;
       landmarker?.close();

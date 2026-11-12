@@ -43,6 +43,23 @@ describe("loadRulePack", () => {
     if (!r.success) expect(r.issues.join("\n")).toMatch(/readyPose: .*knee_angle/);
   });
 
+  test("chainHeight takes 2–6 landmarks; an empty head target is rejected (specs/04 Eskiv)", () => {
+    for (const [chain, ok] of [
+      [["nose"], false],
+      [["nose", "left_ankle"], true],
+      [["nose", "left_shoulder", "left_hip", "left_knee", "left_ankle", "left_heel", "left_foot_index"], false],
+    ] as const) {
+      const p = squat();
+      p.metrics.h = { chainHeight: chain };
+      expect(safeLoadRulePack(p).success, chain.join(",")).toBe(ok);
+    }
+    const p = squat();
+    p.overlay = { headTarget: {} };
+    expect(safeLoadRulePack(p).success).toBe(false);
+    p.overlay = { headTarget: { height: 0.86 } };
+    expect(safeLoadRulePack(p).success).toBe(true);
+  });
+
   test("schema issues are reported before expression parsing", () => {
     const p = squat();
     p.hysteresis = {};

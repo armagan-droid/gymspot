@@ -44,6 +44,8 @@ Her adım tek spec'e dayanır ve testlerle biter. Sıra bağımlılığa göre. 
 - [x] T6.1 `max` metrik fonksiyonu (04) + dövüş sporları için sentetik poz üreteci
 - [x] T6.2 İlk teknik paketleri (draft): teep ve diz vuruşu (muay thai), mae geri (karate), düz yumruk (jab/cross/zuki) — yandan görünüm _(eşikler sentetik; dojoda kalibrasyon kaydıyla doğrulanacak)_
 - [x] T6.3 Kural paketleri API'den (`GET /exercises`, tenant + global) ve istemcide çevrimdışı önbellek; yeni hareket için yeniden dağıtım gerekmez (değişmez kural 3)
+- [x] T6.7 Eskiv drilleri (04 "Eskiv"): `lateralLean` ve `chainHeight` metrik fonksiyonları, `slip`, `slip_left`, `slip_right`, `duck` paketleri (önden, draft), A5 hedef dairesi (08) _(eşikler sentetik; salonda kalibrasyonla doğrulanacak)_
+- [ ] T6.8 Eskiv üçgeni ve komut modu (sıralı hedefler, rastgele "sol/sağ/eğil" komutu, tepki süresi) — önce 03/04'e tanım (T6.5 ile birlikte)
 - [ ] T6.4 `hold` tipi: duruş tutma (kiba dachi, zenkutsu dachi, gard) — önce 04'e tanım
 - [ ] T6.5 Kombinasyon/sekans (jab–cross–hook, kata parçaları) — önce 03/04'e tanım
 - [ ] T6.6 Hız metrikleri (vuruş "snap"i) — önce 04'e tanım, cihaz FPS ölçümüne (T2.2) bağlı

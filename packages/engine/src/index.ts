@@ -40,8 +40,10 @@ export type { CompareOp } from "./expr/tokenize";
 export {
   type MetricComputer,
   type Side,
+  chainHeight,
   chooseNearSide,
   createMetricComputer,
+  lateralLean,
   resolveLandmark,
   torsoLength,
 } from "./metrics/compute";

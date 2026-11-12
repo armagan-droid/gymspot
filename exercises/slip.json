@@ -1,0 +1,188 @@
+{
+  "id": "slip",
+  "version": 1,
+  "status": "draft",
+  "name": {
+    "tr": "Eskiv: sağa-sola kaçış (boks)",
+    "en": "Slip: left and right (boxing)"
+  },
+  "type": "reps",
+  "camera": {
+    "views": [
+      "front"
+    ],
+    "minVisibleLandmarks": [
+      "nose",
+      "left_shoulder",
+      "right_shoulder",
+      "left_wrist",
+      "right_wrist",
+      "left_hip",
+      "right_hip"
+    ],
+    "minVisibility": 0.6,
+    "posture": "standing",
+    "setupHint": {
+      "tr": "Kamerayı göğüs hizasına, tam karşına koy; 2–3 metre uzaklaş, gard al.",
+      "en": "Place the camera at chest height straight in front of you, step back 2–3 meters and take your guard."
+    }
+  },
+  "metrics": {
+    "head_l_lh": {
+      "lateralLean": [
+        "nose",
+        "left_hip"
+      ]
+    },
+    "head_l_rh": {
+      "lateralLean": [
+        "nose",
+        "right_hip"
+      ]
+    },
+    "head_left": {
+      "avg": [
+        "head_l_lh",
+        "head_l_rh"
+      ]
+    },
+    "head_r_lh": {
+      "lateralLean": [
+        "left_hip",
+        "nose"
+      ]
+    },
+    "head_r_rh": {
+      "lateralLean": [
+        "right_hip",
+        "nose"
+      ]
+    },
+    "head_right": {
+      "avg": [
+        "head_r_lh",
+        "head_r_rh"
+      ]
+    },
+    "torso_l_l": {
+      "lateralLean": [
+        "left_shoulder",
+        "left_hip"
+      ]
+    },
+    "torso_l_r": {
+      "lateralLean": [
+        "right_shoulder",
+        "right_hip"
+      ]
+    },
+    "torso_left": {
+      "avg": [
+        "torso_l_l",
+        "torso_l_r"
+      ]
+    },
+    "torso_r_l": {
+      "lateralLean": [
+        "left_hip",
+        "left_shoulder"
+      ]
+    },
+    "torso_r_r": {
+      "lateralLean": [
+        "right_hip",
+        "right_shoulder"
+      ]
+    },
+    "torso_right": {
+      "avg": [
+        "torso_r_l",
+        "torso_r_r"
+      ]
+    },
+    "guard_l": {
+      "diffY": [
+        "left_wrist",
+        "left_shoulder"
+      ]
+    },
+    "guard_r": {
+      "diffY": [
+        "right_wrist",
+        "right_shoulder"
+      ]
+    },
+    "head_slip": {
+      "max": [
+        "head_left",
+        "head_right"
+      ]
+    },
+    "torso_slip": {
+      "max": [
+        "torso_left",
+        "torso_right"
+      ]
+    }
+  },
+  "rep": {
+    "metric": "head_slip",
+    "start": {
+      "enter": 0.12,
+      "exit": 0.16
+    },
+    "target": {
+      "enter": 0.3,
+      "exit": 0.25
+    },
+    "attemptMinExcursion": 0.06,
+    "minDurationMs": 200,
+    "maxDurationMs": 2500
+  },
+  "readyPose": "guard_l > -0.3 and guard_r > -0.3 and head_left < 0.1 and head_right < 0.1 for 1000ms",
+  "faults": [
+    {
+      "id": "guard_dropped",
+      "name": {
+        "tr": "Gardın düşmesi",
+        "en": "Guard dropped"
+      },
+      "severity": "minor",
+      "check": "during_rep: min(guard_l, guard_r) < -0.5",
+      "cue": {
+        "tr": "Gardını kaldır",
+        "en": "Keep your guard up"
+      },
+      "affectsValidity": false,
+      "cooldownMs": 4000,
+      "minConsecutiveReps": 1,
+      "holdMs": 200
+    },
+    {
+      "id": "neck_only",
+      "name": {
+        "tr": "Yalnız boyunla kaçma",
+        "en": "Slipping with the neck only"
+      },
+      "severity": "minor",
+      "check": "at_turn: torso_slip < 0.15",
+      "cue": {
+        "tr": "Boynunla değil, gövdenle kaç",
+        "en": "Slip with your body, not just your neck"
+      },
+      "affectsValidity": false,
+      "cooldownMs": 4000,
+      "minConsecutiveReps": 2
+    }
+  ],
+  "smoothing": {
+    "method": "one_euro",
+    "minCutoff": 2.0,
+    "beta": 0.7
+  },
+  "overlay": {
+    "headTarget": {
+      "lateral": 0.3
+    }
+  }
+}

@@ -158,6 +158,18 @@ Teknikler (tekme, diz, yumruk) birer `reps` hareketidir: bir teknik = bir tekrar
 - `readyPose` gard duruşudur (eller yukarıda).
 - Paket adı disiplini içerir (ör. "Teep (Muay Thai)").
 
+### Eskiv (kaçınma) drilleri
+Baş hareketiyle yapılan savunma drilleri; üye kameraya **önden** bakar. Bir eskiv = bir tekrar: baş merkezden çıkar, hedefe varır, merkeze döner (histerezis, merkeze dönmeden yeni tekrar başlamaz).
+- **Yana eskiv (slip):** tekrar metriği başın kalça ortasına göre yana yatışıdır: `avg(lateralLean(nose, left_hip), lateralLean(nose, right_hip))` (sola), ters sırayla sağa. `slip_left` / `slip_right` tek yönü, `slip` iki yönü (`max`) sayar; böylece programda sol ve sağ ayrı hareket olarak yazılabilir.
+- **Eğilme (duck):** tekrar metriği iki bacağın `chainHeight(nose, shoulder, hip, knee, ankle)` ortalamasıdır (azalan yön); dizler kırılıp gövde öne geldikçe küçülür.
+- Hatalar: gard düşmesi (iki elden biri, `during_rep`); yana eskivde yalnız boyunla kaçma (baş yattı ama omuzlar yatmadı, `at_turn`).
+- `readyPose`: gard + baş merkezde.
+- **Hedef dairesi** (`overlay.headTarget`, opsiyonel): A5'te başın etrafına çizilen hedef (08). `lateral` yana eskiv eşiği, `height` eğilme eşiğidir ve rep `target.enter` ile aynı değeri taşımalıdır (test); çizim yalnız görseldir, sayım her zaman rep kuralıyla yapılır.
+
+```jsonc
+"overlay": { "headTarget": { "lateral": 0.3 } }   // slip; duck için { "height": 0.85 }
+```
+
 `type: "hold"` şemada ayrılmıştır ama MVP'de kullanılmaz. Tanımı (tutuş koşulu, süre sayımı) bir hold hareketi eklenmeden önce bu spec'e yazılacaktır. Doğrulayıcı MVP'de `hold` paketlerini reddeder.
 
 ## MVP hareketleri (ilk sürüm)
@@ -182,6 +194,8 @@ Teknikler (tekme, diz, yumruk) birer `reps` hareketidir: bir teknik = bir tekrar
 | `angleFromVertical: [a, b]` | a→b doğrusunun dikeyden sapma açısı (0–180°) | görüntü (2B) |
 | `kneeInwardRatio: [hip, knee, ankle]` | dizin kalça–ayak bileği çizgisinden vücut orta hattına doğru sapması (pozitif = içe), bacak boyuna normalize | görüntü (2B) |
 | `signedOffset: [a, b, c]` | b'nin a–c doğrusuna dik işaretli uzaklığı (pozitif = görüntüde yukarı), a–c uzunluğuna normalize | görüntü (2B) |
+| `lateralLean: [a, b]` | b→a doğrusunun ön düzlemde dikeyden işaretli sapması: a'nın b'ye göre kişinin soluna yatay uzaklığı / a–b uzunluğu (≈ sin açı; pozitif = kişinin solu). Kişi kameraya yan dönmüşse (omuzların yatay açıklığı 3B omuz genişliğinin yarısından azsa) `NaN` | world (3B) |
+| `chainHeight: [p1, …, pn]` (2–6 nokta) | p1'in pn'den dikey yüksekliği / zincirin parça uzunlukları toplamı. 1 = zincir dümdüz ve dik (ayakta), eğilip çömeldikçe küçülür; kişinin boyundan bağımsız | world (3B) |
 
 Tanımlar:
 - **Gövde boyu** (görüntü): omuz orta noktası ile kalça orta noktası arasındaki görüntü mesafesi. `diffY` ve görünüm tespiti bunu kullanır.
@@ -189,6 +203,7 @@ Tanımlar:
 - **`signedOffset`'te "yukarı"**, görüntüde y'nin azaldığı yöndür. a–c doğrusu tam dikeyse pozitif yön görüntüde +x'tir.
 - Geometri tanımsızsa (çakışan noktalar, sıfır uzunluk) metrik `NaN` olur. `NaN` ifade dilinde *bilinmiyor* sayılır.
 - **Yumuşatma:** `smoothing` her karede hesaplanan **metrik değerlerine** uygulanır (landmark'lara değil). One Euro filtresinde `dCutoff = 1.0` ve zaman saniye cinsindendir. `NaN` değer filtreyi sıfırlamadan `NaN` olarak geçer.
+- **Kişinin solu** (`lateralLean`): sol omuzdan sağ omuza world x farkının işaretiyle belirlenir; yön eklem etiketlerine (anatomik sol) göredir, görüntüdeki sağ/sol konuma göre değil. Kamera görüntüsü motora aynalanmadan verilir (aynalanmış bir görüntüde sola kaçış sağa kaçış olarak görünür).
 - **Yakın taraf** seçiminde iki tarafın ortalama visibility değeri eşitse sol taraf seçilir.
 
 "world" = MediaPipe `worldLandmarks` (metre, kalça merkezli): eklem açılarını kamera açısından büyük ölçüde bağımsız kılar. Bu seçim T2.2 spike'ında doğrulanır. Doğrulanamazsa sonuç 02'ye yazılır ve bu tablo güncellenir.

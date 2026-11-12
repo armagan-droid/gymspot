@@ -90,6 +90,8 @@ Menü: **Genel bakış · İstasyonlar · Üyeler · Program şablonları · Kal
 
 "Dur, formunu kontrol et" uyarısı güvenlik duraklatmasıdır: ekran kırmızı çerçeve alır, hatalı eklemler kırmızı görünür ve nasıl düzelteceğiniz yazar. Hareketi bırakıp başlangıç duruşuna geçin; form düzelince yeşil "Form düzeldi" uyarısıyla set 2-1 sayımıyla kendiliğinden devam eder. **Devam et**'e dokunarak da dönebilirsiniz.
 
+**Eskiv drilleri** (sağa-sola kaçış, sola kaçış, sağa kaçış, eğilme): kameranın tam karşısında gard alın. Başınızın etrafında artı işaretli bir daire belirir. Gövdenizle yana yatıp başınızı dairenin dışına çıkarın ya da dizlerinizi kırıp başınızı dairenin altındaki kesikli çizginin altına indirin; daire yeşile döner. Merkeze dönünce tekrar sayılır. Programda sola ve sağa kaçışı ayrı hareket olarak yazabilirsiniz.
+
 "Seni göremiyorum, kadraja geri gel" denirse kamera sizi 5 saniyeden uzun görememiştir. Kadraja dönünce set 3-2-1 sayımıyla kendiliğinden devam eder, sayaç korunur.
 
 ### 3.3 İstasyona devretme (QR)

@@ -85,6 +85,27 @@ function signedOffset(a: P2, b: P2, c: P2): number {
   return ((b.x - a.x) * nx + (b.y - a.y) * ny) / len;
 }
 
+const dist3 = (a: Landmark, b: Landmark) => Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
+
+/**
+ * Signed frontal-plane lean of the b→a line: a's horizontal offset toward the
+ * person's left over |a−b|. NaN when the person is turned sideways (specs/04).
+ */
+export function lateralLean(frame: Frame, a: Landmark, b: Landmark): number {
+  const ls = frame.world[idx("left_shoulder")]!;
+  const rs = frame.world[idx("right_shoulder")]!;
+  const dx = ls.x - rs.x;
+  if (Math.abs(dx) < 0.5 * dist3(ls, rs)) return NaN;
+  return safeDiv(Math.sign(dx) * (a.x - b.x), dist3(a, b));
+}
+
+/** Height of the first point above the last over the chain's summed segment lengths (1 = straight and upright). */
+export function chainHeight(points: readonly Landmark[]): number {
+  let length = 0;
+  for (let i = 1; i < points.length; i++) length += dist3(points[i - 1]!, points[i]!);
+  return safeDiv(points.at(-1)!.y - points[0]!.y, length); // world y points down
+}
+
 export interface MetricComputer {
   /** Metric names in evaluation order (dependencies first). */
   readonly order: readonly string[];
@@ -113,6 +134,8 @@ export function createMetricComputer(metrics: Record<string, MetricDefinition>):
       const [h, k, a] = def.kneeInwardRatio;
       return kneeInwardRatio(frame, img(h), img(k), img(a));
     }
+    if ("lateralLean" in def) return lateralLean(frame, wld(def.lateralLean[0]), wld(def.lateralLean[1]));
+    if ("chainHeight" in def) return chainHeight(def.chainHeight.map(wld));
     const [a, b, c] = def.signedOffset;
     return signedOffset(img(a), img(b), img(c));
   };

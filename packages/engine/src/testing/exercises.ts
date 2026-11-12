@@ -1,7 +1,7 @@
 import type { Frame, LandmarkSequence, RepLabel } from "@gymspot/shared";
 import { type Body, type BodyPoint, type CoreJoint, type FrameOptions, SEGMENT, completeBody, toFrame } from "./body";
 import { createRandom } from "./random";
-import { type FighterParams, fighterBody } from "./martial";
+import { type EvaderParams, type FighterParams, evaderBody, fighterBody } from "./martial";
 import { repTimeline } from "./timeline";
 
 const rad = (deg: number) => (deg * Math.PI) / 180;
@@ -215,4 +215,17 @@ export function fighterSequence(
   const start = { hipFlex: 0, kneeAngle: 175, punchElbow: 35, guardDrop: 0, torsoLean: 0, ...o.start };
   const sides = { kickSide: o.kickSide ?? "right", punchSide: o.punchSide ?? "right" } as const;
   return buildSequence(o.exerciseId, "side", o, start, (p) => fighterBody({ ...p, ...sides }));
+}
+
+/** Head-movement drills, front view; the hand that drops with guardDrop is fixed for the sequence. */
+export function evaderSequence(
+  o: SequenceOptions<Omit<EvaderParams, "dropSide">> & {
+    exerciseId: string;
+    dropSide?: "left" | "right" | "both";
+    start?: Partial<Omit<EvaderParams, "dropSide">>;
+  },
+) {
+  const start = { slip: 0, kneeAngle: 165, torsoLean: 0, neckTilt: 0, guardDrop: 0, ...o.start };
+  const dropSide = o.dropSide ?? "both";
+  return buildSequence(o.exerciseId, "front", o, start, (p) => evaderBody({ ...p, dropSide }));
 }

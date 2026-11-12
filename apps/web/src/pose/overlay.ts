@@ -1,4 +1,13 @@
-import { type Edge, type ExerciseSetup, SETUP_CHECKS, problemEdges, resolveLandmark } from "@gymspot/engine";
+import {
+  type Edge,
+  type ExerciseSetup,
+  type MetricComputer,
+  SETUP_CHECKS,
+  chainHeight,
+  createMetricComputer,
+  problemEdges,
+  resolveLandmark,
+} from "@gymspot/engine";
 import { type Frame, LANDMARK_NAMES, type RulePack } from "@gymspot/shared";
 
 // Skeleton and guide frame over the camera preview (specs/08 A3, A5).
@@ -27,6 +36,86 @@ export interface OverlayOptions {
   edges?: readonly Edge[];
   /** A5 joints of the fault being cued (red). */
   highlight?: readonly number[];
+  /** A5 head target of head-movement drills (specs/08). */
+  headTarget?: HeadTarget | null;
+  /** Skeleton switched off: only the guides are drawn. */
+  hideSkeleton?: boolean;
+}
+
+type P = { x: number; y: number };
+
+/** Head target in normalized image coordinates; radius is a fraction of the picture height. */
+export interface HeadTarget {
+  center: P;
+  radius: number;
+  head: P;
+  /** Duck threshold line (image y), when the drill has one. */
+  duckY?: number;
+  /** The head is past the counting threshold. */
+  hit: boolean;
+}
+
+const NOSE = 0;
+const HIPS = [23, 24] as const;
+const ANKLES = [27, 28] as const;
+const CHAINS = [
+  [0, 11, 23, 25, 27],
+  [0, 12, 24, 26, 28],
+] as const;
+const HOME_SMOOTHING = 0.2;
+
+/**
+ * Follows where the head rests between reps (EMA while the rep metric is in
+ * its start zone) and draws the drill's thresholds around it: the circle's
+ * radius is the lateral slip threshold, the line below it the duck threshold.
+ * Visual only; counting is the rep rule's (specs/04 "Eskiv", 08 A5).
+ */
+export class HeadTargetTracker {
+  private readonly metrics: MetricComputer;
+  private home: { nose: P; hip: P; foot: P | null; chain: number } | null = null;
+
+  constructor(private readonly pack: RulePack) {
+    this.metrics = createMetricComputer(pack.metrics);
+  }
+
+  static for(pack: RulePack | undefined): HeadTargetTracker | null {
+    return pack?.overlay?.headTarget ? new HeadTargetTracker(pack) : null;
+  }
+
+  /** `aspect` = picture width / height, so the circle stays round on screen. */
+  update(frame: Frame | null, aspect: number): HeadTarget | null {
+    if (!frame) return null;
+    const { rep } = this.pack;
+    const target = this.pack.overlay!.headTarget!;
+    const value = this.metrics.compute(frame, "left")[rep.metric];
+    if (value === undefined || Number.isNaN(value)) return null;
+    const down = rep.start.enter > rep.target.enter; // decreasing metric
+    const atHome = down ? value >= rep.start.enter : value <= rep.start.enter;
+    const hit = down ? value <= rep.target.enter : value >= rep.target.enter;
+    const img = frame.image;
+    const mid = (a: number, b: number): P => ({ x: (img[a]!.x + img[b]!.x) / 2, y: (img[a]!.y + img[b]!.y) / 2 });
+    const ankles = ANKLES.every((i) => img[i]!.visibility >= this.pack.camera.minVisibility) ? mid(...ANKLES) : null;
+    if (atHome || !this.home) {
+      const chain = (chainHeight(CHAINS[0].map((i) => frame.world[i]!)) + chainHeight(CHAINS[1].map((i) => frame.world[i]!))) / 2;
+      const now = { nose: { x: img[NOSE]!.x, y: img[NOSE]!.y }, hip: mid(...HIPS), foot: ankles, chain };
+      const h = this.home;
+      const k = h ? HOME_SMOOTHING : 1;
+      const ema = (a: P, b: P): P => ({ x: a.x + (b.x - a.x) * k, y: a.y + (b.y - a.y) * k });
+      this.home = h
+        ? { nose: ema(h.nose, now.nose), hip: ema(h.hip, now.hip), foot: now.foot && (h.foot ? ema(h.foot, now.foot) : now.foot), chain: h.chain + (now.chain - h.chain) * k }
+        : now;
+    }
+    const h = this.home!;
+    let duckY: number | undefined;
+    if (target.height !== undefined && h.foot && h.chain > 0) {
+      duckY = h.foot.y - (target.height / h.chain) * (h.foot.y - h.nose.y);
+    }
+    // lateralLean ≈ sideways offset / hip–nose length, so the slip radius is that length times the threshold
+    const hipToNose = Math.hypot((h.nose.x - h.hip.x) * aspect, h.nose.y - h.hip.y);
+    const radius = target.lateral !== undefined ? target.lateral * hipToNose : duckY !== undefined ? duckY - h.nose.y : 0;
+    if (!(radius > 0)) return null;
+    return { center: h.nose, radius, head: { x: img[NOSE]!.x, y: img[NOSE]!.y }, ...(duckY !== undefined && { duckY }), hit };
+  }
 }
 
 /**
@@ -150,6 +239,8 @@ export function paintOverlay(canvas: HTMLCanvasElement, video: HTMLVideoElement,
     ctx.strokeRect(ox + m * w, oy + m * h, w * (1 - 2 * m), h * (1 - 2 * m));
     ctx.setLineDash([]);
   }
+  if (o.headTarget) paintHeadTarget(ctx, o.headTarget, at, h);
+  if (o.hideSkeleton) return;
   const shapes = overlayShapes(frame, o);
   ctx.lineWidth = 4;
   ctx.lineCap = "round";
@@ -186,6 +277,42 @@ export function paintOverlay(canvas: HTMLCanvasElement, video: HTMLVideoElement,
       ctx.fill();
     }
   }
+}
+
+/** Crosshair circle around the resting head, the duck line below it, and the head itself. */
+function paintHeadTarget(ctx: CanvasRenderingContext2D, t: HeadTarget, at: (p: P) => readonly [number, number], h: number): void {
+  const [cx, cy] = at(t.center);
+  const r = t.radius * h;
+  const color = t.hit ? COLORS.ready : COLORS.line;
+  ctx.save();
+  ctx.lineWidth = 4;
+  ctx.strokeStyle = color;
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(cx - 1.4 * r, cy);
+  ctx.lineTo(cx + 1.4 * r, cy);
+  ctx.moveTo(cx, cy - 1.4 * r);
+  ctx.lineTo(cx, cy + 1.4 * r);
+  ctx.stroke();
+  if (t.duckY !== undefined) {
+    const [, y] = at({ x: t.center.x, y: t.duckY });
+    ctx.setLineDash([12, 8]);
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(cx - 1.6 * r, y);
+    ctx.lineTo(cx + 1.6 * r, y);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+  const [hx, hy] = at(t.head);
+  ctx.beginPath();
+  ctx.arc(hx, hy, 10, 0, Math.PI * 2);
+  ctx.fillStyle = color;
+  ctx.fill();
+  ctx.restore();
 }
 
 /** Head to the right of the hips (someone lying the other way round). */

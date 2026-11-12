@@ -1,0 +1,116 @@
+{
+  "id": "duck",
+  "version": 1,
+  "status": "draft",
+  "name": {
+    "tr": "Eskiv: eğilme (boks)",
+    "en": "Duck (boxing)"
+  },
+  "type": "reps",
+  "camera": {
+    "views": [
+      "front"
+    ],
+    "minVisibleLandmarks": [
+      "nose",
+      "left_shoulder",
+      "right_shoulder",
+      "left_wrist",
+      "right_wrist",
+      "left_hip",
+      "right_hip",
+      "left_knee",
+      "right_knee",
+      "left_ankle",
+      "right_ankle"
+    ],
+    "minVisibility": 0.6,
+    "posture": "standing",
+    "setupHint": {
+      "tr": "Kamerayı bel hizasına, tam karşına koy; baştan ayağa görünecek kadar uzaklaş, gard al.",
+      "en": "Place the camera at waist height straight in front of you, step back until you are visible head to toe and take your guard."
+    }
+  },
+  "metrics": {
+    "height_l": {
+      "chainHeight": [
+        "nose",
+        "left_shoulder",
+        "left_hip",
+        "left_knee",
+        "left_ankle"
+      ]
+    },
+    "height_r": {
+      "chainHeight": [
+        "nose",
+        "right_shoulder",
+        "right_hip",
+        "right_knee",
+        "right_ankle"
+      ]
+    },
+    "head_height": {
+      "avg": [
+        "height_l",
+        "height_r"
+      ]
+    },
+    "guard_l": {
+      "diffY": [
+        "left_wrist",
+        "left_shoulder"
+      ]
+    },
+    "guard_r": {
+      "diffY": [
+        "right_wrist",
+        "right_shoulder"
+      ]
+    }
+  },
+  "rep": {
+    "metric": "head_height",
+    "start": {
+      "enter": 0.93,
+      "exit": 0.915
+    },
+    "target": {
+      "enter": 0.86,
+      "exit": 0.875
+    },
+    "attemptMinExcursion": 0.03,
+    "minDurationMs": 250,
+    "maxDurationMs": 3000
+  },
+  "readyPose": "guard_l > -0.3 and guard_r > -0.3 and head_height > 0.92 for 1000ms",
+  "faults": [
+    {
+      "id": "guard_dropped",
+      "name": {
+        "tr": "Gardın düşmesi",
+        "en": "Guard dropped"
+      },
+      "severity": "minor",
+      "check": "during_rep: min(guard_l, guard_r) < -0.5",
+      "cue": {
+        "tr": "Gardını kaldır",
+        "en": "Keep your guard up"
+      },
+      "affectsValidity": false,
+      "cooldownMs": 4000,
+      "minConsecutiveReps": 1,
+      "holdMs": 200
+    }
+  ],
+  "smoothing": {
+    "method": "one_euro",
+    "minCutoff": 2.0,
+    "beta": 0.7
+  },
+  "overlay": {
+    "headTarget": {
+      "height": 0.86
+    }
+  }
+}

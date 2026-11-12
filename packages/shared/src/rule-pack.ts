@@ -39,6 +39,8 @@ export const MetricDefinitionSchema = z.union([
   z.strictObject({ angleFromVertical: z.tuple([lm, lm]) }),
   z.strictObject({ kneeInwardRatio: z.tuple([lm, lm, lm]) }),
   z.strictObject({ signedOffset: z.tuple([lm, lm, lm]) }),
+  z.strictObject({ lateralLean: z.tuple([lm, lm]) }),
+  z.strictObject({ chainHeight: z.array(lm).min(2).max(6) }),
 ]);
 export type MetricDefinition = z.infer<typeof MetricDefinitionSchema>;
 
@@ -119,6 +121,14 @@ export const RulePackSchema = z
       minCutoff: z.number().positive(),
       beta: z.number().nonnegative(),
     }),
+    /** A5 drawing for head-movement drills (specs/04 "Eskiv", 08); visual only. */
+    overlay: z
+      .strictObject({
+        headTarget: z
+          .strictObject({ lateral: z.number().positive().optional(), height: z.number().positive().optional() })
+          .refine((h) => h.lateral !== undefined || h.height !== undefined, "headTarget needs lateral or height"),
+      })
+      .optional(),
   })
   .superRefine((pack, ctx) => {
     if (pack.type === "hold") {

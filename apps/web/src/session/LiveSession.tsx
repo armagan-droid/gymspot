@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import { useServices } from "../services";
 import { LegalStrip } from "../components/Layouts";
 import type { PoseModelVariant } from "../pose/mediapipe";
-import { clearOverlay, paintOverlay, trackingGuide } from "../pose/overlay";
+import { HeadTargetTracker, clearOverlay, paintOverlay, trackingGuide } from "../pose/overlay";
 import { diagnosticsOn, poseModel, setDiagnosticsOn, setPoseModel } from "../pose/prefs";
 import type { PoseSource } from "../pose/source";
 import { DiagnosticsPanel, snapshotOf } from "./DiagnosticsPanel";
@@ -96,6 +96,7 @@ export function LiveSession({ runner, packs, bindCommands, onState, autoStart }:
     let cancelled = false;
     const source = services.createPoseSource();
     sourceRef.current = source;
+    let headTarget: { exerciseId: string | undefined; tracker: HeadTargetTracker | null } | undefined;
     const timer = setInterval(() => runner.tick(), 250); // timers run without frames too
     void (async () => {
       const cam = await services.requestCamera();
@@ -120,7 +121,13 @@ export function LiveSession({ runner, packs, bindCommands, onState, autoStart }:
         const pack = block && packs[block.exerciseId];
         // out of view: the setup drawing comes back, even with the skeleton off (specs/08 A5)
         if (pack && runner.trackingProblem) return paintOverlay(canvas, video, runner.lastFrame, trackingGuide(pack, runner.setup, runner.lastFrame));
-        if (!skeletonRef.current) return clearOverlay(canvas);
+        // head-movement drills: the target circle, even with the skeleton off (specs/08 A5)
+        if (!headTarget || headTarget.exerciseId !== block?.exerciseId) headTarget = { exerciseId: block?.exerciseId, tracker: HeadTargetTracker.for(pack) };
+        const target = headTarget.tracker?.update(runner.lastFrame, video.videoWidth / (video.videoHeight || 1));
+        if (!skeletonRef.current) {
+          if (!target) return clearOverlay(canvas);
+          return paintOverlay(canvas, video, runner.lastFrame, { minVisibility: 0.5, headTarget: target, hideSkeleton: true });
+        }
         const hi = highlight.current;
         const st = runner.state;
         // a safety pause keeps the joints of its fault red until the form is fixed (specs/08 A5)
@@ -131,6 +138,7 @@ export function LiveSession({ runner, packs, bindCommands, onState, autoStart }:
         paintOverlay(canvas, video, runner.lastFrame, {
           minVisibility: pack?.camera.minVisibility ?? 0.5,
           highlight: safety ?? (performance.now() < hi.until ? hi.joints : undefined),
+          headTarget: target,
         });
       });
     })();

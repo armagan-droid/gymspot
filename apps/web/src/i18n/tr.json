@@ -199,7 +199,9 @@
       "send": "Giriş bağlantısı gönder",
       "sent": "E-postanı kontrol et: kayıtlıysan giriş bağlantısı gönderdik.",
       "useInvite": "Giriş için salonunun gönderdiği davet bağlantısını kullan.",
-      "invalid": "Bu bağlantı geçersiz ya da süresi dolmuş. Yeni bir bağlantı iste."
+      "invalid": "Bu bağlantı geçersiz ya da süresi dolmuş. Yeni bir bağlantı iste.",
+      "offline": "Sunucuya ulaşılamadı. Telefonun salonun ağına bağlı olduğundan emin ol ve tekrar dene.",
+      "retry": "Tekrar dene"
     },
     "consent": {
       "title": "Aydınlatma ve açık rıza",

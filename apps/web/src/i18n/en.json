@@ -199,7 +199,9 @@
       "send": "Send sign-in link",
       "sent": "Check your e-mail: if you are registered, we sent you a sign-in link.",
       "useInvite": "Use the invite link your gym sent you to sign in.",
-      "invalid": "This link is invalid or has expired. Request a new one."
+      "invalid": "This link is invalid or has expired. Request a new one.",
+      "offline": "Can't reach the server. Make sure your phone is on the gym's network and try again.",
+      "retry": "Try again"
     },
     "consent": {
       "title": "Information and explicit consent",

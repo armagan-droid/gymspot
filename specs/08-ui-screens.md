@@ -27,7 +27,7 @@ Rotalar: tablet için `/station` (eşleştirilmemişse A1, sonra A2 → A3 → a
 ## B) Üye alanı (telefon öncelikli)
 | # | Ekran | İçerik |
 |---|---|---|
-| B1 | Giriş + rıza | Davet/magic link ile giriş. Bağlantıdaki token'ın tenant öneki uygulamaya salonu tanıtır ve hatırlanır; sonraki girişlerde e-posta yeterlidir. Salon bilinmiyorsa "salonunun gönderdiği davet bağlantısını kullan" denir. İlk girişte ve rıza metni sürümü değiştiğinde aydınlatma ve açık rıza istenir; "şimdi değil" denebilir (kamera açılmaz) |
+| B1 | Giriş + rıza | Davet/magic link ile giriş. Bağlantıdaki token'ın tenant öneki uygulamaya salonu tanıtır ve hatırlanır; sonraki girişlerde e-posta yeterlidir. Salon bilinmiyorsa "salonunun gönderdiği davet bağlantısını kullan" denir. Sunucuya ulaşılamazsa bağlantı geçersiz sayılmaz (henüz kullanılmamıştır): "Sunucuya ulaşılamadı" ve "Tekrar dene" gösterilir. İlk girişte ve rıza metni sürümü değiştiğinde aydınlatma ve açık rıza istenir; "şimdi değil" denebilir (kamera açılmaz) |
 | B2 | Ana sayfa | Bugünün antrenmanı, haftalık tamamlama, "Seansı başlat" (telefon modu) ve "İstasyona bağlan" (handoff QR) |
 | B3 | Programım | Gün ve hareket listesi |
 | B4 | Seans geçmişi | Liste + seans detayı (set bazlı tekrar, hatalar) |

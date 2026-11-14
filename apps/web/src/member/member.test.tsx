@@ -1,7 +1,7 @@
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import { afterEach, describe, expect, test, vi } from "vitest";
-import type { GymApi, MemberProfile } from "../api/client";
+import { type GymApi, type MemberProfile, NetworkError } from "../api/client";
 import { App } from "../App";
 import { createI18n } from "../i18n";
 import { testServices } from "../test-services";
@@ -85,6 +85,17 @@ describe("B1 sign-in and consent", () => {
   test("an unknown gym: use the invite link", async () => {
     renderAt("/member/login", testServices());
     expect(await screen.findByText(/davet bağlantısını kullan/)).toBeTruthy();
+  });
+
+  test("an unreachable server is not an invalid link: it says so and retries", async () => {
+    const verify = vi.fn().mockRejectedValueOnce(new NetworkError("offline")).mockResolvedValueOnce(undefined);
+    const t = testServices({ api: { verifyMagicLink: verify } });
+    renderAt(`/member/login?token=${TENANT}.fresh`, t);
+    expect(await screen.findByText(/Sunucuya ulaşılamadı/)).toBeTruthy();
+    expect(screen.queryByText(/bağlantı geçersiz/)).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Tekrar dene" }));
+    await vi.waitFor(() => expect(verify).toHaveBeenCalledTimes(2));
+    expect(verify).toHaveBeenLastCalledWith(`${TENANT}.fresh`);
   });
 
   test("an expired link says so", async () => {

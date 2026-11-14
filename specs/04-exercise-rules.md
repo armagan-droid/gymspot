@@ -164,6 +164,7 @@ Baş hareketiyle yapılan savunma drilleri; üye kameraya **önden** bakar. Bir 
 - **Eğilme (duck):** tekrar metriği iki bacağın `chainHeight(nose, shoulder, hip, knee, ankle)` ortalamasıdır (azalan yön); dizler kırılıp gövde öne geldikçe küçülür.
 - Hatalar: gard düşmesi (iki elden biri, `during_rep`); yana eskivde yalnız boyunla kaçma (baş yattı ama omuzlar yatmadı, `at_turn`).
 - `readyPose`: gard + baş merkezde.
+- `howTo` (opsiyonel, TR/EN): hareketin nasıl yapılacağını bir-iki cümleyle anlatır; eskiv paketlerinde zorunlu tutulur (test). Ekranda gösterimi 08'dedir.
 - **Hedef dairesi** (`overlay.headTarget`, opsiyonel): A5'te başın etrafına çizilen hedef (08). `lateral` yana eskiv eşiği, `height` eğilme eşiğidir ve rep `target.enter` ile aynı değeri taşımalıdır (test); çizim yalnız görseldir, sayım her zaman rep kuralıyla yapılır.
 
 ```jsonc

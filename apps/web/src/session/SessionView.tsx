@@ -48,6 +48,14 @@ export function SessionView({ state, packs, lastShow, muted, onAction, onToggleM
   // during the grace period before the pause, the warning is already on screen
   const losing = state.trackingLostAt !== undefined && trackingProblem != null;
 
+  // how to do the movement: before the set and until its first rep (specs/08)
+  const howTo = pack?.howTo?.[lang];
+  const howToBlock = howTo ? (
+    <p className="how-to">
+      <strong>{t("session.howTo")}:</strong> {howTo}
+    </p>
+  ) : null;
+
   const safetyCue = (state.safetyFaultId && pack?.faults.find((f) => f.id === state.safetyFaultId)?.cue[lang]) || null;
 
   switch (state.status) {
@@ -56,6 +64,7 @@ export function SessionView({ state, packs, lastShow, muted, onAction, onToggleM
         <section data-screen="A4">
           <h1>{exerciseName}</h1>
           <p>{setLabel}</p>
+          {howToBlock}
           <p>{t("session.readyHint")}</p>
           <button onClick={() => onAction("START")}>{t("setup.start")}</button>
         </section>
@@ -73,11 +82,13 @@ export function SessionView({ state, packs, lastShow, muted, onAction, onToggleM
             {secondsLeft(state.countdownEndsAt, state.now)}
           </p>
           <p>{t("countdown.start")}</p>
+          {howToBlock}
         </section>
       );
     case "SET_ACTIVE":
     case "SET_CONFIRM": {
       const target = block?.reps;
+      const guide = !losing && !cueText && howTo && (state.set?.counted ?? 0) === 0;
       return (
         <section data-screen="A5" className="active-set">
           <h1>{exerciseName}</h1>
@@ -86,8 +97,8 @@ export function SessionView({ state, packs, lastShow, muted, onAction, onToggleM
             {target !== undefined && <span className="rep-target"> / {target}</span>}
           </p>
           <p>{setLabel}</p>
-          <p className={`cue-band${losing ? " cue-warning" : ""}`} role="status" aria-live="assertive">
-            {losing ? trackingText : (cueText ?? " ")}
+          <p className={`cue-band${losing ? " cue-warning" : ""}${guide ? " cue-guide" : ""}`} role="status" aria-live="assertive">
+            {losing ? trackingText : guide ? howTo : (cueText ?? " ")}
           </p>
           {state.status === "SET_CONFIRM" && (
             <div role="dialog" aria-label={t("prompt.set_done")}>

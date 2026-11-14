@@ -167,3 +167,39 @@ describe("tracking loss says why (specs/08 A5)", () => {
     expect(band.textContent).toContain("ayak bileği");
   });
 });
+
+describe("how to do the movement (specs/08)", () => {
+  const howTo = { tr: "Başını daireden çıkar, ortaya dön.", en: "Take your head out of the circle, come back." };
+  const withHowTo = { squat: { ...rulePack("squat"), howTo } };
+  const render2 = (state: ProgramState, lastShow: ShowCommand | null = null) =>
+    render(
+      <I18nextProvider i18n={createI18n("tr")}>
+        <SessionView state={state} packs={withHowTo} lastShow={lastShow} muted={false} onAction={vi.fn()} onToggleMute={vi.fn()} />
+      </I18nextProvider>,
+    );
+
+  test("shown before the set and during the countdown", () => {
+    render2(stateAfter([ua("START")]));
+    expect(screen.getByRole("heading").closest("section")!.dataset.screen).toBe("A4");
+    expect(screen.getByText(/Başını daireden çıkar/).textContent).toBe(`Nasıl yapılır: ${howTo.tr}`);
+    cleanup();
+    render2(stateAfter([ua("START"), ua("START")]));
+    expect(screen.getByText(/Başını daireden çıkar/)).toBeTruthy();
+  });
+
+  test("in the cue band until the first rep, then gone; a form cue takes its place", () => {
+    render2(stateAfter(toActive));
+    expect(screen.getByRole("status").textContent).toBe(howTo.tr);
+    cleanup();
+    render2(stateAfter([...toActive, rep]));
+    expect(screen.queryByText(howTo.tr)).toBeNull();
+    cleanup();
+    render2(stateAfter(toActive), { type: "SHOW", key: "cue.squat.insufficient_depth" } as ShowCommand);
+    expect(screen.queryByText(howTo.tr)).toBeNull();
+  });
+
+  test("packs without howTo show nothing extra", () => {
+    show(stateAfter(toActive));
+    expect(screen.queryByText(/Nasıl yapılır/)).toBeNull();
+  });
+});

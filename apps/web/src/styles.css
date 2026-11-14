@@ -738,6 +738,18 @@ main [data-screen="A1"] > form {
   color: #facc15;
 }
 
+/* how to do the movement, until the first rep (specs/08) */
+.cue-band.cue-guide {
+  font-size: clamp(1rem, 3.2vmin, 1.5rem);
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+.how-to {
+  max-width: 40rem;
+  line-height: 1.4;
+}
+
 /* ------------------------------------------------ A5 diagnostics (specs/08) */
 
 .diagnostics-toggle {

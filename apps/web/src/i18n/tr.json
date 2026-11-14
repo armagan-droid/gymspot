@@ -82,6 +82,7 @@
     }
   },
   "session": {
+    "howTo": "Nasıl yapılır",
     "done": "Seans tamamlandı",
     "setLabel": "Set {{current}} / {{total}}",
     "repsLabel": "Tekrar",

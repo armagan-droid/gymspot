@@ -6,6 +6,10 @@
     "tr": "Eskiv: eğilme (boks)",
     "en": "Duck (boxing)"
   },
+  "howTo": {
+    "tr": "Gard al. Dizlerini kırıp hafif öne eğilerek başını dairenin altındaki kesikli çizginin altına indir, sonra doğrul. Gözlerin önde, ellerin yukarıda kalsın. Daire yeşile dönünce sayılır.",
+    "en": "Take your guard. Bend your knees and lean forward slightly to bring your head below the dashed line under the circle, then stand back up. Keep your eyes forward and hands up. It counts when the circle turns green."
+  },
   "type": "reps",
   "camera": {
     "views": [

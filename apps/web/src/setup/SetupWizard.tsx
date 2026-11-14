@@ -158,6 +158,11 @@ export function SetupWizard({ pack, consent, source, requestCamera = defaultRequ
       <div className="overlay-panel">
         <h1>{t("screens.A3")}</h1>
         <p>{pack.camera.setupHint[lang]}</p>
+        {pack.howTo && (
+          <p className="how-to">
+            <strong>{t("session.howTo")}:</strong> {pack.howTo[lang]}
+          </p>
+        )}
         {assessment && (
           <>
             <p>

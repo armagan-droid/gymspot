@@ -58,10 +58,12 @@ describe("metric functions", () => {
 });
 
 describe("packs", () => {
-  test("load, front view only, and the drawn head target matches the counting threshold", () => {
+  test("load, front view only, explain how to do it, and the drawn head target matches the counting threshold", () => {
     for (const id of IDS) {
       const { pack } = load(id);
       expect(pack.camera.views, id).toEqual(["front"]);
+      expect(pack.howTo?.tr, id).toBeTruthy();
+      expect(pack.howTo?.en, id).toBeTruthy();
       const ht = pack.overlay?.headTarget;
       expect(ht, id).toBeDefined();
       expect(ht!.lateral ?? ht!.height, id).toBe(pack.rep.target.enter);

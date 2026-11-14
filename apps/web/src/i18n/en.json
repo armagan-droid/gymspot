@@ -82,6 +82,7 @@
     }
   },
   "session": {
+    "howTo": "How to",
     "done": "Session complete",
     "setLabel": "Set {{current}} / {{total}}",
     "repsLabel": "Reps",

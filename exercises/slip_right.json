@@ -6,6 +6,10 @@
     "tr": "Eskiv: sağa kaçış (boks)",
     "en": "Slip to the right (boxing)"
   },
+  "howTo": {
+    "tr": "Gard al; başın dairenin ortasında olsun. Dizlerini hafif kırıp gövdenle sağa yat, başını dairenin dışına çıkar, sonra ortaya dön. Daire yeşile dönünce sayılır.",
+    "en": "Take your guard with your head in the middle of the circle. Bend your knees slightly, lean your body to your right to take your head out of the circle, then come back to the middle. It counts when the circle turns green."
+  },
   "type": "reps",
   "camera": {
     "views": [

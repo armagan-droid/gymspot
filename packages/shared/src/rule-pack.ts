@@ -96,6 +96,8 @@ export const RulePackSchema = z
     version: z.int().min(1),
     status: z.enum(["draft", "calibrated"]),
     name: LocalizedTextSchema,
+    /** How to do the movement, shown on A3/A4 and until the first rep (specs/04, 08). */
+    howTo: LocalizedTextSchema.optional(),
     type: z.enum(["reps", "hold"]),
     camera: z.strictObject({
       views: uniqueViews,

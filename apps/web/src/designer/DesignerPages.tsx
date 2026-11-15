@@ -9,6 +9,8 @@ import { RULE_PACKS, applyRulePacks, rulePack } from "../rules";
 import { useServices } from "../services";
 import { LiveTrial } from "./LiveTrial";
 import {
+  addFaultSuggestion,
+  applyRepSuggestion,
   type Clause,
   type Condition,
   type Definition,
@@ -275,7 +277,22 @@ export function ExerciseEditorPage() {
         </p>
       )}
       {tab === "form" ? <DefinitionForm def={def} issues={issues} set={set} /> : <JsonView def={def} onChange={(d) => { setDef(d); setDirty(true); }} />}
-      {loaded ? <LiveTrial loaded={loaded} onAttempt={() => setTried(defJsonRef.current)} /> : <p className="hint">{t("designer.trial.needsValid")}</p>}
+      {loaded ? (
+        <LiveTrial
+          loaded={loaded}
+          onAttempt={() => setTried(defJsonRef.current)}
+          onApplyRep={(s) => {
+            setDef((d) => applyRepSuggestion(d!, s));
+            setDirty(true);
+          }}
+          onAddFault={(f) => {
+            setDef((d) => addFaultSuggestion(d!, f));
+            setDirty(true);
+          }}
+        />
+      ) : (
+        <p className="hint">{t("designer.trial.needsValid")}</p>
+      )}
       {issues.length === 0 && tried !== defJson && <p className="hint">{t("designer.trial.needed")}</p>}
       <div className="controls">
         <button className="primary" onClick={() => void save()} disabled={!dirty}>

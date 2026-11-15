@@ -68,6 +68,18 @@ Menü: **Genel bakış · İstasyonlar · Üyeler · Program şablonları · Kal
 - **Üye veri talepleri**: üyelerin silme/dışa aktarma talepleri burada görünür; silme talebini **Silme işlemini uygula** ile tamamlayın.
 - **Salon girişi bilgilendirme metni**: yazdırıp salon girişine ve istasyonların yanına asın.
 
+### 2.5 Hareket tasarlayıcı (yönetici, sahip)
+
+Salonunuza özel hareketleri **Hareket tasarlayıcı** sayfasında JSON yazmadan tanımlarsınız. Antrenörler listeyi görür ve yayınlanan hareketleri programlarda kullanır; tasarlayamaz.
+
+1. **Yeni hareket**: Türkçe ve İngilizce adı yazın; kimlik (`t_…`) addan otomatik oluşur. Başlangıç noktası seçin: boş şablon (eklem açısı, baş hareketi, vuruş) ya da var olan bir hareketin kopyası.
+2. **Form**: genel bilgiler ve kamera, ölçüler (ör. "Açı: yakın kalça – yakın diz – yakın ayak bileği"), tekrar bölgeleri, hazır duruşu ve hatalar. Koşullar açılır listelerle kurulur ("en küçüğü(gard_sol, gard_sağ) < -0,5" gibi). Uzmanlar **JSON** sekmesinden paketin tamamını düzenleyebilir. Eksik veya hatalı alanlar üstteki "Düzeltilmesi gerekenler" kutusunda ve ilgili bölümde görünür.
+3. **Canlı deneme**: **Denemeyi başlat** ile kamera açılır; taslak, seanstaki motorla aynen çalışır. Sayaç, uyarılar ve seçtiğiniz ölçünün grafiği (tekrar eşikleri kesikli çizgi) görünür.
+4. **Gösterimle öneri** (canlı denemede): **Doğru gösterimi kaydet** deyip hareketi 3–5 kez doğru yapın ve **Kaydı bitir** deyin. Sistem tekrar ölçüsünü ve eşikleri önerir, kaç tekrar gördüğünü yazar; **Forma uygula** ile kullanın. Sonra **Hatalı gösterimi kaydet** ile hareketi bilerek yanlış yapın; sistem hatayı ayıran koşulu önerir. **Hata olarak ekle** deyip hatanın adını ve uyarı metnini yazın.
+5. **Kaydet**, ardından **Yayınla**. Yayınlama, taslağın bu haliyle canlı denemede en az bir tekrar yapılmışsa açılır. Her yayınlama yeni bir sürümdür; eski seanslar kendi sürümüyle kalır.
+
+Canlı deneme ve gösterim sırasında görüntü de eklem noktaları da kaydedilmez, sunucuya gönderilmez. Salon tanımlı hareketler doğrulanmamıştır; tıbbi tavsiye değildir.
+
 ## 3. Üye (telefon)
 
 ### 3.1 İlk giriş ve rıza

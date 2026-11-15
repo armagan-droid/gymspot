@@ -1,6 +1,8 @@
 import {
   ExerciseEngine,
+  type FaultSuggestion,
   type LoadedRulePack,
+  type RepSuggestion,
   type PersonTrack,
   type Side,
   chooseNearSide,
@@ -8,7 +10,10 @@ import {
   createMetricSmoother,
   detectView,
   dominantView,
+  measureDemonstration,
   selectPerson,
+  suggestFault,
+  suggestRep,
 } from "@gymspot/engine";
 import type { Frame } from "@gymspot/shared";
 import { useEffect, useRef, useState } from "react";
@@ -22,6 +27,8 @@ import { useServices } from "../services";
 /** Frames used to pick the view and the near side before the engine starts. */
 const WARMUP_FRAMES = 10;
 const CHART_WINDOW_MS = 6000;
+/** A demonstration keeps at most this many frames (about a minute), in memory only. */
+const MAX_DEMO_FRAMES = 1800;
 
 export interface TrialCounts {
   valid: number;
@@ -33,11 +40,15 @@ export interface LiveTrialProps {
   loaded: LoadedRulePack;
   /** An attempt was completed with this pack (specs/11: publishing needs a trial). */
   onAttempt(): void;
-  /** Every selected frame, for demonstrations (T7.4). */
-  onFrame?(frame: Frame, nearSide: Side): void;
+  /** Use a suggested repetition measure and zones (specs/11 "Gösterimle öneri"). */
+  onApplyRep(s: RepSuggestion): void;
+  /** Add a suggested fault condition. */
+  onAddFault(f: FaultSuggestion): void;
 }
 
-export function LiveTrial({ loaded, onAttempt, onFrame }: LiveTrialProps) {
+type Demo = "good" | "bad";
+
+export function LiveTrial({ loaded, onAttempt, onApplyRep, onAddFault }: LiveTrialProps) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language === "en" ? "en" : "tr";
   const services = useServices();
@@ -51,17 +62,23 @@ export function LiveTrial({ loaded, onAttempt, onFrame }: LiveTrialProps) {
   const [value, setValue] = useState<number | null>(null);
   const [chartMetric, setChartMetric] = useState(loaded.pack.rep.metric);
   const metricNames = Object.keys(loaded.pack.metrics);
+  const [recording, setRecording] = useState<Demo | null>(null);
+  const [demoFrames, setDemoFrames] = useState(0);
+  const demos = useRef<Record<Demo, Frame[]>>({ good: [], bad: [] });
+  const [repSuggestion, setRepSuggestion] = useState<RepSuggestion | null | undefined>(undefined);
+  const [faultSuggestion, setFaultSuggestion] = useState<FaultSuggestion | null | undefined>(undefined);
 
   // latest props for the frame callback without restarting the camera
-  const live = useRef({ loaded, onAttempt, onFrame, chartMetric });
-  live.current = { loaded, onAttempt, onFrame, chartMetric };
-  const engineState = useRef<{ engine: ExerciseEngine | null; pack: LoadedRulePack | null; warmup: Frame[]; nearSide: Side; series: { t: number; v: number }[] }>({
-    engine: null,
-    pack: null,
-    warmup: [],
-    nearSide: "left",
-    series: [],
-  });
+  const live = useRef({ loaded, onAttempt, chartMetric, recording });
+  live.current = { loaded, onAttempt, chartMetric, recording };
+  const engineState = useRef<{
+    engine: ExerciseEngine | null;
+    pack: LoadedRulePack | null;
+    warmup: Frame[];
+    nearSide: Side;
+    view: "front" | "side";
+    series: { t: number; v: number }[];
+  }>({ engine: null, pack: null, warmup: [], nearSide: "left", view: "front", series: [] });
 
   const reset = () => {
     Object.assign(engineState.current, { engine: null, pack: null, warmup: [], series: [] });
@@ -92,6 +109,12 @@ export function LiveTrial({ loaded, onAttempt, onFrame }: LiveTrialProps) {
         metrics.pack = pack;
         smooth = createMetricSmoother(Object.keys(pack.pack.metrics), pack.pack.smoothing);
       }
+      // demonstrations keep every frame, also while the engine warms up after a rule change
+      const rec = live.current.recording;
+      if (rec && demos.current[rec].length < MAX_DEMO_FRAMES) {
+        demos.current[rec].push(frame);
+        setDemoFrames(demos.current[rec].length);
+      }
       if (!s.engine) {
         s.warmup.push(frame);
         if (s.warmup.length < WARMUP_FRAMES) return;
@@ -99,11 +122,11 @@ export function LiveTrial({ loaded, onAttempt, onFrame }: LiveTrialProps) {
         const detected = dominantView(s.warmup.map((f) => detectView(f)));
         const view = views.length === 1 || detected === "ambiguous" ? views[0]! : detected;
         s.nearSide = chooseNearSide(s.warmup);
+        s.view = view;
         s.engine = new ExerciseEngine(pack, { view, nearSide: s.nearSide }, { safetyPause: false });
         s.pack = pack;
         s.warmup = [];
       }
-      live.current.onFrame?.(frame, s.nearSide);
       for (const e of s.engine.push(frame)) {
         if (e.type === "REP_COMPLETED") {
           setCounts((c) => ({ ...c, [e.outcome]: c[e.outcome] + 1 }));
@@ -181,9 +204,95 @@ export function LiveTrial({ loaded, onAttempt, onFrame }: LiveTrialProps) {
             <button onClick={reset}>{t("designer.trial.reset")}</button>
             <button onClick={() => setRunning(false)}>{t("designer.trial.stop")}</button>
           </div>
+          <Demonstrations
+            recording={recording}
+            frames={demoFrames}
+            hasGood={repSuggestion != null}
+            rep={repSuggestion}
+            fault={faultSuggestion}
+            onStart={(d) => {
+              demos.current[d] = [];
+              setDemoFrames(0);
+              setRecording(d);
+              if (d === "good") setFaultSuggestion(undefined);
+            }}
+            onStop={() => {
+              const d = recording!;
+              setRecording(null);
+              const s = engineState.current;
+              const measure = (frames: Frame[]) => measureDemonstration(frames, loaded.pack, s.view, s.nearSide);
+              if (d === "good") {
+                setRepSuggestion(suggestRep(measure(demos.current.good)));
+              } else if (repSuggestion) {
+                setFaultSuggestion(suggestFault(measure(demos.current.good), measure(demos.current.bad), repSuggestion));
+              }
+            }}
+            onApplyRep={() => repSuggestion && onApplyRep(repSuggestion)}
+            onAddFault={() => faultSuggestion && onAddFault(faultSuggestion)}
+          />
         </>
       )}
     </section>
+  );
+}
+
+interface DemonstrationsProps {
+  recording: Demo | null;
+  frames: number;
+  hasGood: boolean;
+  /** undefined: not recorded yet; null: nothing found. */
+  rep: RepSuggestion | null | undefined;
+  fault: FaultSuggestion | null | undefined;
+  onStart(d: Demo): void;
+  onStop(): void;
+  onApplyRep(): void;
+  onAddFault(): void;
+}
+
+/** Record a correct and a faulty demonstration and turn them into rules (specs/11). */
+function Demonstrations({ recording, frames, hasGood, rep, fault, onStart, onStop, onApplyRep, onAddFault }: DemonstrationsProps) {
+  const { t } = useTranslation();
+  return (
+    <div className="demonstrations" aria-label={t("designer.demo.title")}>
+      <h3>{t("designer.demo.title")}</h3>
+      <p className="hint">{t("designer.demo.hint")}</p>
+      {recording ? (
+        <>
+          <p role="status" className="recording-indicator">
+            {t(`designer.demo.recording.${recording}`, { count: frames })}
+          </p>
+          <button onClick={onStop}>{t("designer.demo.stop")}</button>
+        </>
+      ) : (
+        <div className="controls">
+          <button onClick={() => onStart("good")}>{t("designer.demo.startGood")}</button>
+          <button onClick={() => onStart("bad")} disabled={!hasGood}>
+            {t("designer.demo.startBad")}
+          </button>
+        </div>
+      )}
+      {rep === null && <p role="alert">{t("designer.demo.noRep")}</p>}
+      {rep && (
+        <div className="suggestion">
+          <p>
+            {t("designer.demo.rep", {
+              metric: rep.metric,
+              cycles: rep.cycles,
+              start: rep.rep.start.enter,
+              target: rep.rep.target.enter,
+            })}
+          </p>
+          <button onClick={onApplyRep}>{t("designer.demo.applyRep")}</button>
+        </div>
+      )}
+      {fault === null && <p role="alert">{t("designer.demo.noFault")}</p>}
+      {fault && (
+        <div className="suggestion">
+          <p>{t("designer.demo.fault", { metric: fault.metric, op: fault.op, threshold: fault.threshold })}</p>
+          <button onClick={onAddFault}>{t("designer.demo.addFault")}</button>
+        </div>
+      )}
+    </div>
   );
 }
 

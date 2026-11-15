@@ -214,4 +214,55 @@ describe("C11 editor", () => {
     expect(fetchSpy).not.toHaveBeenCalled();
     fetchSpy.mockRestore();
   });
+
+  test("demonstrations: a correct one suggests the rep measure and zones, a faulty one a fault condition", async () => {
+    const blank = startFrom(rulePack("squat"), "t_sumo", { tr: "Sumo squat", en: "Sumo squat" }, false);
+    const api = open(blank);
+    fireEvent.click(await screen.findByRole("button", { name: "Denemeyi başlat" }));
+    await waitFor(() => expect(api.t.pose.emit).toBeDefined());
+    const emit = async (reps: { kneeAngle: number }[], seed: number, from: number) =>
+      act(async () => {
+        for (const f of squatSequence({ view: "side", seed, noise: 0.002, reps, leadInMs: 1000 }).frames) api.t.pose.emit!([{ ...f, t: f.t + from }], f.t + from);
+      });
+    await emit([], 1, 0); // warm-up: view and near side
+    fireEvent.click(screen.getByRole("button", { name: "Doğru gösterimi kaydet" }));
+    expect(screen.getByText(/Doğru gösterim kaydediliyor/)).toBeTruthy();
+    await emit([{ kneeAngle: 82 }, { kneeAngle: 80 }, { kneeAngle: 85 }, { kneeAngle: 82 }], 2, 10_000);
+    fireEvent.click(screen.getByRole("button", { name: "Kaydı bitir" }));
+    expect(screen.getByText(/Önerilen tekrar ölçüsü: knee_angle_near \(4 tekrar gördüm\)/)).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Forma uygula" }));
+
+    fireEvent.click(screen.getByRole("button", { name: "Hatalı gösterimi kaydet" }));
+    await emit([{ kneeAngle: 125 }, { kneeAngle: 120 }, { kneeAngle: 128 }], 3, 40_000);
+    fireEvent.click(screen.getByRole("button", { name: "Kaydı bitir" }));
+    // shallow squats: a knee or hip angle that stays larger at the turn
+    expect(screen.getByText(/Hatalı gösterimi ayıran koşul: dönüşte (knee|hip)_angle\w* > /)).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Hata olarak ekle" }));
+
+    fireEvent.click(screen.getByRole("button", { name: "Kaydet" }));
+    await waitFor(() => expect(api.saveExerciseDraft).toHaveBeenCalled());
+    const saved = (api.saveExerciseDraft.mock.calls[0] as unknown as [string, { rep: { metric: string; target: { enter: number } }; faults: { check: string }[] }])[1];
+    expect(saved.rep.metric).toBe("knee_angle_near");
+    expect(saved.rep.target.enter).toBeGreaterThan(85);
+    expect(saved.faults).toHaveLength(1);
+    expect(saved.faults[0]!.check).toMatch(/^at_turn: (knee|hip)_angle\w* > \d+/);
+    expect(safeLoadRulePack({ ...saved, faults: [] }).success).toBe(true); // the measure came along
+  });
+
+  test("demonstrations: standing still suggests nothing", async () => {
+    const api = open(sumo());
+    fireEvent.click(await screen.findByRole("button", { name: "Denemeyi başlat" }));
+    await waitFor(() => expect(api.t.pose.emit).toBeDefined());
+    const still = squatSequence({ view: "side", reps: [], leadInMs: 4000 }).frames;
+    await act(async () => {
+      for (const f of still.slice(0, 20)) api.t.pose.emit!([f], f.t);
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Doğru gösterimi kaydet" }));
+    await act(async () => {
+      for (const f of still.slice(20)) api.t.pose.emit!([f], f.t);
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Kaydı bitir" }));
+    expect(screen.getByText(/Düzenli bir tekrar bulunamadı/)).toBeTruthy();
+    expect((screen.getByRole("button", { name: "Hatalı gösterimi kaydet" }) as HTMLButtonElement).disabled).toBe(true);
+  });
 });

@@ -543,6 +543,23 @@
       "thresholds": "start {{start}}, target {{target}}",
       "needsValid": "Fix the issues in the pack to try it live.",
       "needed": "To publish, do at least one rep in the live trial with the pack as it is now."
+    },
+    "demo": {
+      "title": "Suggest from a demonstration",
+      "hint": "First do the movement correctly 3–5 times; the repetition measure and zones are suggested. Then do it wrong on purpose; a condition that tells the fault apart is suggested. Recordings stay in this page's memory only.",
+      "startGood": "Record a correct demonstration",
+      "startBad": "Record a faulty demonstration",
+      "stop": "Stop recording",
+      "recording": {
+        "good": "Recording the correct demonstration… ({{count}} frames)",
+        "bad": "Recording the faulty demonstration… ({{count}} frames)"
+      },
+      "noRep": "No regular repetition found. Do the movement at least twice, all the way, in view.",
+      "rep": "Suggested repetition measure: {{metric}} ({{cycles}} reps seen). Start {{start}}, target {{target}}.",
+      "applyRep": "Apply to the form",
+      "noFault": "No difference found: the correct and faulty demonstrations do not differ at the turn.",
+      "fault": "Condition that tells the fault apart: at the turn {{metric}} {{op}} {{threshold}}.",
+      "addFault": "Add as a fault"
     }
   }
 }

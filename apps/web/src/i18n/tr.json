@@ -543,6 +543,23 @@
       "thresholds": "başlangıç {{start}}, hedef {{target}}",
       "needsValid": "Canlı deneme için önce paketteki sorunları düzeltin.",
       "needed": "Yayınlamak için bu haliyle canlı denemede en az bir tekrar yapın."
+    },
+    "demo": {
+      "title": "Gösterimle öneri",
+      "hint": "Önce hareketi 3–5 kez doğru yapın; sistem tekrar ölçüsünü ve eşikleri önerir. Sonra bilerek hatalı yapın; sistem hatayı ayıran koşulu önerir. Kayıt yalnız bu sayfanın belleğindedir.",
+      "startGood": "Doğru gösterimi kaydet",
+      "startBad": "Hatalı gösterimi kaydet",
+      "stop": "Kaydı bitir",
+      "recording": {
+        "good": "Doğru gösterim kaydediliyor… ({{count}} kare)",
+        "bad": "Hatalı gösterim kaydediliyor… ({{count}} kare)"
+      },
+      "noRep": "Düzenli bir tekrar bulunamadı. Hareketi en az 2 kez, baştan sona ve kadrajda yapın.",
+      "rep": "Önerilen tekrar ölçüsü: {{metric}} ({{cycles}} tekrar gördüm). Başlangıç {{start}}, hedef {{target}}.",
+      "applyRep": "Forma uygula",
+      "noFault": "Fark bulunamadı: doğru ve hatalı gösterim dönüş noktasında ayrışmıyor.",
+      "fault": "Hatalı gösterimi ayıran koşul: dönüşte {{metric}} {{op}} {{threshold}}.",
+      "addFault": "Hata olarak ekle"
     }
   }
 }

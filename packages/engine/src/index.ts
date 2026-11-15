@@ -81,3 +81,15 @@ export {
   loadRulePack,
   safeLoadRulePack,
 } from "./rules/load-rule-pack";
+export {
+  CANDIDATE_METRICS,
+  type Cycle,
+  type FaultSuggestion,
+  type MetricSeries,
+  type RepSuggestion,
+  findCycles,
+  measureDemonstration,
+  rankRepMetrics,
+  suggestFault,
+  suggestRep,
+} from "./designer/suggest";

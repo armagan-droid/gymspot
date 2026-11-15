@@ -3,6 +3,8 @@ import { describe, expect, test } from "vitest";
 import { RULE_PACKS, rulePack } from "../rules";
 import {
   type Condition,
+  addFaultSuggestion,
+  applyRepSuggestion,
   GYM_EXERCISE_ID,
   STARTERS,
   checkFromText,
@@ -124,5 +126,29 @@ describe("AC-11.5: condition builder", () => {
   test("ready pose keeps its hold time", () => {
     expect(readyPoseFromText("knee > 160 for 1500ms")).toMatchObject({ durationMs: 1500, text: "knee > 160" });
     expect(readyPoseToText({ join: "and", clauses: [{ left: { kind: "metric", name: "knee" }, op: ">", right: { kind: "number", value: 160 } }] }, 800)).toBe("knee > 160 for 800ms");
+  });
+});
+
+describe("applying suggestions (specs/11)", () => {
+  const def = startFrom(rulePack("squat"), "t_x", { tr: "X", en: "X" }, false);
+  const rep = { start: { enter: 150, exit: 140 }, target: { enter: 95, exit: 105 }, attemptMinExcursion: 15, minDurationMs: 400, maxDurationMs: 6000 };
+
+  test("a candidate measure is added with the rep zones; a pack measure is reused", () => {
+    const s = { metric: "hip_angle", definition: { angle: ["near_shoulder", "near_hip", "near_knee"] }, rep: { metric: "hip_angle", ...rep } } as never;
+    const next = applyRepSuggestion(def, s);
+    expect(getIn(next, ["metrics", "hip_angle"])).toEqual({ angle: ["near_shoulder", "near_hip", "near_knee"] });
+    expect(getIn(next, ["rep"])).toEqual({ metric: "hip_angle", ...rep });
+    const own = applyRepSuggestion(def, { metric: "knee_angle_near", definition: { angle: ["a", "b", "c"] }, rep: { metric: "knee_angle_near", ...rep } } as never);
+    expect(getIn(own, ["metrics", "knee_angle_near"])).toEqual(getIn(def, ["metrics", "knee_angle_near"]));
+  });
+
+  test("a fault is appended with a fresh id; it needs a name and a cue before it is valid", () => {
+    const f = { metric: "knee_angle_near", definition: {}, check: "at_turn: knee_angle_near > 110" } as never;
+    const once = addFaultSuggestion(def, f);
+    const twice = addFaultSuggestion(once, f);
+    expect((getIn(twice, ["faults"]) as { id: string }[]).map((x) => x.id)).toEqual(["fault_1", "fault_2"]);
+    expect(getIn(once, ["faults", 0, "check"])).toBe("at_turn: knee_angle_near > 110");
+    const named = setIn(setIn(once, ["faults", 0, "name"], { tr: "Sığ", en: "Shallow" }), ["faults", 0, "cue"], { tr: "İn", en: "Down" });
+    expect(safeLoadRulePack(named).success).toBe(true);
   });
 });

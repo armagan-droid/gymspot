@@ -1,4 +1,13 @@
-import { type CompareOp, type Expr, type ValueNode, parseCheck, parseExpression, parseReadyPose } from "@gymspot/engine";
+import {
+  type CompareOp,
+  type Expr,
+  type FaultSuggestion,
+  type RepSuggestion,
+  type ValueNode,
+  parseCheck,
+  parseExpression,
+  parseReadyPose,
+} from "@gymspot/engine";
 import { CHECK_POSITIONS, type CheckPosition, type RulePack } from "@gymspot/shared";
 
 // Exercise designer model (specs/11): the form's view of a rule pack. Pure;
@@ -186,3 +195,34 @@ export function readyPoseFromText(src: string): ReadyPoseForm {
 
 export const readyPoseToText = (condition: Condition | string, durationMs: number): string =>
   `${typeof condition === "string" ? condition : conditionToText(condition)} for ${Math.max(1, Math.round(durationMs))}ms`;
+
+// ------------------------------------------------------------ suggestions (specs/11)
+
+const withMetric = (def: Definition, name: string, definition: unknown): Definition =>
+  getIn(def, ["metrics", name]) === undefined ? setIn(def, ["metrics", name], definition) : def;
+
+/** Uses the suggested repetition measure (added if it was a candidate) and its zones. */
+export function applyRepSuggestion(def: Definition, s: RepSuggestion): Definition {
+  return setIn(withMetric(def, s.metric, s.definition), ["rep"], structuredClone(s.rep));
+}
+
+/** Adds the suggested condition as a new fault; staff name it and write its cue. */
+export function addFaultSuggestion(def: Definition, f: FaultSuggestion): Definition {
+  const faults = (getIn(def, ["faults"]) as unknown[] | undefined) ?? [];
+  const ids = new Set(faults.map((x) => (x as { id?: string }).id));
+  let n = faults.length + 1;
+  while (ids.has(`fault_${n}`)) n++;
+  return setIn(withMetric(def, f.metric, f.definition), ["faults"], [
+    ...faults,
+    {
+      id: `fault_${n}`,
+      name: { tr: "", en: "" },
+      severity: "minor",
+      check: f.check,
+      cue: { tr: "", en: "" },
+      affectsValidity: true,
+      cooldownMs: 4000,
+      minConsecutiveReps: 1,
+    },
+  ]);
+}

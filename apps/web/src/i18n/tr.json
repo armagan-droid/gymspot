@@ -44,7 +44,8 @@
     "C5": "Program şablonları",
     "C6": "Üye detayı",
     "C8": "Salon ayarları",
-    "C10": "Kalibrasyon kaydı"
+    "C10": "Kalibrasyon kaydı",
+    "C11": "Hareket tasarlayıcı"
   },
   "countdown": {
     "start": "Hazır ol",
@@ -368,6 +369,160 @@
     "models": {
       "lite": "Hafif (hızlı)",
       "full": "Tam (daha isabetli, daha yavaş)"
+    }
+  },
+  "designer": {
+    "intro": "Salonunuza özel hareketleri burada tasarlar, kamerada dener ve yayınlarsınız. Yayınlanan hareket programlarda kullanılabilir.",
+    "new": "Yeni hareket",
+    "empty": "Henüz salon hareketi yok.",
+    "published": "yayında · s{{version}}",
+    "draft": "taslak",
+    "nameTr": "Ad (Türkçe)",
+    "nameEn": "Ad (İngilizce)",
+    "id": "Kimlik",
+    "startFrom": "Başlangıç noktası",
+    "starter": {
+      "joint": "Boş şablon: eklem açısı (squat gibi, yandan)",
+      "head": "Boş şablon: baş hareketi (eskiv gibi, önden)",
+      "strike": "Boş şablon: vuruş (yumruk gibi, yandan)"
+    },
+    "copyOf": "Var olan hareketi kopyala",
+    "create": "Oluştur",
+    "badId": "Kimlik t_ ile başlamalı; yalnız küçük harf, rakam ve _ (en az 2 karakter).",
+    "idTaken": "Bu kimlik zaten kullanılıyor.",
+    "saveFailed": "Taslak kaydedilemedi.",
+    "publishFailed": "Yayınlanamadı.",
+    "invalid": "Paket geçersiz:",
+    "saved": "Taslak kaydedildi.",
+    "notFound": "Bu hareket bulunamadı.",
+    "newVersion": "Düzenlemek için taslak aç (sürüm {{version}})",
+    "disclaimer": "Salon tanımlı hareket — doğrulanmamıştır. Tıbbi tavsiye değildir.",
+    "tabForm": "Form",
+    "tabJson": "JSON",
+    "issues": "Düzeltilmesi gerekenler",
+    "valid": "Paket geçerli.",
+    "save": "Kaydet",
+    "publish": "Yayınla",
+    "discard": "Taslağı sil",
+    "discardConfirm": "Taslak silinsin mi? Bu geri alınamaz.",
+    "badJson": "JSON okunamadı; düzeltene kadar değişiklik uygulanmaz.",
+    "remove": "Kaldır",
+    "howToTr": "Nasıl yapılır (Türkçe)",
+    "howToEn": "Nasıl yapılır (İngilizce)",
+    "section": {
+      "general": "Genel ve kamera",
+      "metrics": "Ölçüler",
+      "rep": "Tekrar",
+      "ready": "Hazır duruşu",
+      "faults": "Hatalar ve uyarılar"
+    },
+    "camera": {
+      "views": "Kamera yönü",
+      "front": "Önden",
+      "side": "Yandan",
+      "posture": "Duruş",
+      "standing": "Ayakta",
+      "horizontal": "Yerde (yatay)",
+      "hintTr": "Kurulum ipucu (Türkçe)",
+      "hintEn": "Kurulum ipucu (İngilizce)",
+      "minVisibility": "En düşük görünürlük (0–1)",
+      "visible": "Görünmesi gereken noktalar"
+    },
+    "metrics": {
+      "hint": "Ölçü, eklem noktalarından hesaplanan bir sayıdır (ör. diz açısı). Yakın/uzak: kameraya bakan ve öbür taraf.",
+      "function": "{{name}} işlevi",
+      "arg": "{{name}} {{n}}. değer",
+      "newName": "Yeni ölçü adı",
+      "add": "Ölçü ekle"
+    },
+    "fn": {
+      "angle": "Açı (3 nokta, derece)",
+      "angleFromVertical": "Dikeyle açı (2 nokta)",
+      "diffY": "Yükseklik farkı (2 nokta)",
+      "kneeInwardRatio": "Dizin içe kayması",
+      "signedOffset": "Çizgiden sapma (3 nokta)",
+      "lateralLean": "Yana yatış (2 nokta)",
+      "chainHeight": "Zincir yüksekliği (2–6 nokta)",
+      "avg": "Ortalama (2 ölçü)",
+      "absDiff": "Fark (2 ölçü)",
+      "max": "Büyük olan (2 ölçü)"
+    },
+    "rep": {
+      "metric": "Tekrar ölçüsü",
+      "startEnter": "Başlangıç: giriş",
+      "startExit": "Başlangıç: çıkış",
+      "targetEnter": "Hedef: giriş",
+      "targetExit": "Hedef: çıkış",
+      "excursion": "Deneme sayılacak en az hareket",
+      "minMs": "En kısa süre (ms)",
+      "maxMs": "En uzun süre (ms)",
+      "hint": "Ölçü başlangıç bölgesinden çıkıp hedef bölgesine girer ve geri döner: bir tekrar. Giriş ile çıkış arasındaki pay titremeyi önler."
+    },
+    "ready": {
+      "hint": "Bu koşul süre boyunca sağlanınca set kendiliğinden başlar.",
+      "holdMs": "Süre (ms)"
+    },
+    "faults": {
+      "hint": "Koşul doğru olunca uyarı verilir.",
+      "title": "Hata {{n}}",
+      "id": "Kimlik",
+      "nameTr": "Ad (Türkçe)",
+      "nameEn": "Ad (İngilizce)",
+      "cueTr": "Uyarı (Türkçe)",
+      "cueEn": "Uyarı (İngilizce)",
+      "severity": "Önem",
+      "minor": "Küçük",
+      "major": "Büyük (güvenlik)",
+      "affectsValidity": "Tekrarı geçersiz sayar",
+      "when": "Ne zaman",
+      "at": {
+        "at_turn": "Dönüş noktasında",
+        "at_start": "Başlangıçta",
+        "during_rep": "Tekrar boyunca"
+      },
+      "holdMs": "En az süre (ms)",
+      "cooldownMs": "Tekrar uyarma beklemesi (ms)",
+      "minReps": "Art arda tekrar sayısı",
+      "remove": "Hatayı kaldır",
+      "add": "Hata ekle"
+    },
+    "cond": {
+      "kind": {
+        "metric": "Ölçü",
+        "number": "Sayı",
+        "min": "En küçüğü",
+        "max": "En büyüğü",
+        "avg": "Ortalaması",
+        "abs": "Mutlak değeri"
+      },
+      "left": "{{n}}. koşul sol",
+      "right": "{{n}}. koşul sağ",
+      "op": "{{n}}. koşul karşılaştırma",
+      "join": "Bağlaç",
+      "and": "ve",
+      "or": "veya",
+      "add": "Koşul ekle",
+      "asText": "Bu koşul kurucuya sığmıyor; JSON görünümünde düzenleyin.",
+      "rewrite": "Koşul kurucuyla yeniden yaz"
+    },
+    "lm": {
+      "nose": "Baş (burun)",
+      "side": {
+        "near": "Yakın",
+        "far": "Uzak",
+        "left": "Sol",
+        "right": "Sağ"
+      },
+      "part": {
+        "shoulder": "omuz",
+        "elbow": "dirsek",
+        "wrist": "el bileği",
+        "hip": "kalça",
+        "knee": "diz",
+        "ankle": "ayak bileği",
+        "heel": "topuk",
+        "foot_index": "ayak ucu"
+      }
     }
   }
 }

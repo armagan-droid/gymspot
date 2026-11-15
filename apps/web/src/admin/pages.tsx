@@ -99,6 +99,7 @@ export function RequireStaff({ roles }: { roles?: StaffRole[] }) {
         {isManager && <NavLink to="/admin/stations">{t("screens.C3")}</NavLink>}
         <NavLink to="/admin/members">{t("screens.C4")}</NavLink>
         <NavLink to="/admin/templates">{t("screens.C5")}</NavLink>
+        <NavLink to="/admin/exercises">{t("screens.C11")}</NavLink>
         {isManager && <NavLink to="/admin/calibration">{t("screens.C10")}</NavLink>}
         {role === "owner" && <NavLink to="/admin/settings">{t("screens.C8")}</NavLink>}
         <button className="nav-signout" onClick={async () => (await staff.signOut(), navigate("/admin/login", { replace: true }))}>{t("member.settings.signOut")}</button>

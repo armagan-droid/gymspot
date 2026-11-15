@@ -27,6 +27,10 @@ const PhoneSessionPage = lazy(() => import("./phone/PhoneSessionPage").then((m) 
 const suspended = (el: ReactNode) => <Suspense>{el}</Suspense>;
 
 const adminPages = () => import("./admin/pages");
+const designerPages = () => import("./designer/DesignerPages");
+const ExercisesPage = lazy(() => designerPages().then((m) => ({ default: m.ExercisesPage })));
+const NewExercisePage = lazy(() => designerPages().then((m) => ({ default: m.NewExercisePage })));
+const ExerciseEditorPage = lazy(() => designerPages().then((m) => ({ default: m.ExerciseEditorPage })));
 const AdminLogin = lazy(() => adminPages().then((m) => ({ default: m.AdminLogin })));
 const RequireStaff = lazy(() => adminPages().then((m) => ({ default: m.RequireStaff })));
 const AdminOverview = lazy(() => adminPages().then((m) => ({ default: m.AdminOverview })));
@@ -146,12 +150,15 @@ export function AppRoutes() {
         <Route element={suspended(<RequireStaff roles={["owner", "manager"]} />)}>
           <Route path="/admin" element={suspended(<AdminOverview />)} />
           <Route path="/admin/stations" element={suspended(<AdminStations />)} />
+          <Route path="/admin/exercises/new" element={suspended(<NewExercisePage />)} />
+          <Route path="/admin/exercises/:exerciseId" element={suspended(<ExerciseEditorPage />)} />
         </Route>
         <Route element={suspended(<RequireStaff />)}>
           <Route path="/admin/members" element={suspended(<AdminMembers />)} />
           <Route path="/admin/members/:memberId" element={suspended(<AdminMemberDetail />)} />
           <Route path="/admin/templates" element={suspended(<AdminTemplates />)} />
           <Route path="/admin/templates/:templateId" element={suspended(<AdminTemplateEdit />)} />
+          <Route path="/admin/exercises" element={suspended(<ExercisesPage />)} />
           {/* any staff: the page itself refuses trainers (specs/07) */}
           <Route path="/admin/calibration" element={suspended(<AdminCalibration />)} />
         </Route>

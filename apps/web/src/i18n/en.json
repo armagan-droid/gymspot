@@ -44,7 +44,8 @@
     "C5": "Program templates",
     "C6": "Member details",
     "C8": "Gym settings",
-    "C10": "Calibration recording"
+    "C10": "Calibration recording",
+    "C11": "Exercise designer"
   },
   "countdown": {
     "start": "Get ready",
@@ -368,6 +369,160 @@
     "models": {
       "lite": "Lite (fast)",
       "full": "Full (more accurate, slower)"
+    }
+  },
+  "designer": {
+    "intro": "Design your gym's own exercises here, try them on camera and publish them. Published exercises can be used in programs.",
+    "new": "New exercise",
+    "empty": "No gym exercises yet.",
+    "published": "published · v{{version}}",
+    "draft": "draft",
+    "nameTr": "Name (Turkish)",
+    "nameEn": "Name (English)",
+    "id": "Id",
+    "startFrom": "Starting point",
+    "starter": {
+      "joint": "Blank: joint angle (like a squat, side view)",
+      "head": "Blank: head movement (like a slip, front view)",
+      "strike": "Blank: strike (like a punch, side view)"
+    },
+    "copyOf": "Copy an existing exercise",
+    "create": "Create",
+    "badId": "The id must start with t_ and use only lowercase letters, digits and _ (at least 2 characters).",
+    "idTaken": "This id is already in use.",
+    "saveFailed": "The draft could not be saved.",
+    "publishFailed": "Could not publish.",
+    "invalid": "The pack is invalid:",
+    "saved": "Draft saved.",
+    "notFound": "Exercise not found.",
+    "newVersion": "Open a draft to edit (version {{version}})",
+    "disclaimer": "Gym-defined exercise — not validated. Not medical advice.",
+    "tabForm": "Form",
+    "tabJson": "JSON",
+    "issues": "To fix",
+    "valid": "The pack is valid.",
+    "save": "Save",
+    "publish": "Publish",
+    "discard": "Delete draft",
+    "discardConfirm": "Delete the draft? This cannot be undone.",
+    "badJson": "The JSON cannot be read; changes apply once it is fixed.",
+    "remove": "Remove",
+    "howToTr": "How to (Turkish)",
+    "howToEn": "How to (English)",
+    "section": {
+      "general": "General and camera",
+      "metrics": "Measures",
+      "rep": "Repetition",
+      "ready": "Ready pose",
+      "faults": "Faults and cues"
+    },
+    "camera": {
+      "views": "Camera view",
+      "front": "Front",
+      "side": "Side",
+      "posture": "Posture",
+      "standing": "Standing",
+      "horizontal": "On the floor",
+      "hintTr": "Setup hint (Turkish)",
+      "hintEn": "Setup hint (English)",
+      "minVisibility": "Minimum visibility (0–1)",
+      "visible": "Points that must be visible"
+    },
+    "metrics": {
+      "hint": "A measure is a number computed from body points (e.g. knee angle). Near/far: the side facing the camera and the other one.",
+      "function": "{{name}} function",
+      "arg": "{{name}} value {{n}}",
+      "newName": "New measure name",
+      "add": "Add measure"
+    },
+    "fn": {
+      "angle": "Angle (3 points, degrees)",
+      "angleFromVertical": "Angle from vertical (2 points)",
+      "diffY": "Height difference (2 points)",
+      "kneeInwardRatio": "Knee caving in",
+      "signedOffset": "Offset from a line (3 points)",
+      "lateralLean": "Sideways lean (2 points)",
+      "chainHeight": "Chain height (2–6 points)",
+      "avg": "Average (2 measures)",
+      "absDiff": "Difference (2 measures)",
+      "max": "Larger (2 measures)"
+    },
+    "rep": {
+      "metric": "Repetition measure",
+      "startEnter": "Start: enter",
+      "startExit": "Start: exit",
+      "targetEnter": "Target: enter",
+      "targetExit": "Target: exit",
+      "excursion": "Smallest movement counted as an attempt",
+      "minMs": "Shortest (ms)",
+      "maxMs": "Longest (ms)",
+      "hint": "The measure leaves the start zone, enters the target zone and comes back: one repetition. The gap between enter and exit prevents flicker."
+    },
+    "ready": {
+      "hint": "When this holds for the given time, the set starts by itself.",
+      "holdMs": "Time (ms)"
+    },
+    "faults": {
+      "hint": "A cue is given when the condition is true.",
+      "title": "Fault {{n}}",
+      "id": "Id",
+      "nameTr": "Name (Turkish)",
+      "nameEn": "Name (English)",
+      "cueTr": "Cue (Turkish)",
+      "cueEn": "Cue (English)",
+      "severity": "Severity",
+      "minor": "Minor",
+      "major": "Major (safety)",
+      "affectsValidity": "Makes the rep invalid",
+      "when": "When",
+      "at": {
+        "at_turn": "At the turn",
+        "at_start": "At the start",
+        "during_rep": "During the rep"
+      },
+      "holdMs": "Minimum time (ms)",
+      "cooldownMs": "Wait before repeating the cue (ms)",
+      "minReps": "Reps in a row",
+      "remove": "Remove fault",
+      "add": "Add fault"
+    },
+    "cond": {
+      "kind": {
+        "metric": "Measure",
+        "number": "Number",
+        "min": "Smallest of",
+        "max": "Largest of",
+        "avg": "Average of",
+        "abs": "Absolute value of"
+      },
+      "left": "Condition {{n}} left",
+      "right": "Condition {{n}} right",
+      "op": "Condition {{n}} comparison",
+      "join": "Connective",
+      "and": "and",
+      "or": "or",
+      "add": "Add condition",
+      "asText": "This condition does not fit the builder; edit it in the JSON view.",
+      "rewrite": "Rewrite with the builder"
+    },
+    "lm": {
+      "nose": "Head (nose)",
+      "side": {
+        "near": "Near",
+        "far": "Far",
+        "left": "Left",
+        "right": "Right"
+      },
+      "part": {
+        "shoulder": "shoulder",
+        "elbow": "elbow",
+        "wrist": "wrist",
+        "hip": "hip",
+        "knee": "knee",
+        "ankle": "ankle",
+        "heel": "heel",
+        "foot_index": "toes"
+      }
     }
   }
 }

@@ -807,3 +807,55 @@ main [data-screen="A1"] > form {
 .diagnostics select {
   font-size: 0.8rem;
 }
+
+/* C11 exercise designer (specs/11) */
+.designer .row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: flex-end;
+}
+.designer .row > label {
+  flex: 1 1 10rem;
+}
+.designer label.inline,
+[data-screen="C11"] label.inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-right: 1rem;
+}
+.designer .checkgrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+  gap: 0.25rem;
+}
+.designer .metric-row,
+.designer .clause {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+.designer textarea.json {
+  width: 100%;
+  font-family: ui-monospace, monospace;
+  font-size: 0.85rem;
+}
+.designer .field-issues {
+  color: #ef4444;
+  font-size: 0.9rem;
+}
+.designer [role="tablist"] button[aria-selected="true"] {
+  font-weight: 700;
+  text-decoration: underline;
+}
+[data-screen="C11"] .badge {
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
+.hint {
+  opacity: 0.8;
+  font-size: 0.9rem;
+}

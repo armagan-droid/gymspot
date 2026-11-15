@@ -50,6 +50,15 @@ export interface TenantSettings {
   safetyPause: boolean;
 }
 
+/** C11 list row (specs/11). */
+export interface GymExerciseRow {
+  id: string;
+  name: { tr: string; en: string } | null;
+  publishedVersion: number | null;
+  draft: boolean;
+  draftUpdatedAt: string | null;
+}
+
 export interface StaffApi {
   login(tenantId: string, email: string, password: string): Promise<void>;
   signOut(): Promise<void>;
@@ -85,6 +94,12 @@ export interface StaffApi {
   dataRequests(): Promise<{ id: string; kind: string; memberName: string; requestedAt: string; completedAt: string | null }[]>;
   calibrationConsent(body: { participantRef: string; consentVersion: string; consentedAt: string }): Promise<{ id: string }>;
   uploadCalibration(consentId: string, sequence: LandmarkSequence): Promise<{ id: string }>;
+  /** Exercise designer (C11, specs/11). */
+  gymExercises(): Promise<GymExerciseRow[]>;
+  exerciseDraft(id: string): Promise<{ definition: Record<string, unknown>; issues: string[]; updatedAt: string }>;
+  saveExerciseDraft(id: string, definition: Record<string, unknown>): Promise<{ issues: string[] }>;
+  deleteExerciseDraft(id: string): Promise<void>;
+  publishExercise(id: string): Promise<{ version: number }>;
 }
 
 function decodeRole(token: string): StaffRole | null {
@@ -173,5 +188,10 @@ export function createStaffApi({ baseUrl, store, fetchFn = fetch }: { baseUrl: s
     completeDataRequest: async (id) => void (await call("POST", `/data-requests/${q(id)}/complete`, {})),
     calibrationConsent: (body) => call("POST", "/calibration/consents", body),
     uploadCalibration: (consentId, sequence) => call("POST", "/calibration/recordings", { consentId, sequence }),
+    gymExercises: () => call("GET", "/admin/exercises"),
+    exerciseDraft: (id) => call("GET", `/admin/exercises/${q(id)}/draft`),
+    saveExerciseDraft: (id, definition) => call("PUT", `/admin/exercises/${q(id)}/draft`, { definition }),
+    deleteExerciseDraft: async (id) => void (await call("DELETE", `/admin/exercises/${q(id)}/draft`)),
+    publishExercise: (id) => call("POST", `/admin/exercises/${q(id)}/publish`, {}),
   };
 }

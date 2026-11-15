@@ -1,5 +1,6 @@
 import { safeLoadRulePack } from "@gymspot/engine";
-import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { squatSequence } from "@gymspot/engine/testing";
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import { afterEach, describe, expect, test, vi } from "vitest";
 import { ApiError } from "../api/client";
@@ -92,8 +93,17 @@ describe("C11 editor", () => {
       publishExercise: vi.fn(async () => ({ version: 1 })),
       gymExercises: vi.fn(async () => rows),
     };
-    renderAt("/admin/exercises/t_sumo", "manager", { ...api, ...more });
-    return api;
+    const t = renderAt("/admin/exercises/t_sumo", "manager", { ...api, ...more });
+    return { ...api, t };
+  };
+  /** Live trial with synthetic squats seen from the side. */
+  const trial = async (t: ReturnType<typeof renderAt>, reps: { kneeAngle: number }[]) => {
+    fireEvent.click(await screen.findByRole("button", { name: "Denemeyi başlat" }));
+    await waitFor(() => expect(t.pose.emit).toBeDefined());
+    const { frames } = squatSequence({ view: "side", reps });
+    await act(async () => {
+      for (const f of frames) t.pose.emit!([f], f.t);
+    });
   };
 
   test("form edits change the pack; save, then publish", async () => {
@@ -101,7 +111,8 @@ describe("C11 editor", () => {
     expect(await screen.findByText(/Salon tanımlı hareket — doğrulanmamıştır. Tıbbi tavsiye değildir./)).toBeTruthy();
     expect(screen.getByText("Paket geçerli.")).toBeTruthy();
     const publish = screen.getByRole("button", { name: "Yayınla" }) as HTMLButtonElement;
-    expect(publish.disabled).toBe(false);
+    expect(publish.disabled).toBe(true); // not tried yet
+    expect(screen.getByText(/en az bir tekrar yapın/)).toBeTruthy();
     fireEvent.change(screen.getByLabelText("Hedef: giriş"), { target: { value: "95" } });
     expect(publish.disabled).toBe(true); // unsaved changes are not published
     fireEvent.click(screen.getByRole("button", { name: "Kaydet" }));
@@ -109,6 +120,9 @@ describe("C11 editor", () => {
     const saved = (api.saveExerciseDraft.mock.calls[0] as unknown as [string, { rep: { target: { enter: number } } }])[1];
     expect(saved.rep.target.enter).toBe(95);
     await screen.findByText("Taslak kaydedildi.");
+    expect(publish.disabled).toBe(true);
+    await trial(api.t, [{ kneeAngle: 80 }]);
+    expect(publish.disabled).toBe(false);
     fireEvent.click(screen.getByRole("button", { name: "Yayınla" }));
     await waitFor(() => expect(api.publishExercise).toHaveBeenCalledWith("t_sumo"));
     expect(await screen.findByRole("heading", { name: "Hareket tasarlayıcı" })).toBeTruthy();
@@ -123,7 +137,8 @@ describe("C11 editor", () => {
   });
 
   test("the server's publish refusal is shown", async () => {
-    open(sumo(), { publishExercise: vi.fn(async () => Promise.reject(new ApiError(400, { error: "invalid_rule_pack", issues: ["rep: bad"] } as never))) });
+    const { t } = open(sumo(), { publishExercise: vi.fn(async () => Promise.reject(new ApiError(400, { error: "invalid_rule_pack", issues: ["rep: bad"] } as never))) });
+    await trial(t, [{ kneeAngle: 80 }]);
     fireEvent.click(await screen.findByRole("button", { name: "Yayınla" }));
     expect(await screen.findByText(/Paket geçersiz: rep: bad/)).toBeTruthy();
   });
@@ -167,5 +182,36 @@ describe("C11 editor", () => {
     const saved = (api.saveExerciseDraft.mock.calls[0] as unknown as [string, Record<string, unknown>])[1];
     expect(safeLoadRulePack(saved).success).toBe(true);
     expect(saved.faults).toHaveLength(1);
+  });
+
+  test("live trial: the draft counts reps as in a session, and a change asks for a new trial", async () => {
+    const { t } = open(sumo());
+    await trial(t, [{ kneeAngle: 80 }, { kneeAngle: 80 }, { kneeAngle: 120 }]);
+    expect(screen.getByLabelText("Sayılan tekrar").textContent).toBe("2");
+    // the shallow third rep is counted as an attempt but not as a valid rep
+    const [, faulty, incomplete] = /Geçerli 2 · hatalı (\d+) · yarım (\d+)/.exec(screen.getByLabelText("Canlı deneme").textContent ?? "")!;
+    expect(Number(faulty) + Number(incomplete)).toBe(1);
+    expect(screen.getByText(/Son deneme: (hatalı|yarım)/)).toBeTruthy();
+    expect((screen.getByRole("button", { name: "Yayınla" }) as HTMLButtonElement).disabled).toBe(false);
+    fireEvent.change(screen.getByLabelText("Hedef: giriş"), { target: { value: "95" } });
+    // the new rules start from zero
+    expect(screen.getByLabelText("Sayılan tekrar").textContent).toBe("0");
+    fireEvent.click(screen.getByRole("button", { name: "Kaydet" }));
+    await screen.findByText("Taslak kaydedildi.");
+    expect((screen.getByRole("button", { name: "Yayınla" }) as HTMLButtonElement).disabled).toBe(true);
+  });
+
+  test("AC-11.7: the trial sends nothing and stores nothing", async () => {
+    const api = open(sumo());
+    await screen.findByRole("button", { name: "Denemeyi başlat" });
+    const calls = () => [api.exerciseDraft, api.saveExerciseDraft, api.publishExercise, api.gymExercises].map((f) => f.mock.calls.length);
+    const before = calls();
+    const setItem = vi.spyOn(api.t.services.storage, "setItem");
+    const fetchSpy = vi.spyOn(globalThis, "fetch");
+    await trial(api.t, [{ kneeAngle: 80 }]);
+    expect(calls()).toEqual(before);
+    expect(setItem).not.toHaveBeenCalled();
+    expect(fetchSpy).not.toHaveBeenCalled();
+    fetchSpy.mockRestore();
   });
 });

@@ -859,3 +859,9 @@ main [data-screen="A1"] > form {
   opacity: 0.8;
   font-size: 0.9rem;
 }
+.live-trial .metric-chart {
+  width: 100%;
+  max-width: 600px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 6px;
+}

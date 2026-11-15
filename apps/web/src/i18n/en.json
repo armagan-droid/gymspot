@@ -523,6 +523,26 @@
         "heel": "heel",
         "foot_index": "toes"
       }
+    },
+    "trial": {
+      "title": "Live trial",
+      "hint": "The draft runs exactly as in a session. No picture or body points are stored or sent anywhere.",
+      "start": "Start trial",
+      "stop": "Stop trial",
+      "reset": "Reset",
+      "counted": "Reps counted",
+      "counts": "Valid {{valid}} · faulty {{faulty}} · incomplete {{incomplete}}",
+      "last": "Last attempt: {{text}}",
+      "outcome": {
+        "valid": "valid",
+        "faulty": "faulty",
+        "incomplete": "incomplete"
+      },
+      "chart": "Measure on the chart",
+      "value": "Current value",
+      "thresholds": "start {{start}}, target {{target}}",
+      "needsValid": "Fix the issues in the pack to try it live.",
+      "needed": "To publish, do at least one rep in the live trial with the pack as it is now."
     }
   }
 }

@@ -53,7 +53,7 @@ Her adım tek spec'e dayanır ve testlerle biter. Sıra bağımlılığa göre. 
 ## Faz 7 — Hareket tasarlayıcı (11)
 - [x] T7.1 Salon hareketleri: `t_` kimlikleri, salon başına benzersizlik, taslak/yayınlama API'si — AC-11.1…11.4
 - [x] T7.2 C11 editörü: liste, kopyala-düzenle, boş şablonlar, form + koşul kurucu + JSON görünümü — AC-11.5
-- [ ] T7.3 Canlı deneme (motor + ölçü grafiği) — AC-11.7
+- [x] T7.3 Canlı deneme (motor + ölçü grafiği) — AC-11.7
 - [ ] T7.4 Gösterimle öneri (tekrar ölçüsü, eşikler, hata koşulu; saf motor) — AC-11.6
 
 ## Claude Code'a görev verme şablonu

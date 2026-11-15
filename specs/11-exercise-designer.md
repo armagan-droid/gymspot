@@ -52,7 +52,7 @@ Yaklaşım: **gösterim destekli kural editörü**. Hareket yine şeffaf kuralla
 4. **Gösterimle öneri:**
    - **Doğru gösterim:** antrenör "Kayda başla" der, hareketi 3–5 kez doğru yapar, "Bitir" der. Sistem kapalı listedeki aday ölçüleri (paketin ölçüleri + kurulum yönüne uygun hazır adaylar: iki yan eklem açıları, eskiv ölçüleri) hesaplar ve **tekrar ölçüsü** ile eşiklerini önerir (aşağıda). Öneri forma bir düğmeyle uygulanır.
    - **Hatalı gösterim:** hareket bilerek yanlış yapılır. Sistem doğru ile yanlışı en iyi ayıran ölçüden bir **hata koşulu** önerir (aşağıda). Antrenör uyarı metnini yazar.
-5. **Yayınla:** yalnız geçerli taslakta ve bu taslak sürümüyle canlı deneme yapılmışsa etkin (istemci denetimi; sunucu yalnız doğrular).
+5. **Yayınla:** yalnız kaydedilmiş, geçerli taslakta ve taslağın tam bu haliyle canlı denemede en az bir deneme (`REP_COMPLETED`, sonucu ne olursa olsun) tamamlanmışsa etkin. Taslak değişince deneme yeniden gerekir. Bu istemci denetimidir; sunucu yalnız doğrular.
 
 ## Öneri algoritması (saf, `packages/engine`)
 Girdi: gösterim karelerinden hesaplanmış ölçü dizileri (yumuşatılmış).

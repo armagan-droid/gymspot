@@ -1,12 +1,13 @@
 import { safeLoadRulePack } from "@gymspot/engine";
 import { CHECK_POSITIONS, type CheckPosition } from "@gymspot/shared";
-import { type ReactNode, useEffect, useMemo, useState } from "react";
+import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useParams } from "react-router";
 import { ApiError } from "../api/client";
 import type { GymExerciseRow } from "../api/staff";
 import { RULE_PACKS, applyRulePacks, rulePack } from "../rules";
 import { useServices } from "../services";
+import { LiveTrial } from "./LiveTrial";
 import {
   type Clause,
   type Condition,
@@ -171,6 +172,8 @@ export function ExerciseEditorPage() {
   const [dirty, setDirty] = useState(false);
   const [tab, setTab] = useState<"form" | "json">("form");
   const [message, setMessage] = useState<{ kind: "ok" | "error"; text: string } | null>(null);
+  // publishing needs a live trial attempt with exactly this definition (specs/11)
+  const [tried, setTried] = useState<string | null>(null);
 
   useEffect(() => {
     staff.exerciseDraft(exerciseId).then(
@@ -182,11 +185,12 @@ export function ExerciseEditorPage() {
     );
   }, [staff, exerciseId]);
 
-  const issues = useMemo(() => {
-    if (!def) return [];
-    const r = safeLoadRulePack(def);
-    return r.success ? [] : r.issues;
-  }, [def]);
+  const checked = useMemo(() => (def ? safeLoadRulePack(def) : null), [def]);
+  const issues = checked && !checked.success ? checked.issues : [];
+  const loaded = checked?.success ? checked.value : null;
+  const defJson = useMemo(() => JSON.stringify(def), [def]);
+  const defJsonRef = useRef(defJson);
+  defJsonRef.current = defJson;
 
   if (load.state === "loading") return <section data-screen="C11" />;
   if (load.state === "error") return <p role="alert">{t("member.loadFailed")}</p>;
@@ -271,11 +275,13 @@ export function ExerciseEditorPage() {
         </p>
       )}
       {tab === "form" ? <DefinitionForm def={def} issues={issues} set={set} /> : <JsonView def={def} onChange={(d) => { setDef(d); setDirty(true); }} />}
+      {loaded ? <LiveTrial loaded={loaded} onAttempt={() => setTried(defJsonRef.current)} /> : <p className="hint">{t("designer.trial.needsValid")}</p>}
+      {issues.length === 0 && tried !== defJson && <p className="hint">{t("designer.trial.needed")}</p>}
       <div className="controls">
         <button className="primary" onClick={() => void save()} disabled={!dirty}>
           {t("designer.save")}
         </button>
-        <button onClick={() => void publish()} disabled={dirty || issues.length > 0}>
+        <button onClick={() => void publish()} disabled={dirty || issues.length > 0 || tried !== defJson}>
           {t("designer.publish")}
         </button>
         <button onClick={() => void discard()}>{t("designer.discard")}</button>

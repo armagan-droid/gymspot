@@ -523,6 +523,26 @@
         "heel": "topuk",
         "foot_index": "ayak ucu"
       }
+    },
+    "trial": {
+      "title": "Canlı deneme",
+      "hint": "Taslak, seanstaki motorla aynen çalışır. Görüntü ve eklem noktaları hiçbir yere kaydedilmez veya gönderilmez.",
+      "start": "Denemeyi başlat",
+      "stop": "Denemeyi bitir",
+      "reset": "Sıfırla",
+      "counted": "Sayılan tekrar",
+      "counts": "Geçerli {{valid}} · hatalı {{faulty}} · yarım {{incomplete}}",
+      "last": "Son deneme: {{text}}",
+      "outcome": {
+        "valid": "geçerli",
+        "faulty": "hatalı",
+        "incomplete": "yarım"
+      },
+      "chart": "Grafikteki ölçü",
+      "value": "Anlık değer",
+      "thresholds": "başlangıç {{start}}, hedef {{target}}",
+      "needsValid": "Canlı deneme için önce paketteki sorunları düzeltin.",
+      "needed": "Yayınlamak için bu haliyle canlı denemede en az bir tekrar yapın."
     }
   }
 }

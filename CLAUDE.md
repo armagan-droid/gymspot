@@ -20,6 +20,7 @@ Spor salonları için **B2B SaaS**: üyeyi programına göre yönlendiren, tekra
 - `specs/08-ui-screens.md` — ekranlar (telefon + tablet)
 - `specs/09-mvp-scope.md` — MVP kapsamı ve kabul kriterleri
 - `specs/10-roadmap.md` — uygulama sırası (Claude Code görev listesi)
+- `specs/11-exercise-designer.md` — hareket tasarlayıcı (C11): salonun kendi kural paketleri
 - `exercises/*.json` — hareket kural paketleri (veri, kod değil)
 
 ## Teknoloji (karar: 02-architecture.md)

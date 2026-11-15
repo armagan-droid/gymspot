@@ -27,7 +27,8 @@ device_pairing_codes(id, tenant_id, station_id, code_hash, expires_at, used_at, 
 ingest_conflicts(tenant_id, record_id, kind, reason, at)                              -- reddedilen çakışan kayıtlar
 
 -- program
-exercises(id, version, definition_json, status, tenant_id NULL=global)  -- PK (id, version)
+exercises(id, version, definition_json, status, tenant_id NULL=global)  -- benzersiz (tenant_id, id, version), null'lar eşit; salon kimlikleri t_ önekli (11)
+exercise_drafts(tenant_id, id, definition_json, updated_by, updated_at)  -- PK (tenant_id, id); salon başına tek düzenlenebilir taslak (11)
 program_templates(id, tenant_id, name, created_by)
 program_template_blocks(id, tenant_id, template_id, day_index, position, exercise_id, sets, reps,
                         duration_sec, rest_sec, mode, station_hint)

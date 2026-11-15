@@ -12,7 +12,7 @@ Her istasyonda (veya üyenin kendi telefonunda) çalışan bir **program takipli
 5. Seans kaydı otomatik tutulur; üye, PT ve salon sahibi kendi görünümünü görür.
 
 ## Dövüş sporları
-Aynı koç, **karate dojoları ve muay thai salonları** için teknik drillerini de yönetir: tekme, diz, yumruk gibi tekniklerin tekrarını sayar, gard ve denge hatalarını uyarır. Hareketler kural paketidir (04); yeni bir disiplin ya da teknik eklemek kod değişikliği gerektirmez.
+Aynı koç, **karate dojoları ve muay thai salonları** için teknik drillerini de yönetir: tekme, diz, yumruk gibi tekniklerin tekrarını sayar, gard ve denge hatalarını uyarır. Hareketler kural paketidir (04); yeni bir disiplin ya da teknik eklemek kod değişikliği gerektirmez. Salon personeli kendi hareketlerini hareket tasarlayıcıda (11) JSON yazmadan tasarlar, kamerada dener ve yayınlar.
 
 Kapsam (tek kamera, tek kişi):
 - Tek kişilik teknik drilleri (gölge çalışması): ön tekme, teep, diz vuruşu, düz yumruklar; eskiv (yana kaçış, eğilme) hedef dairesiyle.

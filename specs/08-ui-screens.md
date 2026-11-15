@@ -47,6 +47,7 @@ Rotalar: tablet için `/station` (eşleştirilmemişse A1, sonra A2 → A3 → a
 | C8 | Ayarlar | Sahip | Kullanıcılar (personel ekleme), strict/lenient varsayılanı (yeni şablon bloklarında öntanımlı), saklama süresi (ay, varsayılan 24), güvenlik duraklatması açık/kapalı (05; telefona programla, tablete tenant anahtarıyla iletilir), bilgilendirme metni şablonu, üye veri talepleri |
 | C9 | Faturalama | Sahip | Plan, istasyon sayısı, faturalar |
 | C10 | Kalibrasyon kaydı | Yönetici/Sahip | Katılımcı rızası (ayrı metin), hareket seçimi, etiketleme (doğru/hatalı + hata türü), kayıt göstergesi. Yalnız landmark kaydeder (07) |
+| C11 | Hareket tasarlayıcı | Yönetici/Sahip (antrenör yalnız liste) | Salon hareketleri listesi, kopyala-düzenle veya şablondan yeni hareket, form editörü + koşul kurucu + JSON görünümü, canlı deneme (sayaç, uyarılar, ölçü grafiği), gösterimle eşik ve hata önerisi, yayınlama. Ayrıntı: 11 |
 
 ## A3 kurulum kontrolleri
 Son 1 sn'lik karelerin en az %80'i aşağıdakilerin hepsini sağlıyorsa kurulum **hazırdır**:

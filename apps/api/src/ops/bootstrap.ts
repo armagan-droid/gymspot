@@ -16,10 +16,11 @@ export async function seedExercises(db: Kysely<Database>, dir: string): Promise<
   for (const file of readdirSync(dir).filter((f) => f.endsWith(".json")).sort()) {
     const raw = JSON.parse(readFileSync(join(dir, file), "utf8"));
     const { pack } = loadRulePack(raw); // throws on an invalid pack: nothing half-seeded
+    if (pack.id.startsWith("t_")) throw new Error(`${file}: t_ ids are reserved for gym exercises (specs/11)`);
     await sql`insert into exercises (id, version, definition_json, status, tenant_id)
               values (${pack.id}, ${pack.version}, ${JSON.stringify(raw)}::jsonb, ${pack.status}, null)
-              on conflict (id, version) do update set definition_json = excluded.definition_json, status = excluded.status
-              where exercises.tenant_id is null`.execute(db);
+              on conflict (id, version) where tenant_id is null
+              do update set definition_json = excluded.definition_json, status = excluded.status`.execute(db);
     ids.push(pack.id);
   }
   return ids;

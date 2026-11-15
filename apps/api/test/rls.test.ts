@@ -25,7 +25,7 @@ beforeAll(async () => {
     sql`insert into tenants (id, name) values (${A}, 'Salon A'), (${B}, 'Salon B')`,
     sql`insert into members (id, tenant_id, display_name) values (${memberA}, ${A}, 'Ayşe'), (${memberB}, ${B}, 'Burak')`,
     sql`insert into exercises (id, version, definition_json, status, tenant_id) values
-          ('squat', 1, '{}', 'draft', null), ('b_private', 1, '{}', 'draft', ${B})`,
+          ('squat', 1, '{}', 'draft', null), ('t_private', 1, '{}', 'draft', ${B})`,
     sql`insert into sessions (id, tenant_id, member_id, workout_day_index, started_at, status)
           values (${sessionB}, ${B}, ${memberB}, 0, now(), 'done')`,
     sql`insert into session_blocks (id, tenant_id, session_id, position, exercise_id, exercise_version, planned_sets, executed_by_device_id, status)
@@ -85,7 +85,7 @@ describe("AC-6.1: tenant isolation by RLS", () => {
     const a = await withTenant(db, A, (trx) => sql<{ id: string }>`select id from exercises order by id`.execute(trx));
     const b = await withTenant(db, B, (trx) => sql<{ id: string }>`select id from exercises order by id`.execute(trx));
     expect(a.rows.map((r) => r.id)).toEqual(["squat"]);
-    expect(b.rows.map((r) => r.id)).toEqual(["b_private", "squat"]);
+    expect(b.rows.map((r) => r.id)).toEqual(["squat", "t_private"]);
     await expect(
       withTenant(db, A, (trx) => sql`update exercises set status = 'calibrated' where id = 'squat'`.execute(trx)),
     ).resolves.toMatchObject({ numAffectedRows: 0n }); // global packs are read-only for tenants
@@ -106,7 +106,7 @@ describe("AC-6.1: tenant isolation by RLS", () => {
       join information_schema.columns col on col.table_name = c.relname and col.column_name = 'tenant_id'
       where c.relkind = 'r' and c.relnamespace = 'public'::regnamespace
       order by c.relname`.execute(db);
-    expect(r.rows.length).toBe(TENANT_TABLES.length + AUTH_TENANT_TABLES.length + 4); // + exercises, ingest_conflicts, data_requests, tenant_settings
+    expect(r.rows.length).toBe(TENANT_TABLES.length + AUTH_TENANT_TABLES.length + 5); // + exercises, ingest_conflicts, data_requests, tenant_settings, exercise_drafts
     for (const row of r.rows) expect(row, row.table).toMatchObject({ rls: true, forced: true });
     for (const row of r.rows) expect(row.policies, row.table).toBeGreaterThan(0);
   });

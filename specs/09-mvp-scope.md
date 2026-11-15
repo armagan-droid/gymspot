@@ -18,7 +18,7 @@ Tek bir pilot salonda 6–8 hafta çalışacak, değeri kanıtlayan en küçük 
 - TR/EN
 
 ## Hariç (MVP sonrası)
-Analitik grafikleri (C7 tam), faturalama (C9), çoklu şube, süreli (`hold`) hareketler, telefonsuz üye için istasyon akışı, NFC check-in, harici sistem entegrasyonu (üyelik yazılımları), kablolu makine sensörleri, hareket kütüphanesini genişletme, antrenör uygulaması, bildirimler.
+Analitik grafikleri (C7 tam), faturalama (C9), çoklu şube, süreli (`hold`) hareketler, telefonsuz üye için istasyon akışı, NFC check-in, harici sistem entegrasyonu (üyelik yazılımları), kablolu makine sensörleri, global hareket kütüphanesini genişletme (salonun kendi hareketleri MVP sonrası ilk iş olarak 11'de), antrenör uygulaması, bildirimler.
 
 ## Pilot kabul kriterleri
 | Ölçüt | Hedef |

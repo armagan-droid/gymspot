@@ -6,6 +6,7 @@ import * as m0002 from "./migrations/0002_auth";
 import * as m0003 from "./migrations/0003_ingest";
 import * as m0004 from "./migrations/0004_data_requests";
 import * as m0005 from "./migrations/0005_tenant_settings";
+import * as m0006 from "./migrations/0006_exercise_designer";
 import { APP_ROLE } from "./migrations/0001_init";
 
 // Typed tables are added as API features land (T3.2+); until then queries use raw SQL.
@@ -16,7 +17,14 @@ export function createDb(connectionString: string): Kysely<Database> {
   return new Kysely<Database>({ dialect: new PostgresDialect({ pool: new pg.Pool({ connectionString, max: 10 }) }) });
 }
 
-const MIGRATIONS: Record<string, Migration> = { "0001_init": m0001, "0002_auth": m0002, "0003_ingest": m0003, "0004_data_requests": m0004, "0005_tenant_settings": m0005 };
+const MIGRATIONS: Record<string, Migration> = {
+  "0001_init": m0001,
+  "0002_auth": m0002,
+  "0003_ingest": m0003,
+  "0004_data_requests": m0004,
+  "0005_tenant_settings": m0005,
+  "0006_exercise_designer": m0006,
+};
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- migrations work on any schema
 type AnyDb = Kysely<any>;

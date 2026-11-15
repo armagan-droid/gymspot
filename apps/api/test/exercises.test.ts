@@ -42,10 +42,10 @@ describe("GET /exercises", () => {
 
   test("a tenant's own pack is visible to that tenant only (RLS)", async () => {
     const teep = rulePackJson("teep");
-    await sql`insert into exercises (id, version, definition_json, status, tenant_id) values ('teep', 1, ${teep}::jsonb, 'draft', ${B})`.execute(db);
+    await sql`insert into exercises (id, version, definition_json, status, tenant_id) values ('t_teep', 1, ${teep}::jsonb, 'draft', ${B})`.execute(db);
     const managerB = await api.staffToken("yonetici@b.test", B);
     expect(ids(await api.call("GET", "/exercises", manager))).toEqual(["pushup", "squat"]);
-    expect(ids(await api.call("GET", "/exercises", managerB))).toEqual(["pushup", "squat", "teep"]);
+    expect(ids(await api.call("GET", "/exercises", managerB))).toEqual(["pushup", "squat", "t_teep"]);
   });
 
   test("only the latest version of each exercise is served", async () => {

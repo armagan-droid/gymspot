@@ -50,5 +50,11 @@ Her adım tek spec'e dayanır ve testlerle biter. Sıra bağımlılığa göre. 
 - [ ] T6.5 Kombinasyon/sekans (jab–cross–hook, kata parçaları) — önce 03/04'e tanım
 - [ ] T6.6 Hız metrikleri (vuruş "snap"i) — önce 04'e tanım, cihaz FPS ölçümüne (T2.2) bağlı
 
+## Faz 7 — Hareket tasarlayıcı (11)
+- [x] T7.1 Salon hareketleri: `t_` kimlikleri, salon başına benzersizlik, taslak/yayınlama API'si — AC-11.1…11.4
+- [ ] T7.2 C11 editörü: liste, kopyala-düzenle, boş şablonlar, form + koşul kurucu + JSON görünümü — AC-11.5
+- [ ] T7.3 Canlı deneme (motor + ölçü grafiği) — AC-11.7
+- [ ] T7.4 Gösterimle öneri (tekrar ölçüsü, eşikler, hata koşulu; saf motor) — AC-11.6
+
 ## Claude Code'a görev verme şablonu
 > "specs/<NN-...>.md içindeki <AC-x.y> kabul kriterlerini karşılayan <T..> görevini yap. Önce testleri yaz, sonra uygula. Spec dışı davranış ekleme; eksik/çelişen nokta varsa dur ve belirt."

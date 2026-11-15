@@ -69,6 +69,13 @@ describe("packs", () => {
       expect(ht!.lateral ?? ht!.height, id).toBe(pack.rep.target.enter);
     }
   });
+
+  test("the guide sides match the side each slip pack counts", () => {
+    expect(load("slip").pack.overlay?.headTarget?.sides ?? ["left", "right"]).toEqual(["left", "right"]);
+    expect(load("slip_left").pack.overlay?.headTarget?.sides).toEqual(["left"]);
+    expect(load("slip_right").pack.overlay?.headTarget?.sides).toEqual(["right"]);
+    expect(load("duck").pack.overlay?.headTarget?.sides).toBeUndefined();
+  });
 });
 
 describe("slip", () => {

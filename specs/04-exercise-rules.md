@@ -165,10 +165,10 @@ Baş hareketiyle yapılan savunma drilleri; üye kameraya **önden** bakar. Bir 
 - Hatalar: gard düşmesi (iki elden biri, `during_rep`); yana eskivde yalnız boyunla kaçma (baş yattı ama omuzlar yatmadı, `at_turn`).
 - `readyPose`: gard + baş merkezde.
 - `howTo` (opsiyonel, TR/EN): hareketin nasıl yapılacağını bir-iki cümleyle anlatır; eskiv paketlerinde zorunlu tutulur (test). Ekranda gösterimi 08'dedir.
-- **Hedef dairesi** (`overlay.headTarget`, opsiyonel): A5'te başın etrafına çizilen hedef (08). `lateral` yana eskiv eşiği, `height` eğilme eşiğidir ve rep `target.enter` ile aynı değeri taşımalıdır (test); çizim yalnız görseldir, sayım her zaman rep kuralıyla yapılır.
+- **Hedef dairesi** (`overlay.headTarget`, opsiyonel): A5'te başın etrafına çizilen hedef (08). `lateral` yana eskiv eşiği, `height` eğilme eşiğidir ve rep `target.enter` ile aynı değeri taşımalıdır (test); `sides` (yalnız `lateral` ile, öntanımlı `["left","right"]`) başın kaçacağı yönleri kişinin soluna/sağına göre verir ve rep metriğiyle uyumlu olmalıdır (`slip_left` → `["left"]`, test); yönlendirme işaretleri buna göre çizilir (08). Çizim yalnız görseldir, sayım her zaman rep kuralıyla yapılır.
 
 ```jsonc
-"overlay": { "headTarget": { "lateral": 0.3 } }   // slip; duck için { "height": 0.85 }
+"overlay": { "headTarget": { "lateral": 0.3, "sides": ["left"] } }   // slip_left; duck için { "height": 0.85 }
 ```
 
 `type: "hold"` şemada ayrılmıştır ama MVP'de kullanılmaz. Tanımı (tutuş koşulu, süre sayımı) bir hold hareketi eklenmeden önce bu spec'e yazılacaktır. Doğrulayıcı MVP'de `hold` paketlerini reddeder.

@@ -187,15 +187,9 @@ describe("how to do the movement (specs/08)", () => {
     expect(screen.getByText(/Başını daireden çıkar/)).toBeTruthy();
   });
 
-  test("in the cue band until the first rep, then gone; a form cue takes its place", () => {
+  test("not during the set: the on-camera markers guide instead", () => {
     render2(stateAfter(toActive));
-    expect(screen.getByRole("status").textContent).toBe(howTo.tr);
-    cleanup();
-    render2(stateAfter([...toActive, rep]));
-    expect(screen.queryByText(howTo.tr)).toBeNull();
-    cleanup();
-    render2(stateAfter(toActive), { type: "SHOW", key: "cue.squat.insufficient_depth" } as ShowCommand);
-    expect(screen.queryByText(howTo.tr)).toBeNull();
+    expect(screen.queryByText(/Başını daireden çıkar/)).toBeNull();
   });
 
   test("packs without howTo show nothing extra", () => {

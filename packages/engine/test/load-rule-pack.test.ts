@@ -58,6 +58,14 @@ describe("loadRulePack", () => {
     expect(safeLoadRulePack(p).success).toBe(false);
     p.overlay = { headTarget: { height: 0.86 } };
     expect(safeLoadRulePack(p).success).toBe(true);
+    p.overlay = { headTarget: { lateral: 0.3, sides: ["left"] } };
+    expect(safeLoadRulePack(p).success).toBe(true);
+    for (const sides of [[], ["up"], ["left", "left"]]) {
+      p.overlay = { headTarget: { lateral: 0.3, sides } } as never;
+      expect(safeLoadRulePack(p).success, JSON.stringify(sides)).toBe(false);
+    }
+    p.overlay = { headTarget: { height: 0.86, sides: ["left"] } };
+    expect(safeLoadRulePack(p).success).toBe(false); // sides only steer a lateral target
   });
 
   test("schema issues are reported before expression parsing", () => {

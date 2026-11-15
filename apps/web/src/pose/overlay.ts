@@ -53,6 +53,21 @@ export interface HeadTarget {
   duckY?: number;
   /** The head is past the counting threshold. */
   hit: boolean;
+  /** Where the head should go: a bubble per drill direction (person's sides, or below the duck line). */
+  goals: HeadGoal[];
+  /** go: head toward the next goal; back: return to the center. */
+  phase: "go" | "back";
+  /** From the head to where it should go now. */
+  arrow: { from: P; to: P } | null;
+}
+
+export interface HeadGoal {
+  at: P;
+  /** Fraction of the picture height. */
+  radius: number;
+  side: "left" | "right" | "down";
+  /** The goal the arrow points at. */
+  next: boolean;
 }
 
 const NOSE = 0;
@@ -63,16 +78,24 @@ const CHAINS = [
   [0, 12, 24, 26, 28],
 ] as const;
 const HOME_SMOOTHING = 0.2;
+const SHOULDERS = [11, 12] as const;
+/** Goal bubble: its center past the threshold circle, its size relative to the circle. */
+const GOAL_OFFSET = 1.35;
+const GOAL_SIZE = 0.4;
 
 /**
  * Follows where the head rests between reps (EMA while the rep metric is in
  * its start zone) and draws the drill's thresholds around it: the circle's
  * radius is the lateral slip threshold, the line below it the duck threshold.
+ * Goal bubbles and an arrow say where the head goes next: out to the next
+ * side, then back to the center; two-sided drills alternate sides.
  * Visual only; counting is the rep rule's (specs/04 "Eskiv", 08 A5).
  */
 export class HeadTargetTracker {
   private readonly metrics: MetricComputer;
-  private home: { nose: P; hip: P; foot: P | null; chain: number } | null = null;
+  private home: { nose: P; hip: P; foot: P | null; chain: number; leftward: number } | null = null;
+  private phase: "go" | "back" = "go";
+  private turn = 0;
 
   constructor(private readonly pack: RulePack) {
     this.metrics = createMetricComputer(pack.metrics);
@@ -97,12 +120,20 @@ export class HeadTargetTracker {
     const ankles = ANKLES.every((i) => img[i]!.visibility >= this.pack.camera.minVisibility) ? mid(...ANKLES) : null;
     if (atHome || !this.home) {
       const chain = (chainHeight(CHAINS[0].map((i) => frame.world[i]!)) + chainHeight(CHAINS[1].map((i) => frame.world[i]!))) / 2;
-      const now = { nose: { x: img[NOSE]!.x, y: img[NOSE]!.y }, hip: mid(...HIPS), foot: ankles, chain };
+      // image x direction of the person's left (the camera may or may not mirror)
+      const leftward = Math.sign(img[SHOULDERS[0]]!.x - img[SHOULDERS[1]]!.x) || 1;
+      const now = { nose: { x: img[NOSE]!.x, y: img[NOSE]!.y }, hip: mid(...HIPS), foot: ankles, chain, leftward };
       const h = this.home;
       const k = h ? HOME_SMOOTHING : 1;
       const ema = (a: P, b: P): P => ({ x: a.x + (b.x - a.x) * k, y: a.y + (b.y - a.y) * k });
       this.home = h
-        ? { nose: ema(h.nose, now.nose), hip: ema(h.hip, now.hip), foot: now.foot && (h.foot ? ema(h.foot, now.foot) : now.foot), chain: h.chain + (now.chain - h.chain) * k }
+        ? {
+            nose: ema(h.nose, now.nose),
+            hip: ema(h.hip, now.hip),
+            foot: now.foot && (h.foot ? ema(h.foot, now.foot) : now.foot),
+            chain: h.chain + (now.chain - h.chain) * k,
+            leftward,
+          }
         : now;
     }
     const h = this.home!;
@@ -114,7 +145,26 @@ export class HeadTargetTracker {
     const hipToNose = Math.hypot((h.nose.x - h.hip.x) * aspect, h.nose.y - h.hip.y);
     const radius = target.lateral !== undefined ? target.lateral * hipToNose : duckY !== undefined ? duckY - h.nose.y : 0;
     if (!(radius > 0)) return null;
-    return { center: h.nose, radius, head: { x: img[NOSE]!.x, y: img[NOSE]!.y }, ...(duckY !== undefined && { duckY }), hit };
+    const head = { x: img[NOSE]!.x, y: img[NOSE]!.y };
+
+    const sides: HeadGoal["side"][] = target.lateral !== undefined ? (target.sides ?? ["left", "right"]) : ["down"];
+    const goalAt = (side: HeadGoal["side"]): P =>
+      side === "down"
+        ? { x: h.nose.x, y: duckY! + GOAL_SIZE * radius }
+        : { x: h.nose.x + ((side === "left" ? 1 : -1) * h.leftward * GOAL_OFFSET * radius) / aspect, y: h.nose.y };
+    const nextSide = sides[this.turn % sides.length]!;
+    // go → back once past the threshold; back → go (next side) once home again
+    if (this.phase === "go" && hit) {
+      const reached: HeadGoal["side"] = sides[0] === "down" ? "down" : Math.sign(head.x - h.nose.x) === h.leftward ? "left" : "right";
+      this.phase = "back";
+      if (reached === nextSide) this.turn++;
+    } else if (this.phase === "back" && atHome) {
+      this.phase = "go";
+    }
+    const upcoming = sides[this.turn % sides.length]!;
+    const goals = sides.map((side) => ({ at: goalAt(side), radius: GOAL_SIZE * radius, side, next: this.phase === "go" && side === upcoming }));
+    const arrow = this.phase === "go" ? { from: head, to: goalAt(upcoming) } : { from: head, to: h.nose };
+    return { center: h.nose, radius, head, ...(duckY !== undefined && { duckY }), hit, goals, phase: this.phase, arrow };
   }
 }
 
@@ -279,18 +329,50 @@ export function paintOverlay(canvas: HTMLCanvasElement, video: HTMLVideoElement,
   }
 }
 
-/** Crosshair circle around the resting head, the duck line below it, and the head itself. */
+/**
+ * Crosshair circle around the resting head, the duck line below it, goal
+ * bubbles, the arrow to where the head goes now, and the head itself.
+ */
 function paintHeadTarget(ctx: CanvasRenderingContext2D, t: HeadTarget, at: (p: P) => readonly [number, number], h: number): void {
   const [cx, cy] = at(t.center);
   const r = t.radius * h;
-  const color = t.hit ? COLORS.ready : COLORS.line;
+  const back = t.phase === "back";
+  const pulse = 0.55 + 0.45 * Math.sin(performance.now() / 160);
   ctx.save();
-  ctx.lineWidth = 4;
+  // goals: the next one blinks yellow; the one just reached turns green
+  const [hx, hy] = at(t.head);
+  const reached = back ? closest(t.goals, t.head) : undefined;
+  for (const g of t.goals) {
+    const [gx, gy] = at(g.at);
+    const gr = g.radius * h;
+    ctx.beginPath();
+    ctx.arc(gx, gy, gr, 0, Math.PI * 2);
+    if (g === reached && t.hit) {
+      ctx.fillStyle = "rgba(74,222,128,0.55)";
+      ctx.fill();
+    } else if (g.next) {
+      ctx.fillStyle = `rgba(250,204,21,${0.25 + 0.35 * pulse})`;
+      ctx.fill();
+      ctx.lineWidth = 4;
+      ctx.strokeStyle = COLORS.wait;
+      ctx.stroke();
+    } else {
+      ctx.setLineDash([6, 6]);
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = COLORS.target;
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+  }
+  // threshold circle: green past it, yellow while it is the way home
+  const color = t.hit ? COLORS.ready : back ? COLORS.wait : COLORS.line;
+  ctx.lineWidth = back ? 6 : 4;
   ctx.strokeStyle = color;
   ctx.beginPath();
   ctx.arc(cx, cy, r, 0, Math.PI * 2);
   ctx.stroke();
   ctx.lineWidth = 2;
+  ctx.strokeStyle = t.hit ? COLORS.ready : COLORS.line;
   ctx.beginPath();
   ctx.moveTo(cx - 1.4 * r, cy);
   ctx.lineTo(cx + 1.4 * r, cy);
@@ -307,12 +389,42 @@ function paintHeadTarget(ctx: CanvasRenderingContext2D, t: HeadTarget, at: (p: P
     ctx.stroke();
     ctx.setLineDash([]);
   }
-  const [hx, hy] = at(t.head);
+  if (t.arrow) paintArrow(ctx, at(t.arrow.from), at(t.arrow.to), Math.max(14, 0.35 * r), COLORS.wait);
   ctx.beginPath();
   ctx.arc(hx, hy, 10, 0, Math.PI * 2);
-  ctx.fillStyle = color;
+  ctx.fillStyle = t.hit ? COLORS.ready : COLORS.line;
   ctx.fill();
   ctx.restore();
+}
+
+const closest = (goals: readonly HeadGoal[], p: P) =>
+  goals.reduce<HeadGoal | undefined>((best, g) => (!best || Math.hypot(g.at.x - p.x, g.at.y - p.y) < Math.hypot(best.at.x - p.x, best.at.y - p.y) ? g : best), undefined);
+
+/** Thick arrow; skipped when the head is already (almost) there. */
+function paintArrow(ctx: CanvasRenderingContext2D, [x0, y0]: readonly [number, number], [x1, y1]: readonly [number, number], head: number, color: string): void {
+  const len = Math.hypot(x1 - x0, y1 - y0);
+  if (len < 1.5 * head) return;
+  const ux = (x1 - x0) / len;
+  const uy = (y1 - y0) / len;
+  // start clear of the head dot, stop at the target's edge region
+  const sx = x0 + ux * 16;
+  const sy = y0 + uy * 16;
+  const ex = x1 - ux * 4;
+  const ey = y1 - uy * 4;
+  ctx.strokeStyle = color;
+  ctx.fillStyle = color;
+  ctx.lineWidth = Math.max(5, head * 0.35);
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.moveTo(sx, sy);
+  ctx.lineTo(ex - ux * head * 0.8, ey - uy * head * 0.8);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(ex, ey);
+  ctx.lineTo(ex - ux * head - uy * head * 0.6, ey - uy * head + ux * head * 0.6);
+  ctx.lineTo(ex - ux * head + uy * head * 0.6, ey - uy * head - ux * head * 0.6);
+  ctx.closePath();
+  ctx.fill();
 }
 
 /** Head to the right of the hips (someone lying the other way round). */

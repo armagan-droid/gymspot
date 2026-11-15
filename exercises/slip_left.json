@@ -7,8 +7,8 @@
     "en": "Slip to the left (boxing)"
   },
   "howTo": {
-    "tr": "Gard al; başın dairenin ortasında olsun. Dizlerini hafif kırıp gövdenle sola yat, başını dairenin dışına çıkar, sonra ortaya dön. Daire yeşile dönünce sayılır.",
-    "en": "Take your guard with your head in the middle of the circle. Bend your knees slightly, lean your body to your left to take your head out of the circle, then come back to the middle. It counts when the circle turns green."
+    "tr": "Gard al; başın dairenin ortasında olsun. Dizlerini hafif kırıp gövdenle sola yat, başını sarı balona götür. Daire yeşile dönünce sayılır; ok ortayı gösterince ortaya dön.",
+    "en": "Take your guard with your head in the middle of the circle. Bend your knees slightly and lean your body to your left, taking your head to the yellow bubble. It counts when the circle turns green; when the arrow points to the middle, come back."
   },
   "type": "reps",
   "camera": {
@@ -174,7 +174,10 @@
   },
   "overlay": {
     "headTarget": {
-      "lateral": 0.3
+      "lateral": 0.3,
+      "sides": [
+        "left"
+      ]
     }
   }
 }

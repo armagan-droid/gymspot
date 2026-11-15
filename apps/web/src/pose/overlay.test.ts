@@ -90,6 +90,68 @@ describe("HeadTargetTracker: the eskiv target circle (specs/04 Eskiv, 08 A5)", (
     expect(deep.head.y).toBeGreaterThan(deep.duckY!);
   });
 
+  describe("guide markers: where to move the head next (specs/08 A5)", () => {
+    const leftward = (f: ReturnType<typeof front>) => Math.sign(f.image[idx("left_shoulder")]!.x - f.image[idx("right_shoulder")]!.x);
+    const goal = (t: NonNullable<ReturnType<HeadTargetTracker["update"]>>, side: string) => t.goals.find((g) => g.side === side)!;
+
+    test("a slip drill has a target bubble on each side, outside the circle, on the person's own left and right", () => {
+      const home = HeadTargetTracker.for(rulePack("slip"))!.update(front({}), 1)!;
+      expect(home.goals.map((g) => g.side).sort()).toEqual(["left", "right"]);
+      const dir = leftward(front({}));
+      expect(Math.sign(goal(home, "left").at.x - home.center.x)).toBe(dir);
+      expect(Math.sign(goal(home, "right").at.x - home.center.x)).toBe(-dir);
+      for (const g of home.goals) {
+        expect(Math.abs(g.at.x - home.center.x)).toBeGreaterThan(home.radius);
+        expect(g.at.y).toBeCloseTo(home.center.y, 6);
+      }
+    });
+
+    test("go → back → go: the arrow points at the next target, then home, and the sides alternate", () => {
+      const t = HeadTargetTracker.for(rulePack("slip"))!;
+      const home = t.update(front({}), 1)!;
+      expect(home.phase).toBe("go");
+      expect(goal(home, "left").next).toBe(true); // first target: the person's left
+      expect(goal(home, "right").next).toBe(false);
+      expect(home.arrow).toEqual({ from: home.head, to: goal(home, "left").at });
+      // a half slip is still on the way
+      expect(t.update(front({ slip: 10 }), 1)!.phase).toBe("go");
+      const out = t.update(front({ slip: 25 }), 1)!;
+      expect(out.phase).toBe("back");
+      expect(out.arrow).toEqual({ from: out.head, to: out.center });
+      const back = t.update(front({}), 1)!;
+      expect(back.phase).toBe("go");
+      expect(goal(back, "right").next).toBe(true);
+      expect(back.arrow!.to).toEqual(goal(back, "right").at);
+    });
+
+    test("a slip to the wrong side does not skip the turn", () => {
+      const t = HeadTargetTracker.for(rulePack("slip"))!;
+      t.update(front({}), 1);
+      t.update(front({ slip: -25 }), 1); // to the right while the left was next
+      expect(goal(t.update(front({}), 1)!, "left").next).toBe(true);
+    });
+
+    test("a one-sided drill always points at its own side", () => {
+      const t = HeadTargetTracker.for(rulePack("slip_right"))!;
+      const home = t.update(front({}), 1)!;
+      expect(home.goals.map((g) => g.side)).toEqual(["right"]);
+      expect(Math.sign(home.goals[0]!.at.x - home.center.x)).toBe(-leftward(front({})));
+      t.update(front({ slip: -25 }), 1);
+      const again = t.update(front({}), 1)!;
+      expect(again.phase).toBe("go");
+      expect(again.goals[0]!.next).toBe(true);
+    });
+
+    test("duck: the target bubble is below the dashed line", () => {
+      const home = HeadTargetTracker.for(rulePack("duck"))!.update(front({}), 1)!;
+      expect(home.goals).toHaveLength(1);
+      expect(home.goals[0]!.side).toBe("down");
+      expect(home.goals[0]!.at.y).toBeGreaterThan(home.duckY!);
+      expect(home.goals[0]!.at.x).toBeCloseTo(home.center.x, 6);
+      expect(home.arrow!.to).toEqual(home.goals[0]!.at);
+    });
+  });
+
   test("no person, no target", () => {
     expect(HeadTargetTracker.for(rulePack("slip"))!.update(null, 1)).toBeNull();
   });

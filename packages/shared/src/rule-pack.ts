@@ -127,8 +127,18 @@ export const RulePackSchema = z
     overlay: z
       .strictObject({
         headTarget: z
-          .strictObject({ lateral: z.number().positive().optional(), height: z.number().positive().optional() })
-          .refine((h) => h.lateral !== undefined || h.height !== undefined, "headTarget needs lateral or height"),
+          .strictObject({
+            lateral: z.number().positive().optional(),
+            height: z.number().positive().optional(),
+            /** Person's sides the head slips to (guide markers, specs/08); default both. */
+            sides: z
+              .array(z.enum(["left", "right"]))
+              .min(1)
+              .refine((s) => new Set(s).size === s.length, "duplicate side")
+              .optional(),
+          })
+          .refine((h) => h.lateral !== undefined || h.height !== undefined, "headTarget needs lateral or height")
+          .refine((h) => h.sides === undefined || h.lateral !== undefined, "sides need a lateral target"),
       })
       .optional(),
   })
